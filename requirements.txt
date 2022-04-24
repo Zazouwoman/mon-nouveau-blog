@@ -2,7 +2,7 @@ django >= 4.0
 django-cleanup
 django-totalsum-admin
 xhtml2pdf
-dateutil
+python-dateutil
 datetime
 multiupload
 
