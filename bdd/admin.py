@@ -280,10 +280,11 @@ class Offre_MissionAdminForm(forms.ModelForm):
         self.fields['Ref_Mission'].widget.attrs['readonly'] = True
 
 class Offre_MissionAdmin(admin.ModelAdmin):
-    list_display = ("Nom_Mission", "ID_Payeur", "Adresse", "CP", "Ville","ID_Pilote",'Date_Proposition','Etat')
+    list_display = ("Nom_Mission", "ID_Payeur", "Client", "Adresse", "CP", "Ville","ID_Pilote",'Date_Proposition','Etat')
     search_fields = ("Nom_Mission__startswith",)
     list_filter = ('Etat','ID_Pilote',)
     form = Offre_MissionForm
+    change_form_template = 'bdd/Offre_Mission.html'
 
     class  Meta:
         model = Offre_Mission
@@ -299,6 +300,14 @@ class Offre_MissionAdmin(admin.ModelAdmin):
 
     def get_readonly_fields(self, request, obj = None):
         return ['Etat','Date_Acceptation']
+
+    def response_change(self, request, obj, extra_context=None):
+        if "Sans_Suite" in request.POST:
+            obj.Etat = "REF"
+            obj.save()
+            return redirect('.')
+        return super().response_change(request, obj, extra_context=extra_context)
+
 
 #Filtre du prévisionnel de facturation
 class Previsionnel_Filter(admin.SimpleListFilter):
@@ -849,7 +858,7 @@ admin.site.register(Envoi_Offre, EnvoiOffreAdmin)
 admin.site.register(Attachment, AttachmentAdmin)
 admin.site.register(Envoi_Facture, EnvoiFactureAdmin)
 admin.site.register(Compteur_Indice, CompteurIndiceAdmin)
-admin.site.register(Entreprise)
+admin.site.register(Ingeprev)
 #admin.site.disable_action('delete_selected')
 
 '''

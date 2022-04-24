@@ -38,8 +38,8 @@ def calcul_indice(type,periode):
     return indice
 
 CiviliteType = models.TextChoices('civ', 'M. Mme')
-tel_regex = RegexValidator(regex=r'^[0-9]+$', message=(
-    "Un numero de téléphone est attendu. On attend 10 chiffres."))
+tel_regex = RegexValidator(regex=r"^\+?1?\d{8,15}$", message=(
+    "Un numero de téléphone est attendu."))
 CP_regex = RegexValidator(regex=r'^[0-9]+$', message=(
     "le code postal doit être composé de 5 chiffres."))
 ModePaiementType = [ ('ND', "Non défini"), ("VI", "Virement"), ("CH", "Chèque"), ("CB", "Carte Bancaire"),
@@ -53,7 +53,7 @@ EtatFacture = [("BR","Brouillon"),("VA","Validée"),('ENV',"Envoyée")]
 EtatPaiement = [("ATT","En Attente"),("PAYE","Payée")]
 TVA = [('20','20'),('10','10'),('5','5'),('0','0')]
 
-class Entreprise(models.Model):
+class Ingeprev(models.Model):
     Nom = models.CharField(max_length=50, blank=True, verbose_name = 'Nom de la societe')
     SIRET = models.CharField(max_length=50, blank=True, verbose_name="N° de SIRET")
     Adresse = models.CharField(max_length=500, blank=True)
@@ -66,25 +66,31 @@ class Entreprise(models.Model):
     Capital = models.DecimalField(max_digits=15, decimal_places=2, verbose_name = 'Capital', default =0, blank = True)
     Num_TVA = models.CharField(max_length=150, blank=True, verbose_name = 'N° de TVA Intercommunautaire')
     Email = models.EmailField(max_length=70, blank=True)
-    Tel = models.CharField(validators=[tel_regex], max_length=10, verbose_name='Numéro de Portable',
+    Tel = models.CharField(validators=[tel_regex], max_length=16, verbose_name='Numéro de Téléphone',
                                         blank=True)
     Site_Web = models.URLField(max_length=300, blank = True)
     Facebook = models.URLField(max_length=300, blank=True)
     Twitter = models.URLField(max_length=300, blank=True)
     Linkedin = models.URLField(max_length=300, blank = True)
 
+    class Meta:
+        verbose_name_plural = "6. INGEPREV"
 class Pilote(models.Model):
     Civilite = models.CharField(blank=True, choices=CiviliteType.choices, max_length=3)
     Nom = models.CharField(max_length=50, blank=True)
     Prenom = models.CharField(max_length=50, blank=True)
-    Tel_Portable = models.CharField(validators=[tel_regex], max_length=10, verbose_name='Numéro de Portable',
+    Tel_Portable = models.CharField(validators=[tel_regex], max_length=16, verbose_name='Numéro de Portable',
                                         blank=True)
-    Tel_Fixe = models.CharField(validators=[tel_regex], max_length=10, verbose_name='numéro de Fixe',
+    Tel_Fixe = models.CharField(validators=[tel_regex], max_length=16, verbose_name='numéro de Fixe',
                                     blank=True)
     Email = models.EmailField(max_length=70, blank=True)
 
     def __str__(self):
         return "{} {}".format(self.Nom, self.Prenom)
+
+    class Meta:
+        ordering = ['Nom']
+        verbose_name_plural = "5. Pilotes"
 
 class Client(models.Model):
     Type_Dossier = models.CharField(default = "C",max_length = 3)
@@ -98,7 +104,7 @@ class Client(models.Model):
     Civilite = models.CharField(blank = True,choices = CiviliteType.choices,max_length = 3)
     Nom_Representant = models.CharField(max_length = 50,blank=True, verbose_name = "Nom")
     Prenom_Representant = models.CharField(max_length = 50,blank=True, verbose_name = "Prénom")
-    Tel_Representant = models.CharField(validators=[tel_regex], max_length=10, verbose_name='Numéro de téléphone',blank=True)
+    Tel_Representant = models.CharField(validators=[tel_regex], max_length=16, verbose_name='Numéro de téléphone',blank=True)
     Email_Representant = models.EmailField(max_length=70,blank=True, verbose_name = "Email")
 
     def Total_Affaire(self):
@@ -133,6 +139,7 @@ class Client(models.Model):
 
     class Meta:
         ordering = ['Denomination_Sociale']
+        verbose_name_plural = "4. Clients"
 
 class Compteur_Indice(models.Model):
     Type_Dossier = models.CharField(max_length = 3)
@@ -147,7 +154,7 @@ class Envoi_Offre(models.Model):
     Civilite = models.CharField(blank=True, choices=CiviliteType.choices, max_length=3)
     Nom_Contact = models.CharField(max_length=50, blank=True, verbose_name = "Nom")
     Prenom_Contact = models.CharField(max_length=50, blank=True, verbose_name = "Prénom")
-    Tel_Contact = models.CharField(validators=[tel_regex], max_length=10, verbose_name='Numéro de téléphone',
+    Tel_Contact = models.CharField(validators=[tel_regex], max_length=16, verbose_name='Numéro de téléphone',
                                         blank=True)
     Email_Contact = models.EmailField(max_length=70, blank=True, verbose_name = "Email")
 
@@ -168,7 +175,7 @@ class Envoi_Facture(models.Model):
     Civilite = models.CharField(blank=True, choices=CiviliteType.choices, max_length=3)
     Nom_Contact = models.CharField(max_length=50, blank=True, verbose_name = "Nom")
     Prenom_Contact = models.CharField(max_length=50, blank=True, verbose_name = "Prénom")
-    Tel_Contact = models.CharField(validators=[tel_regex], max_length=10, verbose_name='Numéro de téléphone',
+    Tel_Contact = models.CharField(validators=[tel_regex], max_length=16, verbose_name='Numéro de téléphone',
                                         blank=True)
     Email_Contact = models.EmailField(max_length=70, blank=True, verbose_name = 'Email')
     Mode_Paiement = models.CharField(default = "Non défini", choices = ModePaiementType, max_length = 20, verbose_name = "Mode de Paiement")
@@ -204,6 +211,12 @@ class Offre_Mission(models.Model):
     Etat = models.CharField(choices = EtatType, max_length = 20, default = "ATT")
     ID_Pilote = models.ForeignKey(Pilote, on_delete=models.SET_NULL, verbose_name = "Pilote", blank = True, null = True)
 
+    def Client(self):
+        ID = self.ID_Envoi_Offre_id
+        envoi_offre = Envoi_Offre.objects.get(id=ID)
+        client = envoi_offre.Denomination_Sociale
+        return client
+
     def get_absolute_url(self):
         return reverse('admin : bdd_Offre_Mission_change', kwargs={'pk': self.pk})
 
@@ -212,6 +225,7 @@ class Offre_Mission(models.Model):
 
     class Meta:
         ordering = ['Nom_Mission']
+        verbose_name_plural = "1. Offres de Mission"
 
     def save(self,*args,**kwargs):
         if self.Ref_Mission == 'OM0001':
@@ -292,6 +306,9 @@ class Affaire(models.Model):
         reste = self.Honoraires_Global - resultat
         return reste
 
+    class Meta:
+        verbose_name_plural = "2. Affaires"
+
 class Facture(models.Model):
     deja_validee = models.BooleanField(default = False, verbose_name = 'Validée') #Pour savoir si la facture a déjà été validée
     deja_envoyee = models.BooleanField(default = False, verbose_name = 'Envoyée') #Pour savoir si la facture a déjà été envoyée par mail
@@ -354,9 +371,12 @@ class Facture(models.Model):
     Civilite_Pilote = models.CharField(blank=True, choices=CiviliteType.choices, max_length=3)
     Nom_Pilote = models.CharField(max_length=50, blank=True)
     Prenom_Pilote = models.CharField(max_length=50, blank=True)
-    Tel_Portable_Pilote = models.CharField(validators=[tel_regex], max_length=10, verbose_name='Numéro de Portable',
+    Tel_Portable_Pilote = models.CharField(validators=[tel_regex], max_length=16, verbose_name='Numéro de Portable',
                                     blank=True)
     Email_Pilote = models.EmailField(max_length=70, blank=True)
+
+    class Meta:
+        verbose_name_plural = "3. Factures"
 
     def Montant_Facture_TTC(self):
         return self.Montant_Facture_HT * (100+int(self.Taux_TVA))/100
