@@ -4,6 +4,6 @@ django-totalsum-admin
 xhtml2pdf
 python-dateutil
 datetime
-multiupload
+django-multiupload
 
 
