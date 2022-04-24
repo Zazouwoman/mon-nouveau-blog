@@ -1,0 +1,19 @@
+{% extends "admin/base_generic.html" %}
+{% load i18n admin_urls static admin_modify %}
+
+{% block after_related_objects %}
+{{ block.super }}
+<center>
+{% if change %}<b> Reste à Régler : {{Reste_Affaire}} <b> {% endif %}
+</center>
+</br>
+{% endblock %}
+
+{% block submit_buttons_bottom %}
+{% if change %}
+    <div class="submit-row"> {% csrf_token %}
+       <input type="submit" value="{% trans 'Another Button' %}" name="_anotherbutton" {{ onclick_attrib }}/>
+    </div>
+{% endif %}
+    {{ block.super }}
+{% endblock %}

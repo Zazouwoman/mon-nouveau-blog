@@ -1,0 +1,91 @@
+{% extends "admin/change_form2.html" %}
+{% load i18n admin_urls static admin_modify %}
+
+{% block content %}
+
+{{block.super}}
+
+{% if relance == 2 %}
+<b>Facture</b>
+<form method = "post">
+    {% csrf_token %}
+    {{ facture_form.as_p }}
+</form>
+<b>Coordonnees pour envoi de la facture</b>
+<form method = "post">
+    {% csrf_token %}
+    {{ envoi_facture_form.as_p }}
+</form>
+{% endif %}
+
+{% if relance == 5 %}
+<b>Historique des relances</b>
+<form method = "post">
+    {% csrf_token %}
+    {{ historique_form.as_p }}
+</form>
+<b>Coordonnees pour envoi de la facture</b>
+<form method = "post">
+    {% csrf_token %}
+    {{ envoi_facture_form.as_p }}
+</form>
+{% endif %}
+
+{% endblock %}
+
+{% block inline_field_sets %}
+
+{% if relance != 2%}
+    {{block.super}}
+{% endif %}
+
+{% endblock %}
+
+{% block submit_buttons_bottom %}
+</br>
+{% if relance == 0 or relance == 1 %}
+<form action="" method="post" enctype="multipart/form-data">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <input type="submit" value="Valider et envoyer" name = "Envoyer" />
+    <input type="submit" value="Fermer sans envoyer" name = "Fermer"/>
+</form>
+{% endif %}
+{% if relance == 4 and not RAR %}
+<div class="submit-row" action="">
+    {% csrf_token %}
+    <input type="submit" value="Valider RAR" name="Valider_RAR"/>
+    <input type="submit" value="Fermer sans valider" name = "Fermer"/>
+</div>
+{% endif %}
+{% if relance == 5 and not RAR %}
+<div class="submit-row" action="">
+    {% csrf_token %}
+    <input type="submit" value="Valider RAR" name="Valider_RAR"/>
+    <input type="submit" value="Fermer sans valider" name = "Fermer"/>
+</div>
+{% endif %}
+{% if relance == 4 and RAR %}
+<div class="submit-row" action="">
+    {% csrf_token %}
+    <input type="submit" value="Mettre à jour RAR" name="Mettre_a_jour_RAR"/>
+    <input type="submit" value="Relance faite" name="Relancer" onclick="return confirm('ATTENTION ! Si vous confirmez avoir fait la relance cela sera enregistré et le logiciel passera à la relance suivante.');" />
+    <input type="submit" value="Fermer sans valider" name = "Fermer"/>
+</div>
+{% endif %}
+{% if relance == 5 and RAR %}
+<div class="submit-row" action="">
+    {% csrf_token %}
+    <input type="submit" value="Mettre à jour RAR" name="Mettre_a_jour_RAR"/>
+    <input type="submit" value="Relance faite" name="Relancer" onclick="return confirm('ATTENTION ! Si vous confirmez avoir fait la relance cela sera enregistré et le logiciel passera à la relance suivante.');" />
+    <input type="submit" value="Fermer sans valider" name = "Fermer"/>
+</div>
+{% endif %}
+{% if relance == 2 or relance == 3 or relance == 6 %}
+<div class="submit-row" action="">
+    {% csrf_token %}
+    <input type="submit" value="Relance faite" name="Relancer" onclick="return confirm('ATTENTION ! Si vous confirmez avoir fait la relance cela sera enregistré et le logiciel passera à la relance suivante.');" />
+    <input type="submit" value="Fermer sans valider" name = "Fermer"/>
+</div>
+{% endif %}
+{% endblock %}

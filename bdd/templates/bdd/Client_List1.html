@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+
+{% extends 'bdd/home.html' %}
+
+{% block content %}
+    <h2>Liste des Clients</h2>   <a href="{% url 'Nouveau_Client' %}" class="top-menu">
+      Nouveau Client : {% include './icons/file-earmark-plus.svg' %}
+    </a>
+    {{clients}}
+    {% for client in clients %}
+    <article>
+            <a href="">{{ client.Denomination_Sociale }}</a> {{ client.SIRET }} {{ client.CP }} {{ client.Ville }}
+    </article>
+    {% endfor %}
+    Test
+{% endblock %}

@@ -1,0 +1,498 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="fr" >
+<html>
+<head>
+	<meta charset="UTF-8">
+	<meta http-equiv="content-type" content="text/html; charset=utf-8"/>
+	<title></title>
+	<meta name="generator" content="LibreOffice 7.2.5.2 (Linux)"/>
+	<meta name="author" content="Jean-Michel GAUDY"/>
+	<meta name="created" content="2022-03-01T23:29:00"/>
+	<meta name="changedby" content="claire.gaudy"/>
+	<meta name="changed" content="2022-03-01T23:29:00"/>
+	<meta name="AppVersion" content="16.0000"/>
+	<script type="text/javascript" src="https://ff.kis.v2.scr.kaspersky-labs.com/FD126C42-EBFA-4E12-B309-BB3FDD723AC1/main.js?attr=t5JGDHCox9BbJJ-VPYDfWFGgB_DplaxOboxicZlOHyRFBzfdPHyoob_JwSA_IAZ5A2IEKiIN86I4xeNy3USysV5FOwc1D6XcZ5raq7zKJhxeoB9dag-YzMyG5ojC0xf8mCNOxAb3IbSy3KKdUziBNB9AJQZJDmR2LsYbOVTY00ljeEsKvDtvTUl6TpXQRJYB" charset="UTF-8"></script><style type="text/css">
+		@page { size: 8.27in 11.69in; margin-left: 0.98in; margin-right: 0.98in; margin-top: 0.3in; margin-bottom: 0.36in }
+		@page:first { }
+		p { text-align: left; orphans: 2; widows: 2; margin-bottom: 0in; direction: ltr; background: transparent }
+		p.western { font-family: "Times New Roman", serif; font-size: 12pt }
+		p.cjk { font-family: "Times New Roman"; font-size: 12pt; so-language: fr-FR }
+		p.ctl { font-family: "Times New Roman"; font-size: 10pt }
+		a:link { color: #0000ff; text-decoration: underline }
+	</style>
+</head>
+<body lang="fr-FR" link="#0000ff" vlink="#800000" dir="ltr">
+<form"> {% csrf_token %}
+  <input type="submit" value="Retour" onclick="history.go(-1)">
+<form>
+<div title="header"><p align="center" style="margin-bottom: 0.65in"><br/>
+
+	</p>
+</div><p class="western" align="justify"><font face="Calibri, serif"><font size="2" style="font-size: 11pt"><font color="#0070c0"><font size="7" style="font-size: 36pt"><img src=".png" name="Image 2" align="left" width="171" height="109" border="0"/>
+	FACTURE </font></font></font></font></p>
+<p class="western" align="justify"><br/>
+
+</p>
+<p class="western" align="justify"><br/>
+
+</p>
+<p class="western" align="justify"><font face="Calibri, serif"><font size="2" style="font-size: 11pt"><font color="#0070c0">Facture&nbsp;n</font>{{facture.Numero_Facture}}
+	<font color="#0070c0">Votre contact&nbsp;:</font> {{facture.Prenom_Pilote}} {{facture.Nom_Pilote}}<font color="#0070c0"> </font>	</font></font></p>
+<p class="western" align="justify"><font face="Calibri, serif"><font size="2" style="font-size: 11pt"><font color="#0070c0">Date
+de la facture&nbsp;: </font>{{facture.Date_Facture}}	<font color="#0070c0">tél. :</font>
+{{facture.Tel_Portable_Pilote}}	</font></font></p>
+<p class="western" align="justify">
+	<font face="Calibri, serif"><font size="2" style="font-size: 11pt"><font color="#0070c0">Numéro
+de dossier&nbsp;: </font> {{ affaire.Ref_Affaire }}	<font color="#0070c0"> Mail&nbsp;: </font>
+{{facture.Email_Pilote}}	</font> </font> </p>
+<p class="western" align="justify"><font face="Calibri, serif"><font size="2" style="font-size: 11pt"><font color="#0070c0">Date
+d’échéance&nbsp;: </font>{{ Date_Echeance }}</font></font></p>
+<p class="western" align="justify"><br/>
+
+</p>
+<div id="TextSection" dir="ltr">
+	<table width="604" cellpadding="7" cellspacing="0">
+		<col width="287"/>
+
+		<col width="287"/>
+
+		<tr valign="top">
+			<td width="287" style="border: 1px solid #000000; padding: 0in 0.08in"><p class="western" align="justify" style="orphans: 2; widows: 2">
+				<font color="#0070c0"><font face="Calibri, serif"><font size="2" style="font-size: 11pt"><b>Facturé à/b>
+				</font></font></font></p>
+			</td>
+			<td width="287" style="border: 1px solid #000000; padding: 0in 0.08in"><p class="western" align="justify" style="orphans: 2; widows: 2">
+				<font color="#0070c0"><font face="Calibri, serif"><font size="2" style="font-size: 11pt"><b>Envoyé
+				à</b></font></font></font></p>
+			</td>
+		</tr>
+		<tr valign="top">
+			<td width="287" style="border: 1px solid #000000; padding: 0in 0.08in"><p class="western" align="justify" style="orphans: 2; widows: 2; margin-top: 0.08in">
+				<font face="Calibri, serif"><font size="2" style="font-size: 11pt"> {{facture.Denomination_Client}}	</font></font></p>
+				<p class="western" align="justify" style="orphans: 2; widows: 2"><font face="Calibri, serif"><font size="2" style="font-size: 11pt">{{facture.Adresse_Client}}
+				</font></font></p>
+				<p class="western" align="justify" style="orphans: 2; widows: 2"><font face="Calibri, serif"><font size="2" style="font-size: 11pt">{{facture.CP_Client}}
+					{{facture.Ville_Client}}		</font></font></p>
+				<p class="western" align="justify" style="orphans: 2; widows: 2"><br/>
+
+				</p>
+			</td>
+			<td width="287" style="border: 1px solid #000000; padding: 0in 0.08in"><p class="western" align="justify" style="orphans: 2; widows: 2">
+				<font face="Calibri, serif"><font size="2" style="font-size: 11pt">{{facture.Denomination_Facture}}</font></font></p>
+				<p class="western" align="justify" style="orphans: 2; widows: 2"><font face="Calibri, serif"><font size="2" style="font-size: 11pt">{{facture.Adresse_Facture}}
+				</font></font>
+				</p>
+				<p class="western" align="justify" style="orphans: 2; widows: 2"><font face="Calibri, serif"><font size="2" style="font-size: 11pt">{{facture.CP_Facture}}
+				{{facture.Ville_Facture}} </font></font>
+				</p>
+				<p class="western" align="justify" style="orphans: 2; widows: 2"><font face="Calibri, serif"><font size="2" style="font-size: 11pt">
+
+				</font>{{facture.Civilite_Facture}} {{facture.Nom_Facture}} {{facture.Prenom_Facture}}</font></p>
+				<p class="western" align="justify" style="orphans: 2; widows: 2"><font face="Calibri, serif"><font size="2" style="font-size: 11pt">Mail&nbsp;:</font>{{facture.Email_Facture}} </font></p>
+			</td>
+		</tr>
+	</table>
+	<p class="western" align="justify"><br/>
+
+	</p>
+	<table width="604" cellpadding="7" cellspacing="0">
+		<col width="588"/>
+
+		<tr>
+			<td width="588" valign="top" style="border: 1px solid #000000; padding: 0in 0.08in"><p class="western" align="justify" style="orphans: 2; widows: 2">
+				<font color="#0070c0"><font face="Calibri, serif"><font size="2" style="font-size: 11pt"><b>Objet
+				de la présente facture</b></font></font></font></p>
+			</td>
+		</tr>
+		<tr>
+			<td width="588" valign="top" style="border: 1px solid #000000; padding: 0in 0.08in"><p class="western" align="justify" style="orphans: 2; widows: 2">
+				<br/>
+
+				</p>
+				<p class="western" align="justify" style="orphans: 2; widows: 2"><font face="Calibri, serif"><font size="2" style="font-size: 11pt">
+					{{ facture.Descriptif }}
+				</font></font></p>
+				<p class="western" align="justify" style="orphans: 2; widows: 2"><br/>
+
+				</p>
+				<p class="western" align="justify" style="orphans: 2; widows: 2"><br/>
+
+				</p>
+				<p class="western" align="justify" style="orphans: 2; widows: 2"><br/>
+
+				</p>
+				<p class="western" align="justify" style="orphans: 2; widows: 2"><br/>
+
+				</p>
+				<p class="western" align="justify" style="orphans: 2; widows: 2"><br/>
+
+				</p>
+			</td>
+		</tr>
+	</table>
+	<p class="western" align="justify"><br/>
+
+	</p>
+	<p class="western" align="justify"><br/>
+
+	</p>
+</div>
+<div id="Section1" dir="ltr">
+	<table width="602" cellpadding="7" cellspacing="0">
+		<col width="184"/>
+
+		<col width="186"/>
+
+		<col width="184"/>
+
+		<tr valign="top">
+			<td width="184" style="border: 2.25pt solid #0070c0; padding: 0in 0.08in"><p class="western" align="justify" style="orphans: 2; widows: 2">
+				<font color="#0070c0"><font face="Calibri, serif"><font size="2" style="font-size: 11pt"><b>Montant
+				HT de la facture</b></font></font></font></p>
+			</td>
+			<td width="186" style="border: 2.25pt solid #0070c0; padding: 0in 0.08in"><p class="western" align="justify" style="orphans: 2; widows: 2">
+				<font color="#0070c0"><font face="Calibri, serif"><font size="2" style="font-size: 11pt"><b>TVA</b></font></font></font></p>
+			</td>
+			<td width="184" style="border: 2.25pt solid #0070c0; padding: 0in 0.08in"><p class="western" align="justify" style="orphans: 2; widows: 2">
+				<font color="#0070c0"><font face="Calibri, serif"><font size="2" style="font-size: 11pt"><b>Montant
+				TTC de la facture</b></font></font></font></p>
+			</td>
+		</tr>
+		<tr></tr>
+		<tr valign="top">
+			<td width="184" style="border: 2.25pt solid #0070c0; padding: 0in 0.08in"><p class="western" align="justify" style="orphans: 2; widows: 2">
+				<font face="Calibri, serif"><font size="2" style="font-size: 11pt"><b>
+				{{facture.Montant_Facture_HT}} &euro;
+					</b></font></font>
+				</p>
+			</td>
+			<td width="186" style="border: 2.25pt solid #0070c0; padding: 0in 0.08in"><p class="western" align="justify" style="orphans: 2; widows: 2">
+				<font face="Calibri, serif"><font size="2" style="font-size: 11pt"><b> {{facture.Taux_TVA}} %</b></font></font></p>
+			</td>
+			<td width="184" style="border: 2.25pt solid #0070c0; padding: 0in 0.08in"><p class="western" align="justify" style="orphans: 2; widows: 2">
+				<font face="Calibri, serif"><font size="2" style="font-size: 11pt"><b>
+				{{Montant_TTC}} &euro;
+				</b></font></font>
+				</p>
+			</td>
+		</tr>
+	</table>
+	<p class="western" align="justify"><br/>
+
+	</p>
+	<table width="604" cellpadding="7" cellspacing="0">
+		<col width="186"/>
+
+		<col width="187"/>
+
+		<col width="4355"/>
+
+		<col width="186"/>
+
+		<tr valign="top">
+			<td width="186" style="border: 1px solid #000000; padding: 0in 0.08in"><p class="western" align="center" style="orphans: 2; widows: 2">
+				<font color="#0070c0"><font face="Calibri, serif"><font size="2" style="font-size: 11pt"><b>Code
+				Banque</b></font></font></font></p>
+			</td>
+			<td colspan="2" width="187" style="border: 1px solid #000000; padding: 0in 0.08in"><p class="western" align="center" style="orphans: 2; widows: 2">
+				<font color="#0070c0"><font face="Calibri, serif"><font size="2" style="font-size: 11pt"><b>Code
+				Guichet</b></font></font></font></p>
+			</td>
+			<td width="186" style="border: 1px solid #000000; padding: 0in 0.08in"><p class="western" align="center" style="orphans: 2; widows: 2">
+				<font color="#0070c0"><font face="Calibri, serif"><font size="2" style="font-size: 11pt"><b>Code
+				BIC</b></font></font></font></p>
+			</td>
+		</tr>
+		<tr valign="top">
+			<td width="186" style="border: 1px solid #000000; padding: 0in 0.08in"><p class="western" align="center" style="orphans: 2; widows: 2">
+				<br/>
+
+				</p>
+			</td>
+			<td colspan="2" width="187" style="border: 1px solid #000000; padding: 0in 0.08in"><p class="western" align="center" style="orphans: 2; widows: 2">
+				<br/>
+
+				</p>
+			</td>
+			<td width="186" style="border: 1px solid #000000; padding: 0in 0.08in"><p class="western" align="center" style="orphans: 2; widows: 2">
+				<br/>
+
+				</p>
+			</td>
+		</tr>
+		<tr valign="top">
+			<td colspan="2" width="388" style="border: 1px solid #000000; padding: 0in 0.08in"><p class="western" align="center" style="orphans: 2; widows: 2">
+				<font color="#0070c0"><font face="Calibri, serif"><font size="2" style="font-size: 11pt"><b>Numéro
+				de compte bancaire</b></font></font></font></p>
+			</td>
+			<td colspan="2" width="186" style="border: 1px solid #000000; padding: 0in 0.08in"><p class="western" align="center" style="orphans: 2; widows: 2">
+				<font color="#0070c0"><font face="Calibri, serif"><font size="2" style="font-size: 11pt"><b>Clé</b></font></font></font></p>
+			</td>
+		</tr>
+		<tr valign="top">
+			<td colspan="2" width="388" style="border: 1px solid #000000; padding: 0in 0.08in"><p class="western" align="center" style="orphans: 2; widows: 2">
+				<br/>
+
+				</p>
+			</td>
+			<td colspan="2" width="186" style="border: 1px solid #000000; padding: 0in 0.08in"><p class="western" align="center" style="orphans: 2; widows: 2">
+				<br/>
+
+				</p>
+			</td>
+		</tr>
+		<tr>
+			<td colspan="4" width="588" valign="top" style="border: 1px solid #000000; padding: 0in 0.08in"><p class="western" align="center" style="orphans: 2; widows: 2">
+				<font face="Calibri, serif"><font size="2" style="font-size: 11pt"><b><font color="#0070c0">Domiciliation</font></b></font></font></p>
+			</td>
+		</tr>
+		<tr>
+			<td colspan="4" width="588" valign="top" style="border: 1px solid #000000; padding: 0in 0.08in"><p class="western" align="center" style="orphans: 2; widows: 2">
+				<font face="Calibri, serif"><font size="2" style="font-size: 11pt">NOMDELABANQUE</font></font></p>
+				<p class="western" align="center" style="orphans: 2; widows: 2"><font face="Calibri, serif"><font size="2" style="font-size: 11pt">Adresse</font></font></p>
+				<p class="western" align="center" style="orphans: 2; widows: 2"><font face="Calibri, serif"><font size="2" style="font-size: 11pt">CP
+				VILLE</font></font></p>
+			</td>
+		</tr>
+		<tr>
+			<td colspan="4" width="588" valign="top" style="border: 1px solid #000000; padding: 0in 0.08in"><p class="western" align="center" style="orphans: 2; widows: 2">
+				<font face="Calibri, serif"><font size="2" style="font-size: 11pt"><font color="#0070c0">IBAN&nbsp;:</font>
+				FRXX NNNN MMMM OOOO PPPP QQQQ RRR</font></font></p>
+			</td>
+		</tr>
+	</table>
+	<p class="western" align="justify"><br/>
+
+	</p>
+	<p class="western" align="justify"><br/>
+
+	</p>
+	<table width="604" cellpadding="7" cellspacing="0">
+		<col width="106"/>
+
+		<col width="107"/>
+
+		<col width="107"/>
+
+		<col width="4355"/>
+
+		<col width="107"/>
+
+		<col width="106"/>
+
+		<tr>
+			<td colspan="6" width="588" valign="top" style="border: 1px solid #000000; padding: 0in 0.08in"><p class="western" align="center" style="orphans: 2; widows: 2">
+				<font face="Calibri, serif"><font size="2" style="font-size: 11pt"><b><font color="#0070c0">Synthèse
+				de l’avancement de la facturation</font></b></font></font></p>
+			</td>
+		</tr>
+		<tr valign="top">
+			<td colspan="3" width="347" style="border: 1px solid #000000; padding: 0in 0.08in"><p class="western" align="center" style="orphans: 2; widows: 2">
+				<font face="Calibri, serif"><font size="2" style="font-size: 11pt"><b>Rappel
+				du montant global des honoraires&nbsp;:</b></font></font></p>
+			</td>
+			<td colspan="3" width="227" style="border: 1px solid #000000; padding: 0in 0.08in"><p class="western" align="justify" style="orphans: 2; widows: 2">
+				<br/>
+
+				</p>
+			</td>
+		</tr>
+		<tr valign="top">
+			<td width="106" style="border: 1px solid #000000; padding: 0in 0.08in"><p class="western" align="center" style="orphans: 2; widows: 2">
+				<font face="Calibri, serif"><font size="2" style="font-size: 11pt"><b>Facture
+				n</b></font></font></p>
+			</td>
+			<td width="107" style="border: 1px solid #000000; padding: 0in 0.08in"><p class="western" align="center" style="orphans: 2; widows: 2">
+				<font face="Calibri, serif"><font size="2" style="font-size: 11pt"><b>Objet</b></font></font></p>
+			</td>
+			<td colspan="2" width="107" style="border: 1px solid #000000; padding: 0in 0.08in"><p class="western" align="center" style="orphans: 2; widows: 2">
+				<font face="Calibri, serif"><font size="2" style="font-size: 11pt"><b>Montant
+				HT</b></font></font></p>
+			</td>
+			<td width="107" style="border: 1px solid #000000; padding: 0in 0.08in"><p class="western" align="center" style="orphans: 2; widows: 2">
+				<font face="Calibri, serif"><font size="2" style="font-size: 11pt"><b>Montant
+				Cumulé</b></font></font></p>
+			</td>
+			<td width="106" style="border: 1px solid #000000; padding: 0in 0.08in"><p class="western" align="center" style="orphans: 2; widows: 2">
+				<font face="Calibri, serif"><font size="2" style="font-size: 11pt"><b>%
+				d’avancement</b></font></font></p>
+			</td>
+		</tr>
+		<tr valign="top">
+			<td width="106" style="border: 1px solid #000000; padding: 0in 0.08in"><p class="western" align="justify" style="orphans: 2; widows: 2">
+				<br/>
+
+				</p>
+			</td>
+			<td width="107" style="border: 1px solid #000000; padding: 0in 0.08in"><p class="western" align="justify" style="orphans: 2; widows: 2">
+				<br/>
+
+				</p>
+			</td>
+			<td colspan="2" width="107" style="border: 1px solid #000000; padding: 0in 0.08in"><p class="western" align="justify" style="orphans: 2; widows: 2">
+				<br/>
+
+				</p>
+			</td>
+			<td width="107" style="border: 1px solid #000000; padding: 0in 0.08in"><p class="western" align="justify" style="orphans: 2; widows: 2">
+				<br/>
+
+				</p>
+			</td>
+			<td width="106" style="border: 1px solid #000000; padding: 0in 0.08in"><p class="western" align="justify" style="orphans: 2; widows: 2">
+				<br/>
+
+				</p>
+			</td>
+		</tr>
+		<tr valign="top">
+			<td width="106" style="border: 1px solid #000000; padding: 0in 0.08in"><p class="western" align="justify" style="orphans: 2; widows: 2">
+				<br/>
+
+				</p>
+			</td>
+			<td width="107" style="border: 1px solid #000000; padding: 0in 0.08in"><p class="western" align="justify" style="orphans: 2; widows: 2">
+				<br/>
+
+				</p>
+			</td>
+			<td colspan="2" width="107" style="border: 1px solid #000000; padding: 0in 0.08in"><p class="western" align="justify" style="orphans: 2; widows: 2">
+				<br/>
+
+				</p>
+			</td>
+			<td width="107" style="border: 1px solid #000000; padding: 0in 0.08in"><p class="western" align="justify" style="orphans: 2; widows: 2">
+				<br/>
+
+				</p>
+			</td>
+			<td width="106" style="border: 1px solid #000000; padding: 0in 0.08in"><p class="western" align="justify" style="orphans: 2; widows: 2">
+				<br/>
+
+				</p>
+			</td>
+		</tr>
+		<tr valign="top">
+			<td width="106" style="border: 1px solid #000000; padding: 0in 0.08in"><p class="western" align="justify" style="orphans: 2; widows: 2">
+				<br/>
+
+				</p>
+			</td>
+			<td width="107" style="border: 1px solid #000000; padding: 0in 0.08in"><p class="western" align="justify" style="orphans: 2; widows: 2">
+				<br/>
+
+				</p>
+			</td>
+			<td colspan="2" width="107" style="border: 1px solid #000000; padding: 0in 0.08in"><p class="western" align="justify" style="orphans: 2; widows: 2">
+				<br/>
+
+				</p>
+			</td>
+			<td width="107" style="border: 1px solid #000000; padding: 0in 0.08in"><p class="western" align="justify" style="orphans: 2; widows: 2">
+				<br/>
+
+				</p>
+			</td>
+			<td width="106" style="border: 1px solid #000000; padding: 0in 0.08in"><p class="western" align="justify" style="orphans: 2; widows: 2">
+				<br/>
+
+				</p>
+			</td>
+		</tr>
+		<tr valign="top">
+			<td width="106" style="border: 1px solid #000000; padding: 0in 0.08in"><p class="western" align="justify" style="orphans: 2; widows: 2">
+				<br/>
+
+				</p>
+			</td>
+			<td width="107" style="border: 1px solid #000000; padding: 0in 0.08in"><p class="western" align="justify" style="orphans: 2; widows: 2">
+				<br/>
+
+				</p>
+			</td>
+			<td colspan="2" width="107" style="border: 1px solid #000000; padding: 0in 0.08in"><p class="western" align="justify" style="orphans: 2; widows: 2">
+				<br/>
+
+				</p>
+			</td>
+			<td width="107" style="border: 1px solid #000000; padding: 0in 0.08in"><p class="western" align="justify" style="orphans: 2; widows: 2">
+				<br/>
+
+				</p>
+			</td>
+			<td width="106" style="border: 1px solid #000000; padding: 0in 0.08in"><p class="western" align="justify" style="orphans: 2; widows: 2">
+				<br/>
+
+				</p>
+			</td>
+		</tr>
+		<tr valign="top">
+			<td width="106" style="border: 1px solid #000000; padding: 0in 0.08in"><p class="western" align="justify" style="orphans: 2; widows: 2">
+				<br/>
+
+				</p>
+			</td>
+			<td width="107" style="border: 1px solid #000000; padding: 0in 0.08in"><p class="western" align="justify" style="orphans: 2; widows: 2">
+				<br/>
+
+				</p>
+			</td>
+			<td colspan="2" width="107" style="border: 1px solid #000000; padding: 0in 0.08in"><p class="western" align="justify" style="orphans: 2; widows: 2">
+				<br/>
+
+				</p>
+			</td>
+			<td width="107" style="border: 1px solid #000000; padding: 0in 0.08in"><p class="western" align="justify" style="orphans: 2; widows: 2">
+				<br/>
+
+				</p>
+			</td>
+			<td width="106" style="border: 1px solid #000000; padding: 0in 0.08in"><p class="western" align="justify" style="orphans: 2; widows: 2">
+				<br/>
+
+				</p>
+			</td>
+		</tr>
+		<tr valign="top">
+			<td width="106" style="border: 1px solid #000000; padding: 0in 0.08in"><p class="western" align="justify" style="orphans: 2; widows: 2">
+				<br/>
+
+				</p>
+			</td>
+			<td width="107" style="border: 1px solid #000000; padding: 0in 0.08in"><p class="western" align="justify" style="orphans: 2; widows: 2">
+				<br/>
+
+				</p>
+			</td>
+			<td colspan="2" width="107" style="border: 1px solid #000000; padding: 0in 0.08in"><p class="western" align="justify" style="orphans: 2; widows: 2">
+				<br/>
+
+				</p>
+			</td>
+			<td width="107" style="border: 1px solid #000000; padding: 0in 0.08in"><p class="western" align="justify" style="orphans: 2; widows: 2">
+				<br/>
+
+				</p>
+			</td>
+			<td width="106" style="border: 1px solid #000000; padding: 0in 0.08in"><p class="western" align="justify" style="orphans: 2; widows: 2">
+				<br/>
+
+				</p>
+			</td>
+		</tr>
+	</table>
+	<p class="western" align="justify"><br/>
+
+	</p>
+</div>
+<div title="footer"><p align="justify" style="margin-top: 0.58in"><font face="Calibri, serif"><font size="2" style="font-size: 11pt"><font size="2" style="font-size: 10pt">INGEPREV
+	– 78, avenue des Champs Elysées 75008 PARIS </font></font></font>
+	</p>
+	<p align="justify"><font face="Calibri, serif"><font size="2" style="font-size: 11pt"><font size="2" style="font-size: 10pt">SAS
+	au capital de 5000 € – 123&nbsp;456&nbsp;789 RCS PARIS – APE
+	1234B</font></font></font></p>
+	<p align="justify"><font face="Calibri, serif"><font size="2" style="font-size: 11pt"><font color="#0000ff"><u><a href="http://www.ingeprev.fr/"><font size="2" style="font-size: 10pt"><span lang="en-US">www.ingeprev.fr</span></font></a></u></font><font size="2" style="font-size: 10pt"><span lang="en-US">
+	– LienFacebook – LienTwiter</span></font></font></font></p>
+</div>
+</body>
+</html>

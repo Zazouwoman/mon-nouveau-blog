@@ -1,0 +1,10 @@
+django
+django-cleanup
+django-totalsum-admin
+totalsum
+xhtml2pdf
+dateutil
+datetime
+multiupload
+
+
