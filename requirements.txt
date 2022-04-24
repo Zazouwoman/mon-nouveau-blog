@@ -5,5 +5,7 @@ xhtml2pdf
 python-dateutil
 datetime
 django-multiupload
+reportlab
+PyPDF3
 
 
