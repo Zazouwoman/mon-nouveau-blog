@@ -1,10 +1,8 @@
-from django import forms
 
-from .models import Client, Offre_Mission, Envoi_Offre, Envoi_Facture, Affaire,Facture, InfoEmail
-import pdfkit
 from django import forms
 from multiupload.fields import MultiFileField
-from .models import InfoEmail, Attachment
+
+from .models import *
 
 class InfoEmailForm(forms.ModelForm):
     class Meta:

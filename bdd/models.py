@@ -1,27 +1,25 @@
+
 from django.db import models
 from django.db.models import Sum
+from django.db import models
 from django.shortcuts import render, redirect, get_object_or_404
 from django.urls import reverse
-from django.utils.translation import gettext_lazy as _
+
 from django.contrib import admin
 
 # Create your models here.
 
-from django.utils import timezone
 from django.core.validators import RegexValidator
-from datetime import date, timedelta
-from dateutil.relativedelta import relativedelta
-
 from django.core.mail.backends.smtp import EmailBackend
 
-import os
-
 from django.conf import settings
-from django.db import models
+from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
+from django.utils.html import format_html
 
 from django.forms.utils import flatatt
-from django.utils.html import format_html
+
+from dateutil.relativedelta import relativedelta
 
 from .fonctions import *
 

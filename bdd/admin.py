@@ -4,14 +4,11 @@ from __future__ import unicode_literals
 from pathlib import Path
 from django.core.files import File
 from django.http import FileResponse
-from io import BytesIO
+
 from django.template.loader import get_template
 from dateutil.relativedelta import relativedelta
-from .models import *
-from .forms import *
-from . import models
+
 from django.http import HttpResponse
-from .fonctions import link_callback
 from django.template.loader import render_to_string
 from django.core.mail import EmailMessage
 from django.contrib import messages, admin
@@ -22,13 +19,11 @@ from django.db.models import Sum
 from django.core.exceptions import FieldDoesNotExist
 from django.utils.html import strip_tags
 
-from django.forms.utils import flatatt
-from django.urls import reverse
-from django.utils.html import format_html
-
 from xhtml2pdf import pisa
 
 from .fonctions import *
+from .models import *
+from .forms import *
 # Register your models here.
 
 DOSSIER = 'media/'  #Nom du dossier dans lequel sont enregistrés les factures, lettres de relance
