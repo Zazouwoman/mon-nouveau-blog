@@ -63,7 +63,7 @@ class Entreprise(models.Model):
     Type_Societe = models.CharField(max_length=150, blank=True, verbose_name = 'Statut juridique')
     IBAN = models.CharField(max_length=150, blank=True, verbose_name = 'IBAN')
     Code_APE = models.CharField(max_length=150, blank=True, verbose_name='Code APE')
-    Capital = models.DecimalField(max_digits=15, decimal_places=2, verbose_name = 'Capital', default = 0)
+    Capital = models.DecimalField(max_digits=15, decimal_places=2, verbose_name = 'Capital', default =0, blank = True)
     Num_TVA = models.CharField(max_length=150, blank=True, verbose_name = 'N° de TVA Intercommunautaire')
     Email = models.EmailField(max_length=70, blank=True)
     Tel = models.CharField(validators=[tel_regex], max_length=10, verbose_name='Numéro de Portable',

@@ -38,9 +38,9 @@ def message_relance(facture, affaire):
 def message_facture(facture, affaire):
     civ = facture.Civilite_Facture
     if civ == 'M.':
-        civ = 'Bonjour monsieur {},'.format(civ, facture.Nom_Facture)
+        civ = 'Bonjour monsieur {},'.format(facture.Nom_Facture)
     elif civ == 'Mme':
-        civ = 'Bonjour madame {},'.format(civ, facture.Nom_Facture)
+        civ = 'Bonjour madame {},'.format(facture.Nom_Facture)
     else:
         civ = 'Bonjour,'
     nomaffaire = affaire.Nom_Affaire
@@ -145,7 +145,7 @@ def html_to_pdf(template_src, context_dict={}):
 def html_to_pdf2(template_src, context_dict={}):
     template = get_template(template_src)
     html = template.render(context_dict)
-    result = open('media/facture.pdf', 'w+b')
+    result = open(DOSSIER+'facture.pdf', 'w+b')
     print('ici')
     pdf = pisa.CreatePDF(html, dest = result, link_callback=link_callback)
     #pisa_status = pisa.CreatePDF(html.content, dest=pdfFile, encoding='utf-8')
@@ -158,7 +158,7 @@ def generate_pdf_through_template(template_src, context_dict={}):
     template = get_template(template_src)
     html = template.render(context_dict)
     #html = render_to_string(html)
-    write_to_file = open('media/test_1.pdf', "w+b")
+    write_to_file = open(DOSSIER+'test_1.pdf', "w+b")
     result = pisa.CreatePDF(html, dest=write_to_file, link_callback=link_callback)
     write_to_file.close()
     return HttpResponse(result.err)

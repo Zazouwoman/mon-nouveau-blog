@@ -501,7 +501,7 @@ class FactureAdmin(admin.ModelAdmin):
     'Numero_Facture', 'Etat', 'deja_validee', 'deja_envoyee', 'deja_payee', 'Nom_Affaire',
     'Montant_Facture_HT', 'ID_Payeur', 'Date_Echeance1', 'Num_Relance', 'Date_Dernier_Rappel')
     seach_fiels = ('Nom_Affaire__Startswith')
-    list_filter = (A_Relancer_Filter,A_Envoyer_Filter,'Etat_Paiement','Etat','Nom_Affaire',)
+    list_filter = (A_Relancer_Filter,A_Envoyer_Filter,'deja_payee','Etat','Nom_Affaire',)
     list_editable = ('deja_payee',)
     list_per_page = 20
 
@@ -609,6 +609,7 @@ class FactureAdmin(admin.ModelAdmin):
                     typeaction = 'Relance{}'.format(facture.Num_Relance)
                     idfacture = facture.id
                     sujet = 'Relance {} Facture Ingeprev'.format(facture.Num_Relance)
+                    From = From = settings.DEFAULT_FROM_EMAIL
                     if facture.Num_Relance <= 4:
                         RAR = facture.Num_RAR
                     else:
@@ -617,7 +618,7 @@ class FactureAdmin(admin.ModelAdmin):
                     if facture.Num_Relance == 1:
                         message = strip_tags(render_to_string(source_html,data))
 
-                    email = InfoEmail.objects.create(To=facture.Email_Facture, Message=message,
+                    email = InfoEmail.objects.create(From = From, To=facture.Email_Facture, Message=message,
                                                      Subject=sujet, RAR = RAR,
                                                      ID_Facture=idfacture, Type_Action=typeaction)
                     if facture.Num_Relance == 1:
@@ -692,7 +693,8 @@ class FactureAdmin(admin.ModelAdmin):
                     idfacture = facture.id
                     sujet = 'Facture Ingeprev'
                     RAR = facture.Num_RAR
-                    email = InfoEmail.objects.create(To=facture.Email_Facture, Message=message, Subject=sujet,
+                    From = settings.DEFAULT_FROM_EMAIL
+                    email = InfoEmail.objects.create(From = From, To=facture.Email_Facture, Message=message, Subject=sujet,
                                                      ID_Facture=idfacture, Type_Action=typeaction, RAR = RAR)
                     email.save()
 
@@ -818,11 +820,12 @@ class FactureAdmin(admin.ModelAdmin):
             typeaction = 'Envoi_Facture'
             idfacture = facture.id
             sujet = 'Facture Ingeprev'
+            From = settings.DEFAULT_FROM_EMAIL
             if facture.Num_Relance < 5:
                 RAR = facture.Num_RAR
             elif facture.Num_Relance == 5:
                 RAR = facture.Num_RAR_Demeure
-            email = InfoEmail.objects.create(To = facture.Email_Facture, Message = message,
+            email = InfoEmail.objects.create(From = From, To = facture.Email_Facture, Message = message,
                                              Subject = sujet, ID_Facture = idfacture, Type_Action = typeaction, RAR=RAR)
             email.save()
 
