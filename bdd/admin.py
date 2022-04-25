@@ -26,10 +26,10 @@ from .models import *
 from .forms import *
 # Register your models here.
 
-DOSSIER = 'media/'  #Nom du dossier dans lequel sont enregistrés les factures, lettres de relance
+#DOSSIER = 'media/'
 # en mettant media ils sont enregistrés dans F:\media, en mettant '/media/' ils sont enregistrés
 # sur le serveur....
-DOSSIER = settings.MEDIA_ROOT
+DOSSIER = settings.MEDIA_ROOT #Nom du dossier dans lequel sont enregistrés les factures, lettres de relance
 
 #Définition des permissions pour l'affichage ou non dans le menu admin - Choisir entre personne ne voit ou bien seulement les superuse voient
 class EnvoiOffreAdmin(admin.ModelAdmin):
@@ -189,7 +189,6 @@ class InfoEmailAdmin(admin.ModelAdmin):
             elif facture.Num_Relance ==5:
                 facture.Num_RAR_Demeure = obj.RAR
             facture.save()
-            print('ici',facture.Num_RAR)
 
             affaire = Affaire.objects.get(pk=facture.ID_Affaire_id)
 
@@ -512,7 +511,7 @@ class FactureAdmin(admin.ModelAdmin):
     'Numero_Facture', 'Etat', 'deja_validee', 'deja_envoyee', 'deja_payee', 'Nom_Affaire',
     'Montant_Facture_HT', 'ID_Payeur', 'Date_Echeance1', 'Num_Relance', 'Date_Dernier_Rappel')
     seach_fiels = ('Nom_Affaire__Startswith')
-    list_filter = (A_Relancer_Filter,A_Envoyer_Filter,'deja_payee','Etat','Nom_Affaire',)
+    list_filter = (A_Relancer_Filter,A_Envoyer_Filter,'Etat_Paiement','Etat','Nom_Affaire',)
     list_editable = ('deja_payee',)
     list_per_page = 20
 
@@ -520,7 +519,7 @@ class FactureAdmin(admin.ModelAdmin):
     form = FactureForm
     change_form_template = 'bdd/Modification_Facture.html'
 
-    # actions = ['my_action']
+    #actions = ['my_action']
 
     def get_form(self, request, obj=None, **kwargs):
         if not obj:
@@ -580,7 +579,13 @@ class FactureAdmin(admin.ModelAdmin):
 
     def response_change(self, request, obj, extra_context = None):
         extra_context = extra_context or {}
-        extra_context['Etat'] = obj.Etat
+        extra_context['Etat'] = obj.deja_validee
+
+        if "Supprimer" in request.POST:
+            if not obj.deja_validee:
+                obj.delete()
+            url = '/admin/bdd/facture'
+            return redirect(url)
 
         if "Fermer" in request.POST:
             url = '/admin/bdd/facture'
@@ -780,17 +785,20 @@ class FactureAdmin(admin.ModelAdmin):
             if "Apercu_PDF_Facture" in request.POST:  #ouvre la fenètre de téléchargement de chrome - permet de visualiser la facture avant validation
                 source_html = 'bdd/Visualisation_Facture2.html'
                 filename = '{}.pdf'.format(facture.Numero_Facture)
-                fichier = DOSSIER + 'temp/{}.pdf'.format(facture.Numero_Facture)
+                fichier = DOSSIER + 'temp/FA0001.pdf'#.format(facture.Numero_Facture)
                 template = get_template(source_html)
                 html = template.render(data)
                 write_to_file = open(fichier, "w+b")
                 pisa.CreatePDF(html, dest=write_to_file, link_callback=link_callback)
                 write_to_file.seek(0)
                 pdf = write_to_file.read()
+                reponse = HttpResponse(pdf, content_type='application/pdf')
+                reponse['Content-Disposition'] = 'filename={}'.format(filename)
                 write_to_file.close()
+                return reponse
                 #return FileResponse(open(fichier, 'rb')) #Ouvre le fichier dans adobe mais ne le télécharge pas
                 #return FileResponse(open(fichier,'rb'), as_attachment=True, filename=filename, content_type='application/pdf') #ouvre le fichier dans adobe et le télécharge directement
-                return HttpResponse(pdf, 'application/pdf')
+                #return HttpResponse(pdf, 'application/pdf')
                 #En rajoutant formtarget="_blank" dans le bouton je force l'ouverture dans un nouvel onglet
 
             if "Telecharger_PDF" in request.POST:  #ouvre la fenètre de téléchargement de chrome - permet de visualiser la facture avant validation

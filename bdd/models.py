@@ -391,8 +391,9 @@ class Facture(models.Model):
             self.Numero_Facture = 'FA0001'
             self.save()
         if self.deja_payee:
-            self.Etat = 'PAYE'
-            self.save()
+            self.Etat_Paiement = 'PAYE'
+        if not self.deja_payee:
+            self.Etat_Paiement = 'ATT'
         super().save(*args,**kwargs)
 
     def Reste_Affaire(self):
@@ -414,10 +415,8 @@ class Facture(models.Model):
         return affaire.client()
 
     def Date_Echeance1(self):
-        print(self.Date_Facture)
         if self.Fin_Mois == "Non":
             echeance = self.Date_Facture + timedelta(days=self.Delais_Paiement)
-            print(echeance)
         elif self.Fin_Mois == "Oui":
             echeance1 = self.Date_Facture + timedelta(days=self.Delais_Paiement)
             premier = date(echeance1.year, echeance1.month, 1)
@@ -553,7 +552,6 @@ class Attachment(models.Model):
         obj.file.delete()
         if os.path.isfile(self.file.path):
             os.remove(self.file.path)
-
         super(Attachment, self).delete(*args,**kwargs)
 
 

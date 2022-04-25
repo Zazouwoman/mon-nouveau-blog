@@ -12,14 +12,17 @@
 {% if change and not Etat%}
 <div class="submit-row" action="">
     {% csrf_token %}
-    <input type="submit" value="Aperçu PDF Facture" name="Apercu_PDF_Facture" formtarget="_blank"/>
+    {% comment %}
     <input type="submit" value="Aperçu HTML Facture" name="Apercu_HTML_Facture"/>
+    {% endcomment %}
 </div>
 <div class="submit-row" action="">
     {% csrf_token %}
-    <input type="submit" value="Sauvegarder Brouillon" name="Save_Brouillon"/>
+    <input type="submit" value="Aperçu PDF Facture" name="Apercu_PDF_Facture" formtarget="_blank"/>
     <input id = "submitBtn" class = "btn btn-primary" type="submit" value="Valider Facture" name="Valider_Facture"
            onclick="return confirm('ATTENTION ! Une fois la facture valid&eacute;e elle ne pourra plus &ecirc;tre annul&eacute;e et devra faire l&rsquo;objet d&rsquo;un avoir. Etes-vous s&ucirc;r de valider la facture ?');" />
+    <input type="submit" value="Enregistrer et Continuer les modifications" name="Save_Brouillon""/>
+    <input type="submit" value="Enregistrer et Fermer" name="Fermer"/>
 
 </div>
 {% endif %}
