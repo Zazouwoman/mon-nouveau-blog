@@ -785,8 +785,7 @@ class FactureAdmin(admin.ModelAdmin):
             if "Apercu_PDF_Facture" in request.POST:  #ouvre la fenètre de téléchargement de chrome - permet de visualiser la facture avant validation
                 source_html = 'bdd/Visualisation_Facture2.html'
                 filename = '{}.pdf'.format(facture.Numero_Facture)
-                fichier = DOSSIER + '{}.pdf'.format(facture.Numero_Facture)
-                print('apercu_pdf', fichier)
+                fichier = DOSSIER + 'temp/{}.pdf'.format(facture.Numero_Facture)
                 template = get_template(source_html)
                 html = template.render(data)
                 write_to_file = open(fichier, "w+b")
