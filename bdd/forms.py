@@ -165,13 +165,12 @@ class FactureHistoriqueForm(forms.ModelForm):
 class FactureForm(forms.ModelForm):
     class Meta:
         model = Facture
-        fields = ['Numero_Facture','Num_RAR','Nom_Affaire','ID_Payeur','ID_Envoi_Facture','ID_Pilote','Descriptif','Montant_Facture_HT','Taux_TVA','Date_Facture']
+        fields = ['Numero_Facture','Nom_Affaire','ID_Payeur','ID_Envoi_Facture','ID_Pilote','Descriptif','Montant_Facture_HT','Taux_TVA','Date_Facture']
 
     def __init__(self, *args, **kwargs):
         super(FactureForm, self).__init__(*args, **kwargs)
         self.fields['Numero_Facture'].widget.attrs['readonly'] = True
         self.fields['Nom_Affaire'].widget.attrs['readonly'] = True
-        self.fields['Num_RAR'].widget.attrs['readonly'] = True
 
 class VisualisationFactureForm(forms.ModelForm):
     class Meta:
