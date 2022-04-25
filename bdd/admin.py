@@ -239,7 +239,8 @@ class InfoEmailAdmin(admin.ModelAdmin):
                 email = EmailMessage(Subject, Message, From, [To], attachments = attachments)
 
                 for attach in attach_files:
-                    f = settings.MEDIA_URL + attach.file.name
+                    f = settings.MEDIA_ROOT + attach.file.name
+                    #f = settings.MEDIA_URL + attach.file.name
                     if isinstance(f, str):
                         email.attach_file(f)
                     elif isinstance(f, (tuple, list)):
@@ -715,7 +716,7 @@ class FactureAdmin(admin.ModelAdmin):
                     email.save()
 
                     chemin = Path(DOSSIER + 'factures/{}.pdf'.format(facture.Numero_Facture))
-                    print(chemin)
+                    #print(chemin)
                     #chemin = DOSSIER + 'factures/{}.pdf'.format(facture.Numero_Facture)
                     with chemin.open(mode='rb') as f:
                         Attachment.objects.create(file=File(f, name=chemin.name), message=email, nom = 'Facture')
