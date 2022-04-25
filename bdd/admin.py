@@ -616,8 +616,6 @@ class FactureAdmin(admin.ModelAdmin):
                     data['Date_Echeance'] = facture.Date_Echeance1()
                     data['Montant_TTC'] = facture.Montant_Facture_TTC()
 
-                    source_html = 'bdd/Lettre_Relance1.html'
-
                     # Création de l'email prérempli
                     message = message_relance(facture, affaire)
                     typeaction = 'Relance{}'.format(facture.Num_Relance)
@@ -629,13 +627,14 @@ class FactureAdmin(admin.ModelAdmin):
                     fichier = DOSSIER + 'factures/{}.pdf'.format(facture.Numero_Facture)
                     creer_html_to_pdf(source_html, fichier, data)
 
+                    if facture.Num_Relance == 1:
+                        source_html = 'bdd/Lettre_Relance1.html'
+                        message = strip_tags(render_to_string(source_html,data))
+
                     if facture.Num_Relance <= 4:
                         RAR = facture.Num_RAR
                     else:
                         RAR = facture.Num_RAR_Demeure
-
-                    if facture.Num_Relance == 1:
-                        message = strip_tags(render_to_string(source_html,data))
 
                     email = InfoEmail.objects.create(From = From, To=facture.Email_Facture, Message=message,
                                                      Subject=sujet, RAR = RAR,
@@ -654,18 +653,13 @@ class FactureAdmin(admin.ModelAdmin):
                     with chemin.open(mode='rb') as f:
                         Attachment.objects.create(file=File(f, name=chemin.name), message=email, nom = 'Facture')
 
-                    if facture.Num_Relance == 1 or facture.Num_Relance == 5:
-                        chemin = Path(DOSSIER + 'relances/Relance1-{}.pdf'.format(facture.Numero_Facture))
-                        with chemin.open(mode='rb') as f:
-                            Attachment.objects.create(file=File(f, name=chemin.name), message=email, nom = 'Lettre de Relance 1')
-
                     if facture.Num_Relance == 3:
                         chemin = Path(DOSSIER + 'relances/Relance2-{}.pdf'.format(facture.Numero_Facture))
                         with chemin.open(mode='rb') as f:
                             Attachment.objects.create(file=File(f, name=chemin.name), message=email, nom = 'Lettre de Relance 2')
 
                     if facture.Num_Relance == 5:
-                        for k in [2,3]:
+                        for k in [1,2,3]:
                             source_html = 'bdd/Lettre_Relance{}.html'.format(k)
                             fichier = DOSSIER + 'relances/Relance{}-{}.pdf'.format(k,facture.Numero_Facture)
                             creer_html_to_pdf(source_html, fichier, data)
