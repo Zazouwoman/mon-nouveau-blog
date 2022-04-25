@@ -1,6 +1,8 @@
 django >= 4.0
 django-cleanup
 django-totalsum-admin
+django-environ
+python-decouple
 xhtml2pdf
 python-dateutil
 datetime

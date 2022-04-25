@@ -29,6 +29,7 @@ from .forms import *
 DOSSIER = 'media/'  #Nom du dossier dans lequel sont enregistrés les factures, lettres de relance
 # en mettant media ils sont enregistrés dans F:\media, en mettant '/media/' ils sont enregistrés
 # sur le serveur....
+DOSSIER = settings.MEDIA_ROOT
 
 #Définition des permissions pour l'affichage ou non dans le menu admin - Choisir entre personne ne voit ou bien seulement les superuse voient
 class EnvoiOffreAdmin(admin.ModelAdmin):
@@ -571,6 +572,9 @@ class FactureAdmin(admin.ModelAdmin):
         extra_context['show_save'] = False
         extra_context['show_save_and_add_another'] = False
         extra_context['relance'] = facture.Num_Relance
+        if "Fermer" in request.POST:
+            url = '/admin/bdd/facture'
+            return redirect(url)
         return super().change_view(request, object_id, extra_context = extra_context)
 
     def response_change(self, request, obj, extra_context = None):
@@ -619,6 +623,7 @@ class FactureAdmin(admin.ModelAdmin):
                     idfacture = facture.id
                     sujet = 'Relance {} Facture Ingeprev'.format(facture.Num_Relance)
                     From = settings.DEFAULT_FROM_EMAIL
+
                     source_html = 'bdd/Visualisation_Facture2.html'
                     fichier = DOSSIER + 'factures/{}.pdf'.format(facture.Numero_Facture)
                     creer_html_to_pdf(source_html, fichier, data)
@@ -640,10 +645,8 @@ class FactureAdmin(admin.ModelAdmin):
 
                     if facture.Num_Relance == 3:
                         source_html = 'bdd/Lettre_Relance2.html'
-                    fichier = DOSSIER + 'relances/Relance1-{}.pdf'.format(facture.Numero_Facture)
-                    if facture.Num_Relance == 3:
                         fichier = DOSSIER + 'relances/Relance2-{}.pdf'.format(facture.Numero_Facture)
-                    creer_html_to_pdf(source_html, fichier, data)
+                        creer_html_to_pdf(source_html, fichier, data)
 
                     #Récupération de la facture pdf
                     chemin = Path(DOSSIER + 'factures/{}.pdf'.format(facture.Numero_Facture))
@@ -781,6 +784,7 @@ class FactureAdmin(admin.ModelAdmin):
                 source_html = 'bdd/Visualisation_Facture2.html'
                 filename = '{}.pdf'.format(facture.Numero_Facture)
                 fichier = DOSSIER + '{}.pdf'.format(facture.Numero_Facture)
+                print('apercu_pdf', fichier)
                 template = get_template(source_html)
                 html = template.render(data)
                 write_to_file = open(fichier, "w+b")
