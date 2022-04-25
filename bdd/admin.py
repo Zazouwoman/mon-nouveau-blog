@@ -618,7 +618,11 @@ class FactureAdmin(admin.ModelAdmin):
                     typeaction = 'Relance{}'.format(facture.Num_Relance)
                     idfacture = facture.id
                     sujet = 'Relance {} Facture Ingeprev'.format(facture.Num_Relance)
-                    From = From = settings.DEFAULT_FROM_EMAIL
+                    From = settings.DEFAULT_FROM_EMAIL
+                    source_html = 'bdd/Visualisation_Facture2.html'
+                    fichier = DOSSIER + 'factures/{}.pdf'.format(facture.Numero_Facture)
+                    creer_html_to_pdf(source_html, fichier, data)
+
                     if facture.Num_Relance <= 4:
                         RAR = facture.Num_RAR
                     else:
