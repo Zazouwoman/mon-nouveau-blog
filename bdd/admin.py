@@ -715,6 +715,8 @@ class FactureAdmin(admin.ModelAdmin):
                     email.save()
 
                     chemin = Path(DOSSIER + 'factures/{}.pdf'.format(facture.Numero_Facture))
+                    print(chemin)
+                    #chemin = DOSSIER + 'factures/{}.pdf'.format(facture.Numero_Facture)
                     with chemin.open(mode='rb') as f:
                         Attachment.objects.create(file=File(f, name=chemin.name), message=email, nom = 'Facture')
 
