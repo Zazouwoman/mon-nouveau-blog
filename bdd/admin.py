@@ -304,9 +304,14 @@ class Offre_MissionAdmin(admin.ModelAdmin):
 
     def response_change(self, request, obj, extra_context=None):
         if "Sans_Suite" in request.POST:
-            obj.Etat = "REF"
-            obj.save()
-            return redirect('.')
+            if obj.Etat == "ATT":
+                obj.Etat = "REF"
+                obj.save()
+                return redirect('.')
+            elif obj.Etat == "ACC":
+                messages.add_message(request, messages.INFO,
+                                     "Impossible de classer cette offre de mission sans suite. Elle a déjà été acceptée.")
+                return redirect('.')
         return super().response_change(request, obj, extra_context=extra_context)
 
 

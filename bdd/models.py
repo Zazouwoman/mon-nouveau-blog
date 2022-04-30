@@ -390,6 +390,8 @@ class Facture(models.Model):
             self.ID_Pilote = affaire.ID_Pilote
             self.Numero_Facture = 'FA0001'
             self.save()
+        if not self.deja_validee:
+            self.deja_payee = False
         if self.deja_payee:
             self.Etat_Paiement = 'PAYE'
         if not self.deja_payee:
