@@ -7,6 +7,7 @@ from django.conf import settings
 from django.contrib.staticfiles import finders
 from django.shortcuts import redirect
 from .models import *
+import os
 
 def calcul_indice(type,periode):
     recherche = Compteur_Indice.objects.filter(Type_Dossier = type, Periode = periode)
@@ -35,18 +36,18 @@ def message_relance(facture, affaire):
         facture.Numero_Facture, nomaffaire, pilote)
     return message
 
-def message_facture(facture, affaire):
+def message_facture(facture, affaire, offre):
     civ = facture.Civilite_Facture
     if civ == 'M.':
-        civ = 'Bonjour monsieur {},'.format(facture.Nom_Facture)
+        civ = 'Monsieur {},'.format(facture.Nom_Facture)
     elif civ == 'Mme':
-        civ = 'Bonjour madame {},'.format(facture.Nom_Facture)
+        civ = 'Madame {},'.format(facture.Nom_Facture)
     else:
-        civ = 'Bonjour,'
-    nomaffaire = affaire.Nom_Affaire
+        civ = 'Madame, monsieur,'
+
     pilote = '{} {}'.format(facture.Prenom_Pilote, facture.Nom_Pilote)
-    message = civ + '\n\n Veuillez trouver ci-joint votre facture n°{} pour la mission {}. \n\n Bien cordialement, \n\n {}'.format(
-        facture.Numero_Facture, nomaffaire, pilote)
+    message = civ + '\n\nNous vous prions de trouver ci-joint votre facture n° {} pour la mission de conseil en sécurité incendie sur le site du {} {} {}. \n\nBien cordialement, \n\nPour INGEPREV \n{}'.format(
+        facture.Numero_Facture, offre.Adresse, offre.CP, offre.Ville, pilote)
     return message
 
 def mise_a_jour_relance(facture, num):  #mise à jour des dates de la facture lors de relance ou envoi facture

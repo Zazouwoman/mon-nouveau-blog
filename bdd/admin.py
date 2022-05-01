@@ -467,11 +467,12 @@ class A_Relancer_Filter(admin.SimpleListFilter):
         human-readable name for the option that will appear in the right sidebar.
         """
         return(('Total','Toutes les relances'),
-               ('Rel1','1ère relance (email)'),
-               ('Rel2','2ème relance (tél)'),
-               ('Rel3','3ème relance (courrier)'),
+               ('Rel1','1ère relance (Email)'),
+               ('Rel2','2ème relance (Tél)'),
+               ('Rel3','3ème relance (Courrier)'),
                ('Rel4','4ème relance (RAR)'),
-               ('Rel5', 'dernière relance'),)
+               ('Rel5', '5ème relance (Mise en Demeure)'),
+               ('Rel6', 'Contencieux'),)
 
     def queryset(self, request, queryset):
         """
@@ -484,7 +485,7 @@ class A_Relancer_Filter(admin.SimpleListFilter):
                     q_array.append(element.id)
             return queryset.filter(pk__in=q_array)
 
-        for k in range(1,6):
+        for k in range(1,7):
             titre = 'Rel{}'.format(k)
             if self.value() == titre:
                 q_array = []
@@ -617,6 +618,7 @@ class FactureAdmin(admin.ModelAdmin):
 
                     facture = get_object_or_404(Facture, pk=obj.pk)
                     affaire = Affaire.objects.get(pk=obj.ID_Affaire_id)
+                    ingeprev = Ingeprev.objects.get(Nom = 'INGEPREV')
 
                     # Création du pdf dans media
                     data = {}
@@ -625,6 +627,7 @@ class FactureAdmin(admin.ModelAdmin):
                     data['affaire'] = affaire
                     data['Date_Echeance'] = facture.Date_Echeance1()
                     data['Montant_TTC'] = facture.Montant_Facture_TTC()
+                    data['ingeprev'] = ingeprev
 
                     # Création de l'email prérempli
                     message = message_relance(facture, affaire)
@@ -695,6 +698,7 @@ class FactureAdmin(admin.ModelAdmin):
 
                     facture = get_object_or_404(Facture, pk=obj.pk)
                     affaire = Affaire.objects.get(pk=obj.ID_Affaire_id)
+                    ingeprev = Ingeprev.objects.get(Nom = 'INGEPREV')
 
                     # Création du pdf dans media
                     data = {}
@@ -703,6 +707,11 @@ class FactureAdmin(admin.ModelAdmin):
                     data['affaire'] = affaire
                     data['Date_Echeance'] = facture.Date_Echeance1()
                     data['Montant_TTC'] = facture.Montant_Facture_TTC()
+                    data['ingeprev'] = ingeprev
+                    if facture.Facture_Avoir == "FA":
+                        data['FA'] = True
+                    else:
+                        data['FA'] = False
 
                     source_html = 'bdd/Visualisation_Facture2.html'
                     fichier = DOSSIER + 'factures/{}.pdf'.format(facture.Numero_Facture)
@@ -758,7 +767,11 @@ class FactureAdmin(admin.ModelAdmin):
             context['affaire'] = affaire
             context['Date_Echeance'] = facture.Date_Echeance1()
             context['Montant_TTC'] = facture.Montant_Facture_TTC()
-            return render(request, 'bdd/Visualisation_Facture.html', context)
+            if facture.Facture_Avoir == "FA":
+                context['FA'] = True
+            else:
+                context['FA'] = False
+            return render(request, 'bdd/Visualisation_Facture2.html', context)
 
         if ("Generer_PDF" in request.POST or "Telecharger_PDF" in request.POST or "Apercu_PDF_Facture" in request.POST) and request.method == 'POST':
             if not obj.deja_validee:
@@ -769,6 +782,7 @@ class FactureAdmin(admin.ModelAdmin):
                     pass
             facture = get_object_or_404(Facture, pk=obj.pk)
             affaire = Affaire.objects.get(pk=obj.ID_Affaire_id)
+            ingeprev = Ingeprev.objects.get(Nom='INGEPREV')
 
             data = {}
             data['facture'] = facture
@@ -776,6 +790,11 @@ class FactureAdmin(admin.ModelAdmin):
             data['affaire'] = affaire
             data['Date_Echeance'] = facture.Date_Echeance1()
             data['Montant_TTC'] = facture.Montant_Facture_TTC()
+            data['ingeprev'] = ingeprev
+            if facture.Facture_Avoir == "FA":
+                data['FA'] = True
+            else:
+                data['FA'] = False
 
             if "Generer_PDF" in request.POST:  #Crée un fichier .pdf et l'enregistre dans le dossier media (pas celui de MEDIA_ROOT)
                 source_html = 'bdd/Visualisation_Facture2.html'
@@ -828,6 +847,7 @@ class FactureAdmin(admin.ModelAdmin):
 
             facture = get_object_or_404(Facture, pk=obj.pk)
             affaire = Affaire.objects.get(pk=obj.ID_Affaire_id)
+            offre = Offre_Mission.objects.get(pk = affaire.ID_Mission_id)
 
             #Création du pdf dans media
             data = {}
@@ -836,13 +856,17 @@ class FactureAdmin(admin.ModelAdmin):
             data['affaire'] = affaire
             data['Date_Echeance'] = facture.Date_Echeance1()
             data['Montant_TTC'] = facture.Montant_Facture_TTC()
+            if facture.Facture_Avoir == "FA":
+                data['FA'] = True
+            else:
+                data['FA'] = False
 
             source_html = 'bdd/Visualisation_Facture2.html'
             fichier = DOSSIER + 'factures/{}.pdf'.format(facture.Numero_Facture)
             creer_html_to_pdf(source_html,fichier, data)
 
             #Création de l'email prérempli
-            message = message_facture(facture, affaire)
+            message = message_facture(facture, affaire, offre)
             typeaction = 'Envoi_Facture'
             idfacture = facture.id
             sujet = 'Facture Ingeprev'

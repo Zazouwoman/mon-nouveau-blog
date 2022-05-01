@@ -1,0 +1,22 @@
+p {
+text-align: left;
+orphans: 2;
+widows: 2;
+margin-bottom: 0in;
+direction: ltr;
+background: transparent
+}
+
+p.western { font-family: "Times New Roman", serif;
+font-size: 12pt }
+
+p.cjk { font-family: "Times New Roman";
+font-size: 12pt;
+so-language: fr-FR }
+
+p.ctl { font-family: "Times New Roman";
+font-size: 10pt }
+
+a:link { color: #0000ff;
+text-decoration: underline }
+

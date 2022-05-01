@@ -61,7 +61,15 @@ class Ingeprev(models.Model):
     CP = models.CharField(validators=[CP_regex], max_length=5, verbose_name='Code postal', blank=True)
     Ville = models.CharField(max_length=150, blank=True)
     Type_Societe = models.CharField(max_length=150, blank=True, verbose_name = 'Statut juridique')
-    IBAN = models.CharField(max_length=150, blank=True, verbose_name = 'IBAN')
+    Code_Banque = models.IntegerField(blank=True, null = True, verbose_name = 'Code Banque')
+    Code_Guichet = models.IntegerField(blank=True, null = True, verbose_name='Code Guichet')
+    Code_BIC = models.CharField(max_length=20, blank=True, verbose_name='Code BIC')
+    Num_Compte = models.IntegerField(null=True, blank = True, verbose_name='Numéro de Compte')
+    Cle = models.CharField(max_length=10, blank=True, verbose_name = 'Clé')
+    Nom_Banque = models.CharField(max_length=100, blank=True, verbose_name = 'Nom de la Banque')
+    Tel_Banque = models.CharField(validators=[tel_regex], max_length=16, verbose_name='Numéro de Téléphone de la banque',
+                                        blank=True)
+    IBAN = models.CharField(max_length=50, blank=True, verbose_name = 'IBAN')
     Code_APE = models.CharField(max_length=150, blank=True, verbose_name='Code APE')
     Capital = models.DecimalField(max_digits=15, decimal_places=2, verbose_name = 'Capital', default =0, blank = True)
     Num_TVA = models.CharField(max_length=150, blank=True, verbose_name = 'N° de TVA Intercommunautaire')
@@ -75,6 +83,7 @@ class Ingeprev(models.Model):
 
     class Meta:
         verbose_name_plural = "6. INGEPREV"
+
 class Pilote(models.Model):
     Civilite = models.CharField(blank=True, choices=CiviliteType.choices, max_length=3)
     Nom = models.CharField(max_length=50, blank=True)
