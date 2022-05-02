@@ -869,7 +869,8 @@ class FactureAdmin(admin.ModelAdmin):
             data['Date_Echeance'] = facture.Date_Echeance1()
             data['Montant_TTC'] = facture.Montant_Facture_TTC()
             data['ingeprev'] = ingeprev
-            data['logo']='media/'+ingeprev.logo.name
+            if ingeprev.logo:
+                data['logo']='media/'+ingeprev.logo.name
             if facture.Facture_Avoir == "FA":
                 data['FA'] = True
             else:
