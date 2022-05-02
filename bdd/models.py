@@ -55,6 +55,7 @@ TVA = [('20','20'),('10','10'),('5','5'),('0','0')]
 
 class Ingeprev(models.Model):
     Nom = models.CharField(max_length=50, blank=True, verbose_name = 'Nom de la societe')
+    logo = models.ImageField(upload_to='images',null=True,blank=True)
     SIRET = models.CharField(max_length=50, blank=True, verbose_name="N° de SIRET")
     Adresse = models.CharField(max_length=500, blank=True)
     Complement_Adresse = models.CharField(max_length=500, blank=True, verbose_name = "Complément d'Adresse")
@@ -83,6 +84,33 @@ class Ingeprev(models.Model):
 
     class Meta:
         verbose_name_plural = "6. INGEPREV"
+    '''
+    def selflink(self):
+        if self.id:
+            return "<a href='/link/to/volume/%s' target='_blank'>Edit</a>" % str(self.id)
+        else:
+            return "Not present"
+
+    def file_link(self):
+        fichier = self.file
+        return format_html(
+            '<a{} target = "_blank">{}</a>', flatatt({'href': fichier.url}), fichier.name)
+
+    file_link.allow_tags = True
+    file_link.short_description = 'Lien de Téléchargement'
+
+    def delete(self,*args,**kwargs):
+        obj = Ingeprev.objects.get(pk = self.pk)
+        obj.file.delete()
+        if os.path.isfile(self.file.path):
+            os.remove(self.file.path)
+        super(Ingeprev, self).delete(*args,**kwargs)
+    '''
+    '''
+    def save(self,*args,**args):
+        obj = Ingeprev.objects.get(pk=self.pk)
+    '''
+
 
 class Pilote(models.Model):
     Civilite = models.CharField(blank=True, choices=CiviliteType.choices, max_length=3)

@@ -36,6 +36,15 @@ DOSSIER = settings.MEDIA_ROOT #Nom du dossier dans lequel sont enregistrés les 
 admin.site.site_header = "UMSRA Admin"
 
 #Définition des permissions pour l'affichage ou non dans le menu admin - Choisir entre personne ne voit ou bien seulement les superuse voient
+class IngeprevAdmin(admin.ModelAdmin):
+    list_display = ['Nom','Capital',]
+    formfield_overrides = {models.DecimalField: {
+        'widget': forms.TextInput(attrs={'style': 'text-align:right;', }),
+    },
+    }
+    localized_fields = ('Capital',)
+
+
 class EnvoiOffreAdmin(admin.ModelAdmin):
     def get_model_perms(self, request, *args, **kwargs):
         if not request.user.is_superuser:
@@ -650,6 +659,9 @@ class FactureAdmin(admin.ModelAdmin):
         extra_context['show_save_and_add_another'] = False
         extra_context['relance'] = facture.Num_Relance
         extra_context['instance'] = facture
+        if "Fermer" in request.POST:
+            url = '/admin/bdd/facture'
+            return redirect(url)
         return super().change_view(request, object_id, extra_context = extra_context)
 
     def response_change(self, request, obj, extra_context = None):
@@ -857,6 +869,7 @@ class FactureAdmin(admin.ModelAdmin):
             data['Date_Echeance'] = facture.Date_Echeance1()
             data['Montant_TTC'] = facture.Montant_Facture_TTC()
             data['ingeprev'] = ingeprev
+            data['logo']='media/'+ingeprev.logo.name
             if facture.Facture_Avoir == "FA":
                 data['FA'] = True
             else:
@@ -965,7 +978,7 @@ admin.site.register(Envoi_Offre, EnvoiOffreAdmin)
 admin.site.register(Attachment, AttachmentAdmin)
 admin.site.register(Envoi_Facture, EnvoiFactureAdmin)
 admin.site.register(Compteur_Indice, CompteurIndiceAdmin)
-admin.site.register(Ingeprev)
+admin.site.register(Ingeprev,IngeprevAdmin)
 #admin.site.disable_action('delete_selected')
 
 '''
