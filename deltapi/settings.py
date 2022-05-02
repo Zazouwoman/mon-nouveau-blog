@@ -39,6 +39,8 @@ ALLOWED_HOSTS = ['127.0.0.1', '.pythonanywhere.com']
 # Application definition
 
 INSTALLED_APPS = [
+    'admin_interface',
+    'colorfield',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -50,6 +52,9 @@ INSTALLED_APPS = [
     'totalsum',
     'django_cleanup',
 ]
+
+X_FRAME_OPTIONS = "SAMEORIGIN"
+SILENCED_SYSTEM_CHECKS = ["security.W019"]
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
@@ -128,6 +133,7 @@ USE_TZ = True
 
 FILE_CHARSET = "shift_jisx0213"
 
+USE_L10N = True
 USE_THOUSAND_SEPARATOR = True
 
 PROJECT_ROOT = os.path.dirname(os.path.abspath(__file__)) #gets directory settings is in

@@ -1,13 +1,13 @@
 {% load i18n static %}
 {% load totalsum %}
 {% if result_hidden_fields %}
-<div class="hiddenfields">{# DIV for HTML validation #}
+<div class="hiddenfields" style = 'text-align: right'>{# DIV for HTML validation #}
 {% for item in result_hidden_fields %}{{ item }}{% endfor %}
 </div>
 {% endif %}
 {% if results %}
-<div class="results">
-<table id="result_list">
+<div class="results" >
+<table id="result_list" >
 <thead>
 <tr>
 {% for header in result_headers %}
@@ -26,7 +26,7 @@
 </th>{% endfor %}
 </tr>
 </thead>
-<tbody>
+<tbody >
 {% for result in results %}
 {% if result.form.non_field_errors %}
     <tr><td colspan="{{ result|length }}">{{ result.form.non_field_errors }}</td></tr>
@@ -47,7 +47,7 @@
 {% endfor %}
 </tr>
 {% endif%}
-<tr class="totals">
+<tr class="totals" >
 {% for header in result_headers %}
     {% with header.text as header_text %}
     <td>

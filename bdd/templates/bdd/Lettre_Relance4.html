@@ -1,14 +1,158 @@
+{% load static %}
+{% comment %}
+<link rel="stylesheet" type="text/css" href="css/style.css" xmlns="http://www.w3.org/1999/html">
+{% endcomment %}
 <!DOCTYPE html>
-<html lang="en">
+
+<html lang="fr">
 <head>
-    <meta charset="UTF-8">
-    <title>Lettre de Relance 1</title>
+	<meta charset="UTF-8">
+	<meta http-equiv="content-type" content="text/html; charset=utf-8"/>
+
+    	<style>
+        @page { size: 21cm 29.7cm;  margin-left: 0.98in; margin-right: 0.98in; margin-top: 0.3in; margin-bottom: 0in padding-top: 0px; padding-bottom: 0px;}
+		p { font-family: "Calibry"; font-size: 10pt; text-align: left; orphans: 2; widows: 2; margin-bottom: 3px; direction: ltr; background: transparent }
+		p.western { font-family: "Calibry"; font-size: 10pt; so-language: fr-FR ;padding-top: 0px; padding-bottom: 0px;margin-bottom: 0px; margin-top:10px;
+		line-height:1.5em}
+		p.cjk { font-family: "Calibry"; font-size: 12pt; so-language: fr-FR }
+		p.ctl { font-family: "Calibry"; font-size: 10pt }
+		a:link { color: #0000ff; text-decoration: underline }
+		div {margin-bottom: 5px;}
+	</style>
 </head>
-<body>
-{{facture.Num_RAR_Demeure}}
-{{facture.Nom_Affaire}}
-{{facture.Num_Facture}}
-{{facture.Date_Echeance1}}
-{{facture.Montant_Facture}}
+<body lang="fr-FR" link="#0000ff" vlink="#800000" dir="ltr">
+
+<div>
+     <p class="western" align = "left">
+		<img src="media/images/Logo_Ingeprev.png" width="150"  />
+         <br/>
+         <br/>
+     </p>
+</div>
+
+<div>
+<table class=MsoNormalTable border=0 cellspacing=0 cellpadding=0
+ style='width:100%;mso-cellspacing:0cm;mso-yfti-tbllook:1184;mso-padding-alt:
+ 5.25pt 5.25pt 5.25pt 5.25pt'>
+ <td class="left" valign="top">
+	 <p class="western" align = "left">
+         N&deg; de dossier : {{affaire.Ref_Affaire}}
+         <br>
+     Affaire : {{mission.Nom_Mission}}
+                    <br>
+         Adresse :
+         <br>
+         {{mission.Adresse_Mission}}
+         <br>{{mission.CP}} {{mission.Ville}}
+                </p>
+
+
+	 </p>
+ </td>
+ <td class="right" valign=top >
+     <p class="western" align = "left">
+         {{facture.Denomination_Client}}
+   <br>
+   {{facture.Adresse_Client}}
+   <br>
+   {{facture.CP_Client}} {{facture.Ville_Client}}
+         </p>
+      <p class="western" align="left">
+    s/c
+         <br>
+    {{facture.Denomination_Facture}}
+   <br>
+   {{facture.Adresse_Facture}}
+   <br>
+   {{facture.CP_Facture}} {{facture.Ville_Facture}}
+   <br>
+  A l&apos;attention de {{facture.Civilite_Facture}} {{facture.Nom_Facture}} {{facture.Prenom_Facture}}
+      </p>
+     <p class="western" align = "left">
+     <br>
+     Paris, le {{date}}
+    </p>
+ </td>
+</table>
+</div>
+<div>
+<p class="western" align="left">
+             <br>
+    Objet : 4&egrave;me relance suite au non paiement d&apos;une facture.
+    <br>
+    Courrier RAR n&deg;{{facture.Num_RAR}}
+    <br>
+    <br>
+</p>
+</div>
+<div>
+    <p class="western" align="left">
+    Madame, Monsieur,
+    </p>
+    <p class="western" align="justify">
+    Nous vous avions demand&eacute; de proc&eacute;der au paiement de la facture n&deg;{{facture.Numero_Facture}} d&apos;un
+        montant de {{facture.Montant_Facture_TTC}} &euro; TTC par courrier, en date du {{facture.Date_Relance3}}.
+        Pour m&eacute;moire, cette facture a d&eacute;j&agrave; d&ucirc; faire l&apos;objet d&apos;une relance par
+        mail le {{facture.Date_Relance1}} puis d&apos;une relance t&eacute;l&eacute;phonique le {{facture.Date_Relance2}}.
+    </p>
+        <p class="western" align="justify">
+            Ainsi, sauf erreur de notre part, nous sommes au regret de constater qu&apos;aucun paiement n&apos;a &eacute;t&eacute;
+            effectu&eacute; pour r&eacute;gler cette facture. Nous vous demandons de bien vouloir r&eacute;gler
+            cette situation, et de proc&eacute;dr au r&egrave;glement de la somme due.
+        </p>
+        <p class="western" align="justify">
+            Vous trouverez en attach&eacute; de ce courrier, une photocopie de la facture concern&eacute;e
+            et une copie de la premi&egrave;re lettre de relance qui vous a &eacute;t&eacute; envoy&eacute;e.
+        </p>
+        <p class="western" align="justify">
+            Si vous avez d&eacute;j&agrave; proc&eacute;d&eacute; au r&egrave;glement avant r&eacute;ception de ce
+            courrier, veuillez ne pas tenir compte de cette lettre.
+        </p>
+        <p class="western" align="left">
+            Nous restons &agrave; votre disposition pour tout compl&eacute;ment d&apos;information.
+            <br>
+            Nous vous prions d&apos;agr&eacute;er, Madame, Monsieur, l&apos;expression de nos salutations distingu&eacute;es.
+        </p>
+    </div>
+<div>
+    <table>
+        <td class="left" valign="top">
+
+        </td>
+        <td class="right" valign="top">
+            <p class="western" align="left">
+            <br>
+            <br>
+                Pour INGEPREV
+            <br>
+                {{facture.Prenom_Pilote}} {{facture.Nom_Pilote}}
+         <br>
+         T&eacute;l. : {{facture.Tel_Portable_Pilote}}
+          <br>
+         Mail : {{Facture.Email_Pilote}}
+        </td>
+    </table>
+</div>
+<div>
+    <p class="western">
+        <br>
+        <br>
+       Pi&egrave;ces jointes : copie de la facture n&deg;{{facture.Numero_Facture}} + copie de la lettre de relance n&deg;1
+        <br>
+        <br>
+        <br>
+        <br>
+    </p>
+</div>
+
+<div id = "footer" style = "position:absolute;bottom:0;margin-bottom:0px">
+{{ingeprev.Nom}} - {{ingeprev.Adresse}} {{ingeprev.CP}} {{ingeprev.Ville}}
+ </br>
+ {{ingeprev.Type_Societe}} au capital de {{ingeprev.Capital}} &euro; - {{ingeprev.SIRET}} RCS PARIS - APE {{ingeprev.Code_APE}}
+ </br>
+ {{ingeprev.Site_Web}} - {{ingeprev.Facebook}} - {{ingeprev.Twitter}} - {{ingeprev.Linkedin}}
+</div>
+
 </body>
+
 </html>

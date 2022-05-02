@@ -25,15 +25,14 @@ def calcul_indice(type,periode):
 def message_relance(facture, affaire):
     civ = facture.Civilite_Facture
     if civ == 'M.':
-        civ = 'Bonjour monsieur {},'.format(civ, facture.Nom_Facture)
+        civ = 'Monsieur {},'.format(facture.Nom_Facture)
     elif civ == 'Mme':
-        civ = 'Bonjour madame {},'.format(civ, facture.Nom_Facture)
+        civ = 'Madame {},'.format(facture.Nom_Facture)
     else:
-        civ = 'Bonjour,'
-    nomaffaire = affaire.Nom_Affaire
+        civ = 'Madame, monsieur,'
+
     pilote = '{} {}'.format(facture.Prenom_Pilote, facture.Nom_Pilote)
-    message = civ + '\n\n Veuillez trouver ci-joint votre facture n°{} pour la mission {}. \n\n Bien cordialement, \n\n {}'.format(
-        facture.Numero_Facture, nomaffaire, pilote)
+    message = civ + """\n\nPar la présente nous nous permettons de vous rappeler que notre facture n°{} en date du {} vient d'arriver à échéance.\nSi vous venez de procéder à son paiement, nous vous prions de bien vouloir ne pas tenir compte de ce courriel.\n\nBien cordialement, \n\nPour INGEPREV \n{}""".format(facture.Numero_Facture, facture.Date_Facture.strftime('%d/%m/%Y'), pilote)
     return message
 
 def message_facture(facture, affaire, offre):
@@ -66,6 +65,8 @@ def mise_a_jour_relance(facture, num):  #mise à jour des dates de la facture lo
         facture.Date_Relance4 = date.today()
     elif num == 5:
         facture.Date_Relance5 = date.today()
+    elif num == 6:
+        facture.Date_Relance6 = date.today()
     facture.Date_Dernier_Rappel = date.today()
     facture.save()
 
@@ -82,7 +83,10 @@ def affichage_message_relance(messages, request, num):
     elif num == 5:
         messages.add_message(request, messages.INFO,
                                  "Vous devez faire une mise en demeure. Validez ensuite la relance quand c'est effectué.")
-    elif num >= 6:
+    elif num == 6:
+        messages.add_message(request, messages.INFO,
+                                 "C'est l'heure de la mise en contentieux. Vous trouverez ci-dessous les différents courriers envoyés.")
+    elif num >= 7:
         messages.add_message(request, messages.INFO,
                              "Nombre maximum de relances atteint.")
         return redirect('.')

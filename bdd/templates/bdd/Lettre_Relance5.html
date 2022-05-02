@@ -37,17 +37,13 @@
  <td class="left" valign="top">
 	 <p class="western" align = "left">
          N&deg; de dossier : {{affaire.Ref_Affaire}}
-         <br/>
+         <br>
      Affaire : {{mission.Nom_Mission}}
-                    </br>
+                    <br>
          Adresse :
-         <br/>
+         <br>
          {{mission.Adresse_Mission}}
-         <br/>{{mission.CP}} {{mission.Ville}}
-                </p>
-
-
-	 </p>
+         <br>{{mission.CP}} {{mission.Ville}}
  </td>
  <td class="right" valign=top >
      <p class="western" align = "left">
@@ -69,7 +65,7 @@
   A l&apos;attention de {{facture.Civilite_Facture}} {{facture.Nom_Facture}} {{facture.Prenom_Facture}}
       </p>
      <p class="western" align = "left">
-         <br>
+              <br>
      Paris, le {{date}}
     </p>
  </td>
@@ -78,7 +74,9 @@
 <div>
 <p class="western" align="left">
     <br>
-    Objet : Lettre de relance suite au non paiement d&apos;une facture.
+    Objet : Lettre recommand&eacute;e de mise en demeure avec AR.
+    <br>
+    Courrier RAR n&deg;{{facture.Num_RAR_Demeure}}
 </p>
 </div>
 <div>
@@ -88,55 +86,41 @@
     Madame, Monsieur,
     </p>
     <p class="western" align="justify">
-    Apr&egrave;s v&eacute;rification de votre compte client et sauf erreur de notre part, nous n&apos;avons pas per&ccedil;u
-        le r&eacute;glement de la facture suivante :
+    Nous constatons avec regret sur votre soci&eacute;t&eacute; n&apos;a toujours pas r&eacute;gl&eacute; le solde de
+        notre facture n&deg;{{facture.Numero_Facture}} en date du {{facture.Date_Facture}} arriv&eacute;e &agrave;
+        &eacute;ch&eacute;ance le {{facture.Date_Echeance1}} malgr&eacute; nos quatre relances pr&eacute;c&eacute;dentes ;
+        un premi&egrave;re relance par mail en date du {{facture.Date_Relance1}}, une dexi&egrave;me relance t&eacute;l&eacute;phonique
+        en date du {{facture.Date_Relance2}}, une trois&eacute;me relance par courrier en date du {{facture.Date_Relance3}}
+        puis une quatri&egrave;me relance par couri&eacute;re RAR n&deg;{{facture.Num_RAR}} en date du {{facture.Date_Relance4}}
     </p>
         <p class="western" align="justify">
-            Facture n&deg;{{facture.Numero_Facture}} d&apos;un montant de {{facture.Montant_Facture_TTC}} &euro; TTC
-            en date du {{facture.Date_Facture}}, arriv&eacute;e &agrave; &eacute;ch&eacute;ance le {{facture.Date_Echeance1}}.
+            Ainsi, par la pr&eacute;sente, nous vous mettons en demeure de nous verser, &agrave; tritre principal, la somme de
+            {{facture.Montant_Facture_TTC}} euros. Cette somme sera major&eacute;e des int&eacute;r&ecirc;ts au taux
+            l&eacute;gal dus en vertu de l&apos;article 1 153 du code civil. Nous vous informons que ces p&eacute;nalit&eacute;s
+            courent d&egrave;s r&eacute;ception de cette lettre.
         </p>
         <p class="western" align="justify">
-            Pour m&eacute;moire, cette facture a d&eacute;j&agrave; d&ucirc; faire l&apos;objet d&apos;une relance par
-            mail le {{facture.Date_Relance1}} puis d&apos;une relance t&eacute;l&eacute;phonique le {{facture.Date_Relance2}}.
-        </p>
-        <p class="western" align="justify">
-            Nous vous saurions gr&eacute; de bien vouloir r&eacute;gulariser cette situation rapidement et de nous confirmer
-            la date du r&egrave;glement.
-        </p>
-        <p class="western" align="justify">
-            Dans le cas o&ugrave; votre paiement nous parviendrait avant r&eacute;ception de la pr&eacute;sente, nous vous
-            prions de ne pas en tenir compte.
+            Si, dans un d&eacute;lai de quinze jours &agrave; compter de cette date, nous ne vous &ecirc;tes toujours
+            pas acquitt&eacute; de votre obligation, nous saisirons la juridiction comp&eacute;tente afin d&apos;obtenir
+            le paiement des sommes susvi&eacute;es.
         </p>
         <p class="western" align="left">
-            Nous restons &agrave; votre disposition pour tout compl&eacute;ment d&apos;information.
+            Veuillez agr&eacute;er, Madame, Monsieur, l&apos;expression de mes salutations distingu&eacute;es.
         </p>
-    </div>
-<div>
-    <table>
-        <td class="left" valign="top">
-
-        </td>
-        <td class="right" valign="top">
-            <p class="western" align="left">
-                <br>
+    <p class="western" align="left">
             <br>
-                Pour INGEPREV
-                <br>
-                {{facture.Prenom_Pilote}} {{facture.Nom_Pilote}}
-         <br>
-         T&eacute;l. : {{facture.Tel_Portable_Pilote}}
-          <br>
-         Mail : {{Facture.Email_Pilote}}
-
-        </td>
-    </table>
-</div>
+        Le directeur g&eacute;n&eacute;ral
+        <br>
+        {{facture.Prenom_Pilote}} {{facture.Nom_Pilote}}
+    </p>
+    </div>
 <div>
     <p>
         <br>
         <br>
-       Pi&egrave;ces jointes : copie de la facture n&deg;{{facture.Numero_Facture}}
         <br>
+       Pi&egrave;ces jointes : copies de la facture n&deg;{{facture.Numero_Facture}} + lettre de relance 3 et lettre
+        de relance 4
         <br>
         <br>
         <br>
@@ -145,9 +129,9 @@
 
 <div id = "footer" style = "position:absolute;bottom:0;margin-bottom:0px">
 {{ingeprev.Nom}} - {{ingeprev.Adresse}} {{ingeprev.CP}} {{ingeprev.Ville}}
- <br>
+ </br>
  {{ingeprev.Type_Societe}} au capital de {{ingeprev.Capital}} &euro; - {{ingeprev.SIRET}} RCS PARIS - APE {{ingeprev.Code_APE}}
- <br>
+ </br>
  {{ingeprev.Site_Web}} - {{ingeprev.Facebook}} - {{ingeprev.Twitter}} - {{ingeprev.Linkedin}}
 </div>
 

@@ -270,8 +270,36 @@ class Affaire(models.Model):
     def __str__(self):
         return "{} , {} ".format(self.Nom_Affaire,self.Ref_Affaire)
 
+    def Affiche_Reste_A_Regler(self):
+        nombre = self.Reste_A_Regler()
+        return '{:,.2f}'.format(nombre).replace(',', ' ').replace('.', ',')
+
+    Affiche_Reste_A_Regler.short_description = "Reste à facturer"
+
     class Meta:
         ordering = ['Nom_Affaire']
+
+    def Adresse(self):
+        mission = Offre_Mission.objects.get(pk=self.ID_Mission_id)
+        print(mission, mission.Adresse)
+        adresse = mission.Adresse
+        return adresse
+
+    def CP(self):
+        ID = self.ID_Mission_id
+        mission = Offre_Mission.objects.get(pk=ID)
+        cp = mission.CP
+        return cp
+
+    def Ville(self):
+        ID = self.ID_Mission_id
+        mission = Offre_Mission.objects.get(pk=ID)
+        ville = mission.Ville
+        return ville
+
+    Adresse.short_description = "Adresse de la Mission"
+    CP.short_description = "Code Postal"
+    Ville.short_description = "Ville"
 
     def save(self,*args,**kwargs):
         if self.Ref_Affaire == 'A0001':  #Lors de la création de l'affaire, création du numéro, accepation de l'offre, remplissage automatique des champs connus
@@ -295,14 +323,13 @@ class Affaire(models.Model):
         super().save(*args,**kwargs)
 
     def client(self):
-        ID = self.id
-        mission = Offre_Mission.objects.filter(ID_Affaire = ID)
+        mission = Offre_Mission.objects.get(pk=self.ID_Mission_id)
         client = mission.ID_Client_Cache
         return client
 
     def Reste_A_Regler(self):
         ID = self.id
-        resultat = Facture.objects.filter(ID_Affaire = ID).aggregate(deja_regle = Sum('Montant_Facture_HT'))['deja_regle'] or 0
+        resultat = Facture.objects.filter(ID_Affaire = ID).filter(deja_validee=True).aggregate(deja_regle = Sum('Montant_Facture_HT'))['deja_regle'] or 0
         reste = self.Honoraires_Global - resultat
         return reste
 
@@ -348,6 +375,7 @@ class Facture(models.Model):
     Date_Relance3 = models.DateField(default=date.today, verbose_name="Date de relance3 - relance courrier", blank=True)
     Date_Relance4 = models.DateField(default=date.today, verbose_name="Date de relance4 - relance RAR", blank=True)
     Date_Relance5 = models.DateField(default=date.today, verbose_name="Date de relance5 - mise en demeure", blank=True)
+    Date_Relance6 = models.DateField(default=date.today, verbose_name="Date de relance6 - contentieux", blank=True)
     Date_Dernier_Rappel = models.DateField(default=date.today, verbose_name = "Date dernier rappel", blank = True)
     Num_Relance = models.IntegerField(default = 0, blank = True)
     Num_RAR = models.CharField(max_length = 20, blank = True, default = 'A préciser', verbose_name = "Numéro RAR relance 4") #Numéro du RAR de la relance 4
@@ -410,12 +438,16 @@ class Facture(models.Model):
     def Reste_Affaire(self):
         affaire = Affaire.objects.get(pk = self.ID_Affaire_id)
         reste = affaire.Reste_A_Regler()
-        return reste
+        return '{:,.2f}'.format(reste).replace(',', ' ').replace('.', ',')
 
     def Honoraire_Affaire(self):
         affaire = Affaire.objects.get(pk=self.ID_Affaire_id)
         honoraire = affaire.Honoraires_Global
-        return honoraire
+        return '{:,.2f}'.format(honoraire).replace(',', ' ').replace('.', ',')
+
+    def Date_Prev_Affaire(self):
+        affaire = Affaire.objects.get(pk=self.ID_Affaire_id)
+        return affaire.Date_Previsionnelle
 
     def Num_Affaire(self):
         affaire = Affaire.objects.get(pk=self.ID_Affaire_id)
@@ -445,6 +477,7 @@ class Facture(models.Model):
     Honoraire_Affaire.short_description = "Montant honoraires de l'affaire"
 
     def Remplissage_Facture(self):
+        self.save()
         payeur = Client.objects.get(pk=self.ID_Payeur_id)
         self.Denomination_Client = payeur.Denomination_Sociale
         self.Adresse_Client = payeur.Adresse
@@ -470,6 +503,7 @@ class Facture(models.Model):
         self.Delais_Paiement = facture.Delais_Paiement
         self.Mode_Paiement = facture.Mode_Paiement
         self.Fin_Mois = facture.Fin_Mois
+        self.Modalites_Paiement = facture.Modalites_Paiement
         if self.Montant_Facture_HT < 0:
             self.Facture_Avoir = 'AV'
         self.save()

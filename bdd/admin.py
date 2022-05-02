@@ -18,6 +18,8 @@ from django.contrib.admin.utils import label_for_field
 from django.db.models import Sum
 from django.core.exceptions import FieldDoesNotExist
 from django.utils.html import strip_tags
+from django.forms.widgets import TextInput
+from datetime import date
 
 from xhtml2pdf import pisa
 
@@ -30,6 +32,8 @@ from .forms import *
 # en mettant media ils sont enregistrés dans F:\media, en mettant '/media/' ils sont enregistrés
 # sur le serveur....
 DOSSIER = settings.MEDIA_ROOT #Nom du dossier dans lequel sont enregistrés les factures, lettres de relance
+
+admin.site.site_header = "UMSRA Admin"
 
 #Définition des permissions pour l'affichage ou non dans le menu admin - Choisir entre personne ne voit ou bien seulement les superuse voient
 class EnvoiOffreAdmin(admin.ModelAdmin):
@@ -54,34 +58,6 @@ class AttachmentAdmin(admin.ModelAdmin):
         if not request.user.is_superuser:
             return {}
         return super().get_model_perms(request)
-
-    '''
-    def get_form(self, request, obj=None, **kwargs):
-        if not obj:
-            self.readonly_fields = ()
-            return AttachmentForm
-        self.readonly_fields = ('file_link')
-        return super().get_form(request, obj, **kwargs)
-
-    def file_link(self, obj):
-        fichier = obj.file
-        return format_html(
-            '<a{} target = "_blank">{}</a>', flatatt({'href': fichier.url}), fichier.name)
-    file_link.allow_tags = True
-
-    def __init__(self,*args,**kwargs):
-        super(AttachmentAdmin,self).__init__(*args,**kwargs)
-        
-    def change_view(self, request, object_id, extra_context=None):
-        extra_context = extra_context or {}
-        attachment = Attachment.objects.get(pk = object_id)
-        fichier = attachment.file
-        url = fichier.url
-        extra_context = extra_context or {}
-        extra_context['url'] = url
-
-        return super().change_view(request, object_id, extra_context = extra_context)
-    '''
 
 class CompteurIndiceAdmin(admin.ModelAdmin):
     def get_model_perms(self, request, *args, **kwargs):
@@ -126,6 +102,8 @@ class InfoEmailAdmin(admin.ModelAdmin):
             form = RelanceForm4
         elif obj.Type_Action == 'Relance5':
             form = RelanceForm5
+        elif obj.Type_Action == 'Relance6':
+            form = RelanceForm6
         else:
             form = super().get_form(request, obj, **kwargs)
         return form
@@ -164,7 +142,7 @@ class InfoEmailAdmin(admin.ModelAdmin):
             return redirect(url)
 
         if "Fermer" in request.POST:
-            if facture.Num_Relance != 5:
+            if facture.Num_Relance < 5:
                 facture.Num_RAR = 'A préciser'
             elif facture.Num_Relance == 5:
                 facture.Num_RAR_Demeure = 'A préciser'
@@ -191,6 +169,8 @@ class InfoEmailAdmin(admin.ModelAdmin):
             facture.save()
 
             affaire = Affaire.objects.get(pk=facture.ID_Affaire_id)
+            mission = Offre_Mission.objects.get(pk=affaire.ID_Mission_id)
+            ingeprev = Ingeprev.objects.get(Nom='INGEPREV')
 
             # Création du pdf dans media
             data = {}
@@ -199,20 +179,12 @@ class InfoEmailAdmin(admin.ModelAdmin):
             data['affaire'] = affaire
             data['Date_Echeance'] = facture.Date_Echeance1()
             data['Montant_TTC'] = facture.Montant_Facture_TTC()
+            data['ingeprev'] = ingeprev
+            data['mission'] = mission
+            data['date'] = date.today()
 
             email = InfoEmail.objects.get(pk=obj.pk)
             if facture.Num_Relance == 4:
-                if "Mettre_a_jour_RAR" in request.POST:
-                    attachment = Attachment.objects.filter(message_id = email.id).filter(nom = "Lettre de Relance 3")
-                    attachment.delete()
-                source_html = 'bdd/Lettre_Relance3.html'
-                fichier = DOSSIER + 'relances/Relance3-{}.pdf'.format(facture.Numero_Facture)
-                creer_html_to_pdf(source_html, fichier, data)
-                chemin = Path(fichier)
-                with chemin.open(mode='rb') as f:
-                     Attachment.objects.create(file=File(f, name=chemin.name), message=email, nom = "Lettre de Relance 3")
-
-            if facture.Num_Relance == 5:
                 if "Mettre_a_jour_RAR" in request.POST:
                     attachment = Attachment.objects.filter(message_id = email.id).filter(nom = "Lettre de Relance 4")
                     attachment.delete()
@@ -222,6 +194,17 @@ class InfoEmailAdmin(admin.ModelAdmin):
                 chemin = Path(fichier)
                 with chemin.open(mode='rb') as f:
                      Attachment.objects.create(file=File(f, name=chemin.name), message=email, nom = "Lettre de Relance 4")
+
+            if facture.Num_Relance == 5:
+                if "Mettre_a_jour_RAR" in request.POST:
+                    attachment = Attachment.objects.filter(message_id = email.id).filter(nom = "Lettre de Relance 5")
+                    attachment.delete()
+                source_html = 'bdd/Lettre_Relance5.html'
+                fichier = DOSSIER + 'relances/Relance5-{}.pdf'.format(facture.Numero_Facture)
+                creer_html_to_pdf(source_html, fichier, data)
+                chemin = Path(fichier)
+                with chemin.open(mode='rb') as f:
+                     Attachment.objects.create(file=File(f, name=chemin.name), message=email, nom = "Lettre de Relance 5")
 
             return redirect('.')
 
@@ -286,23 +269,41 @@ class Offre_MissionAdmin(admin.ModelAdmin):
     list_filter = ('Etat','ID_Pilote',)
     form = Offre_MissionForm
     change_form_template = 'bdd/Offre_Mission.html'
+    formfield_overrides = {models.DecimalField: {
+            'widget': forms.TextInput(attrs={'style': 'text-align:right;', }),
+        },
+    }
 
     class  Meta:
         model = Offre_Mission
 
     def get_form(self, request, obj=None, **kwargs):
-        '''
+
         if not obj:
             form = Offre_MissionAdminForm
         else:
             form = Offre_MissionForm
-            '''
+
         return super().get_form(request,**kwargs)
 
     def get_readonly_fields(self, request, obj = None):
         return ['Etat','Date_Acceptation']
 
+    def change_view(self,request, object_id, extra_context = None):
+        extra_context = extra_context or {}
+        obj = Offre_Mission.objects.get(pk=object_id)
+        if obj.Etat == 'ATT':
+            extra_context['attente'] = True
+        else:
+            extra_context['attente'] = False
+        return super().change_view(request, object_id, extra_context = extra_context)
+
     def response_change(self, request, obj, extra_context=None):
+        extra_context = extra_context or {}
+        if obj.Etat == 'ATT':
+            extra_context['attente'] = True
+        else:
+            extra_context['attente'] = False
         if "Sans_Suite" in request.POST:
             if obj.Etat == "ATT":
                 obj.Etat = "REF"
@@ -312,6 +313,41 @@ class Offre_MissionAdmin(admin.ModelAdmin):
                 messages.add_message(request, messages.INFO,
                                      "Impossible de classer cette offre de mission sans suite. Elle a déjà été acceptée.")
                 return redirect('.')
+        if "Valider_Offre" in request.POST:
+            if obj.Etat =="ACC":
+                messages.add_message(request, messages.INFO,
+                                     "Impossible de créer l'affaire. Cette offre de mission est déjà acceptée.")
+                return redirect('.')
+            elif obj.Etat == 'REF':
+                messages.add_message(request, messages.INFO,
+                                     "Impossible de créer l'affaire. Cette offre de mission est refusée.")
+                return redirect('.')
+            else:
+                obj.save()
+                idmission = obj.pk
+                aujourdhui = date.today()
+                annee = aujourdhui.year
+                mois = aujourdhui.month
+                periode = '{}{:02d}'.format(annee, mois)
+                indice = calcul_indice('A', periode)
+                refaffaire = 'A-{}{:04d}'.format(periode, indice)
+                obj.Etat = "ACC"
+                obj.Date_Acceptation = aujourdhui
+                obj.save()
+                idpayeur = obj.ID_Payeur
+                idclientcache = obj.ID_Client_Cache
+                nomaffaire = obj.Nom_Mission
+                honorairesglobal = obj.Honoraires_Proposes
+                idpilote = obj.ID_Pilote
+                affaire = Affaire.objects.create(ID_Mission_id=idmission, Ref_Affaire=refaffaire, Indice_Dossier = indice,
+                                                 ID_Payeur=idpayeur, ID_Client_Cache=idclientcache,
+                                                 Nom_Affaire=nomaffaire,Honoraires_Global=honorairesglobal,
+                                                 ID_Pilote=idpilote)
+
+                id = affaire.pk
+                url = '/admin/bdd/affaire/{}/change'.format(id)
+                return redirect(url, pk=id)
+
         return super().response_change(request, obj, extra_context=extra_context)
 
 
@@ -390,16 +426,31 @@ class ASolder_Filter(admin.SimpleListFilter):
 
 #class AffaireAdmin(TotalsumAdmin):
 class AffaireAdmin(admin.ModelAdmin):
-    list_display = ("Nom_Affaire", "ID_Payeur", "Honoraires_Global", 'Reste_A_Regler', 'Solde', 'soldee', "Date_Previsionnelle")
+    list_display = ("Nom_Affaire", "ID_Payeur", "Honoraires_Global", 'Reste_A_Regler', 'Solde', 'soldee', "Date_Previsionnelle",)
     search_fields = ("Nom_Affaire__startswith",)
     list_filter = (Previsionnel_Filter, ASolder_Filter, 'ID_Pilote',)
     radio_fields = {"Type_Affaire":admin.HORIZONTAL,"Etat": admin.HORIZONTAL}
     list_editable = ('Date_Previsionnelle','soldee',)
     totalsum_list = ('Reste_A_Regler',)
+    localized_fields = ('Honoraires_Global','Reste_A_Regler',)
+    formfield_overrides = {models.DecimalField: {
+            'widget': forms.TextInput(attrs={'style': 'text-align:right;', }),
+        },
+    }
     unit_of_measure = ""
     totalsum_decimal_places = 2
     change_list_template = 'bdd/Liste_Affaires.html'
     form = AffaireForm
+    change_form_template = 'bdd/Modification_Affaire.html'
+
+    class Meta:
+        model = Affaire
+
+    def get_readonly_fields(self, request, obj = None):
+        if not obj:
+            return []
+        else:
+            return ('Affiche_Reste_A_Regler','Adresse','CP','Ville',)
 
     def get_form(self, request, obj=None, **kwargs):
         if not obj:
@@ -410,13 +461,34 @@ class AffaireAdmin(admin.ModelAdmin):
         #self.readonly_fields = ('Solde', )
         return super().get_changelist_form(request, **kwargs)
 
-    class Meta:
-        model = Affaire
 
     def response_add(self, request, obj, post_url_continue=None):
         id = obj.id
         url = '/admin/bdd/affaire/{}/change'.format(id)
         return redirect(url)
+
+    def response_change(self, request, obj, extra_context=None):
+        extra_context = extra_context or {}
+        if "Facturer" in request.POST:
+            obj.save()
+            idaffaire = obj.pk
+            affaire = obj
+            idpayeur = affaire.ID_Payeur
+            nomaffaire = affaire.Nom_Affaire
+            idenvoifacture = affaire.ID_Envoi_Facture
+            idpilote = affaire.ID_Pilote
+            numfacture = 'FA0001'
+            facture = Facture.objects.create(ID_Affaire_id=idaffaire,
+                                             ID_Payeur = idpayeur, Nom_Affaire = nomaffaire,
+                                             ID_Envoi_Facture = idenvoifacture, ID_Pilote = idpilote,
+                                             Numero_Facture = numfacture)
+
+            id = facture.pk
+            url = '/admin/bdd/facture/{}/change'.format(id)
+            return redirect(url, pk=id)
+
+        return super().response_change(request, obj, extra_context=extra_context)
+
 
     def changelist_view(self, request, extra_context=None):
         response = super(AffaireAdmin, self).changelist_view(request, extra_context)
@@ -520,43 +592,42 @@ class FactureAdmin(admin.ModelAdmin):
     list_filter = (A_Relancer_Filter,A_Envoyer_Filter,'Etat_Paiement','Etat','Nom_Affaire',)
     list_editable = ('deja_payee',)
     list_per_page = 20
+    formfield_overrides = {models.DecimalField: {
+            'widget': forms.TextInput(attrs={'style': 'text-align:right;', }),
+        },
+    }
+    localized_fields = ('Honoraire_Affaire', 'Reste_Affaire','Montant_Facture_HT','Date_Prev_Affaire',)
 
     #Changement ici
     form = FactureForm
     change_form_template = 'bdd/Modification_Facture.html'
-
+    change_list_template = 'admin/change_list2.html'
+    form = FactureFormModif
     #actions = ['my_action']
+
+    def Date_Prev_Affaire_aff(self,obj):
+        return obj.Date_Prev_Affaire().strftime('%d/%m/%Y')
+
+    Date_Prev_Affaire_aff.short_description = "Date prévisionnelle actuelle de l'affaire"
 
     def get_form(self, request, obj=None, **kwargs):
         if not obj:
             self.readonly_fields = ()
             return CreationFactureForm
-        self.readonly_fields = ('Honoraire_Affaire', 'Reste_Affaire','Num_Affaire')
+        elif obj.deja_validee:
+            self.readonly_fields = ('Date_Prev_Affaire', 'Honoraire_Affaire', 'Reste_Affaire', 'Num_Affaire')
+            return FactureForm
+        self.readonly_fields = ('Date_Prev_Affaire', 'Honoraire_Affaire', 'Reste_Affaire', 'Num_Affaire')
         return super().get_form(request, obj, **kwargs)
-
-    '''
-    def get_form(self, request, obj=None, **kwargs):
-        if not obj:
-            form = CreationFactureForm
-            self.readonly_fields = ()
-        elif obj.Num_Relance == 0 and not obj.deja_validee:
-            form = FactureForm
-            self.readonly_fields = ('Honoraire_Affaire', 'Reste_Affaire', 'Num_Affaire')
-        elif obj.Num_Relance == 0:
-            form = VisualisationFactureForm
-            self.readonly_fields = ['ID_Payeur', 'ID_Envoi_Facture', 'ID_Pilote', 'Descriptif', 'Montant_Facture_HT','Taux_TVA', 'Date_Facture']
-        else:
-            form = VisualisationFactureForm
-        return form
-    '''
 
     def get_readonly_fields(self, request, obj = None):
         if not obj:
             return []
         elif obj.deja_validee:
-            return ['ID_Payeur','ID_Envoi_Facture','ID_Pilote','Descriptif','Montant_Facture_HT', 'Taux_TVA','Date_Facture']
+            return ['Numero_Facture','Nom_Affaire','ID_Payeur','ID_Envoi_Facture','ID_Pilote',
+                  'Descriptif','Montant_Facture_HT','Taux_TVA','Date_Facture','Modalites_Paiement']
         elif obj.Num_Relance == 0 and not obj.deja_validee:
-            return ('Honoraire_Affaire', 'Reste_Affaire', 'Num_Affaire',)
+            return ('Date_Prev_Affaire_aff','Honoraire_Affaire', 'Reste_Affaire', 'Num_Affaire','Modalites_Paiement',)
         else:
             return []
 
@@ -578,14 +649,13 @@ class FactureAdmin(admin.ModelAdmin):
         extra_context['show_save'] = False
         extra_context['show_save_and_add_another'] = False
         extra_context['relance'] = facture.Num_Relance
-        if "Fermer" in request.POST:
-            url = '/admin/bdd/facture'
-            return redirect(url)
+        extra_context['instance'] = facture
         return super().change_view(request, object_id, extra_context = extra_context)
 
     def response_change(self, request, obj, extra_context = None):
         extra_context = extra_context or {}
         extra_context['Etat'] = obj.deja_validee
+        extra_context['Date_Prev'] = obj.Date_Prev_Affaire()
 
         if "Supprimer" in request.POST:
             if not obj.deja_validee:
@@ -606,7 +676,7 @@ class FactureAdmin(admin.ModelAdmin):
                 messages.add_message(request, messages.INFO,
                                      "La facture a été payée. Vous ne pouvez pas la relancer.")
                 return redirect('.')
-            if obj.Num_Relance >= 6:
+            if obj.Num_Relance >= 7:
                 num = obj.Num_Relance
                 affichage_message_relance(messages, request, num)
                 return redirect('.')
@@ -618,6 +688,7 @@ class FactureAdmin(admin.ModelAdmin):
 
                     facture = get_object_or_404(Facture, pk=obj.pk)
                     affaire = Affaire.objects.get(pk=obj.ID_Affaire_id)
+                    mission = Offre_Mission.objects.get(pk = affaire.ID_Mission_id)
                     ingeprev = Ingeprev.objects.get(Nom = 'INGEPREV')
 
                     # Création du pdf dans media
@@ -628,6 +699,8 @@ class FactureAdmin(admin.ModelAdmin):
                     data['Date_Echeance'] = facture.Date_Echeance1()
                     data['Montant_TTC'] = facture.Montant_Facture_TTC()
                     data['ingeprev'] = ingeprev
+                    data['mission'] = mission
+                    data['date'] = date.today()
 
                     # Création de l'email prérempli
                     message = message_relance(facture, affaire)
@@ -640,10 +713,6 @@ class FactureAdmin(admin.ModelAdmin):
                     fichier = DOSSIER + 'factures/{}.pdf'.format(facture.Numero_Facture)
                     creer_html_to_pdf(source_html, fichier, data)
 
-                    if facture.Num_Relance == 1:
-                        source_html = 'bdd/Lettre_Relance1.html'
-                        message = strip_tags(render_to_string(source_html,data))
-
                     if facture.Num_Relance <= 4:
                         RAR = facture.Num_RAR
                     else:
@@ -652,27 +721,24 @@ class FactureAdmin(admin.ModelAdmin):
                     email = InfoEmail.objects.create(From = From, To=facture.Email_Facture, Message=message,
                                                      Subject=sujet, RAR = RAR,
                                                      ID_Facture=idfacture, Type_Action=typeaction)
-                    if facture.Num_Relance == 1:
-                        email.content_subtype = "html"
-                    email.save()
-
-                    if facture.Num_Relance == 3:
-                        source_html = 'bdd/Lettre_Relance2.html'
-                        fichier = DOSSIER + 'relances/Relance2-{}.pdf'.format(facture.Numero_Facture)
-                        creer_html_to_pdf(source_html, fichier, data)
 
                     #Récupération de la facture pdf
                     chemin = Path(DOSSIER + 'factures/{}.pdf'.format(facture.Numero_Facture))
                     with chemin.open(mode='rb') as f:
                         Attachment.objects.create(file=File(f, name=chemin.name), message=email, nom = 'Facture')
 
-                    if facture.Num_Relance == 3:
-                        chemin = Path(DOSSIER + 'relances/Relance2-{}.pdf'.format(facture.Numero_Facture))
-                        with chemin.open(mode='rb') as f:
-                            Attachment.objects.create(file=File(f, name=chemin.name), message=email, nom = 'Lettre de Relance 2')
 
-                    if facture.Num_Relance == 5:
-                        for k in [1,2,3]:
+                    #Création des lettres de relance
+                    if facture.Num_Relance == 3:
+                        source_html = 'bdd/Lettre_Relance3.html'
+                        fichier = DOSSIER + 'relances/Relance3-{}.pdf'.format(facture.Numero_Facture)
+                        creer_html_to_pdf(source_html, fichier, data)
+                        chemin = Path(DOSSIER + 'relances/Relance3-{}.pdf'.format(facture.Numero_Facture))
+                        with chemin.open(mode='rb') as f:
+                            Attachment.objects.create(file=File(f, name=chemin.name), message=email, nom = 'Lettre de Relance 3')
+
+                    if facture.Num_Relance == 5 or facture.Num_Relance == 6:
+                        for k in range(3,facture.Num_Relance):
                             source_html = 'bdd/Lettre_Relance{}.html'.format(k)
                             fichier = DOSSIER + 'relances/Relance{}-{}.pdf'.format(k,facture.Numero_Facture)
                             creer_html_to_pdf(source_html, fichier, data)
@@ -847,7 +913,7 @@ class FactureAdmin(admin.ModelAdmin):
 
             facture = get_object_or_404(Facture, pk=obj.pk)
             affaire = Affaire.objects.get(pk=obj.ID_Affaire_id)
-            offre = Offre_Mission.objects.get(pk = affaire.ID_Mission_id)
+            offre = Offre_Mission.objects.get(pk=affaire.ID_Mission_id)
 
             #Création du pdf dans media
             data = {}

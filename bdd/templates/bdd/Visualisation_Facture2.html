@@ -11,7 +11,7 @@
 
     	<style>
         @page { size: 21cm 29.7cm;  margin-left: 0.98in; margin-right: 0.98in; margin-top: 0.3in; margin-bottom: 0in }
-		p { text-align: left; orphans: 2; widows: 2; margin-bottom: 5px; direction: ltr; background: transparent }
+		p { font-family: "Calibry"; text-align: left; orphans: 2; widows: 2; margin-bottom: 5px; direction: ltr; background: transparent }
 		p.western { font-family: "Calibry"; font-size: 11pt; so-language: fr-FR ;padding-top: 6px; padding-bottom: 0px}
 		p.cjk { font-family: "Calibry"; font-size: 12pt; so-language: fr-FR }
 		p.ctl { font-family: "Calibry"; font-size: 10pt }
@@ -25,7 +25,7 @@
 <table >
  <tr>
  <td class="left">
-	 <p valign=center style="Calibri; font-size: 36pt; color:#0070c0; padding-top:20px">
+	 <p valign=center style="font-size: 36pt; color:#0070c0; padding-top:20px">
 	 {% if FA %} FACTURE {% endif %} {%if not FA %} AVOIR {% endif %}
 	 </p>
  </td>
@@ -58,7 +58,7 @@
   <span style='color:#0070C0'>Votre contact&nbsp;:</span> {{facture.Prenom_Pilote}}
 {{facture.Nom_Pilote}}
          <br/>
-         <span style='color:#0070C0'>t&eacute;l. :</span> {{facture.Tel_Portable_Pilote}}
+         <span style='color:#0070C0'>T&eacute;l. :</span> {{facture.Tel_Portable_Pilote}}
           <br/>
          <font color="#0070c0">Mail : </font>{{Facture.Email_Pilote}}
          <br/>
@@ -85,7 +85,7 @@
   </td>
  </tr>
  <tr>
-  <td valign=top style='width:50%;border:solid black 1.0pt;
+  <td valign=top style='width:50%;border:solid black 0.5pt;
   mso-border-alt:solid black .75pt;padding:0cm 5.75pt 0cm 5.75pt'>
   <p class=western valign = top>
       {{facture.Denomination_Client}}
@@ -197,7 +197,7 @@
   </td>
  </tr>
  <tr>
-  <td valign=top style='width:33%;border:solid black 1.0pt;
+  <td valign=top style='width:33%;border:solid black 0.5pt;
   mso-border-alt:solid black .75pt;padding:0cm 5.75pt 0cm 5.75pt'>
   <p class=western valign = top style='text-align: center'>
       {{ingeprev.Code_Banque}}
@@ -230,7 +230,7 @@
   </td>
  </tr>
  <tr>
-  <td valign=top colspan = 2 style='width:50%;border:solid black 1.0pt;
+  <td valign=top colspan = 2 style='width:50%;border:solid black 0.5pt;
   mso-border-alt:solid black .75pt;padding:0cm 5.75pt 0cm 5.75pt'>
   <p class=western valign = top style = 'text-align: center'>
       {{ingeprev.Num_Compte}}
@@ -252,7 +252,7 @@
   </td>
  </tr>
  <tr>
-  <td valign=top colspan = 3 style='width:100%;border:solid black 1.0pt;
+  <td valign=top colspan = 3 style='width:100%;border:solid black 0.5pt;
   mso-border-alt:solid black .75pt;padding:0cm 5.75pt 0cm 5.75pt'>
   <p class=western valign = top style = 'text-align: center'>
       {{ingeprev.Nom_Banque}}

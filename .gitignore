@@ -12,6 +12,7 @@ venv/
 db.sqlite3
 
 # Dossier "static" à la racine du projet
+/staticfiles/
 /static/
 /media/
 

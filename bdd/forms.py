@@ -74,14 +74,14 @@ class RelanceForm5(forms.ModelForm):
         super(RelanceForm5, self).__init__(*args, **kwargs)
         self.fields['Subject'].widget.attrs['readonly'] = True
 
-    #Pieces_Jointes = MultiFileField(label = 'Pièces jointes', min_num=0, max_num=3, max_file_size=1024 * 1024 * 5)
-    '''
-    def save(self, commit=True):
-        instance = super(RelanceForm5, self).save(commit)
-        for each in self.cleaned_data['Pieces_Jointes']:
-            Attachment.objects.create(file=each, message=instance)
-        return instance
-    '''
+class RelanceForm6(forms.ModelForm):
+    class Meta:
+        model = InfoEmail
+        fields = ('Subject',)
+
+    def __init__(self, *args, **kwargs):
+        super(RelanceForm6, self).__init__(*args, **kwargs)
+        self.fields['Subject'].widget.attrs['readonly'] = True
 
 class ClientForm(forms.ModelForm):
     class Meta:
@@ -107,18 +107,10 @@ class Offre_MissionForm(forms.ModelForm):
         #fields = ['Ref_Mission','Nom_Mission','Adresse','CP','ID_Payeur','ID_Envoi_Offre','ID_Client_Cache','ID_Apporteur',
         #          'Honoraires_Proposes','Date_Proposition','Date_Acceptation','Descriptif','Etat', 'ID_Pilote']
         exclude = ['Type_Dossier','Indice_Dossier']
+        localized_fields = ('Honoraires_Proposes',)
     def __init__(self, *args, **kwargs):
         super(Offre_MissionForm, self).__init__(*args, **kwargs)
         self.fields['Ref_Mission'].widget.attrs['readonly'] = True
-'''
-class Offre_MissionForm(forms.ModelForm):
-    class Meta:
-        model = Offre_Mission
-        exclude = ['Type_Dossier','Indice_Dossier']
-    def __init__(self, *args, **kwargs):
-        super(Offre_MissionForm, self).__init__(*args, **kwargs)
-        self.fields['Ref_Mission'].widget.attrs['readonly'] = True
-'''
 
 class CreationAffaireForm(forms.ModelForm):
      class Meta:
@@ -133,9 +125,11 @@ class AffaireForm(forms.ModelForm):
     class Meta:
         model = Affaire
         exclude = ['soldee','ID_Client_Cache','Type_Dossier','Indice_Dossier','ID_Mission','Etat']
+        localized_fields = ('Honoraires_Global',)
 
     def __init__(self, *args, **kwargs):
         super(AffaireForm, self).__init__(*args, **kwargs)
+        #self.fields['Honoraires_Global_str_'].widget.attrs['readonly'] = True
         self.fields['Ref_Affaire'].widget.attrs['readonly'] = True
 
 class CreationFactureForm(forms.ModelForm):
@@ -150,6 +144,7 @@ class FactureHistoriqueForm(forms.ModelForm):
     class Meta:
         model = Facture
         fields = ['Numero_Facture', 'Date_Envoi', 'Date_Relance1', 'Date_Relance2', 'Date_Relance3', 'Date_Relance4', 'Num_RAR','Num_RAR_Demeure']
+        #widget = {'style': 'text-align:right;'}
 
     def __init__(self, *args, **kwargs):
         super(FactureHistoriqueForm, self).__init__(*args, **kwargs)
@@ -165,12 +160,44 @@ class FactureHistoriqueForm(forms.ModelForm):
 class FactureForm(forms.ModelForm):
     class Meta:
         model = Facture
-        fields = ['Numero_Facture','Nom_Affaire','ID_Payeur','ID_Envoi_Facture','ID_Pilote','Descriptif','Montant_Facture_HT','Taux_TVA','Date_Facture']
+        fields = ['Numero_Facture']
+        localized_fields = ('Montant_Facture_HT',)
 
     def __init__(self, *args, **kwargs):
         super(FactureForm, self).__init__(*args, **kwargs)
+        self.fields['Numero_Facture'].widget= forms.HiddenInput()
+
+
+class FactureFormModif(forms.ModelForm):
+    class Meta:
+        model = Facture
+        fields = ['Numero_Facture','ID_Affaire','Nom_Affaire','ID_Payeur','ID_Envoi_Facture','ID_Pilote',
+                  'Descriptif','Montant_Facture_HT','Taux_TVA','Date_Facture',]
+        localized_fields = ('Montant_Facture_HT',)
+
+    Date_Prev = forms.DateField(label="Nouvelle date prévisionnelle de l'affaire", required=False)
+
+    def __init__(self, *args, **kwargs):
+        super(FactureFormModif, self).__init__(*args, **kwargs)
         self.fields['Numero_Facture'].widget.attrs['readonly'] = True
         self.fields['Nom_Affaire'].widget.attrs['readonly'] = True
+        #self.fields['Modalites_Paiement'].widget.attrs['readonly'] = True
+        self.fields['ID_Affaire'].widget = forms.HiddenInput()
+        id=self.initial['ID_Affaire']
+        affaire=Affaire.objects.get(pk=id)
+        self.fields['Date_Prev'].initial = affaire.Date_Previsionnelle
+
+    def save(self, commit=True):
+        instance = super(FactureFormModif, self).save(commit)
+        facture = Facture.objects.get(pk=instance.pk)
+        affaire = Affaire.objects.get(pk=facture.ID_Affaire_id)
+        nouvdate = self.cleaned_data['Date_Prev']
+        affaire.Date_Previsionnelle = nouvdate
+        facture.save()
+        affaire.save()
+        instance.save()
+        return instance
+
 
 class VisualisationFactureForm(forms.ModelForm):
     class Meta:
