@@ -37,6 +37,12 @@ DOSSIER = settings.MEDIA_ROOT #Nom du dossier dans lequel sont enregistrés les 
 
 admin.site.site_header = "UMSRA Admin"
 
+
+def fetch_resources(uri, rel):
+    path = os.path.join(settings.MEDIA_ROOT, uri.replace(settings.MEDIA_URL, ""))
+
+    return path
+
 #Définition des permissions pour l'affichage ou non dans le menu admin - Choisir entre personne ne voit ou bien seulement les superuse voient
 class IngeprevAdmin(admin.ModelAdmin):
     list_display = ['Nom','Capital',]
@@ -651,6 +657,11 @@ class FactureAdmin(admin.ModelAdmin):
         url = '/admin/bdd/facture/{}/change'.format(id)
         return redirect(url)
 
+    def fetch_resources(uri, rel):
+        path = os.path.join(settings.MEDIA_ROOT, uri.replace(settings.MEDIA_URL, ""))
+
+        return path
+
     def change_view(self,request, object_id, extra_context = None):
         facture = Facture.objects.get(pk = object_id)
         id = facture.ID_Affaire_id
@@ -665,6 +676,35 @@ class FactureAdmin(admin.ModelAdmin):
         extra_context['show_save_and_add_another'] = False
         extra_context['relance'] = facture.Num_Relance
         extra_context['instance'] = facture
+
+        mission = Offre_Mission.objects.get(pk=affaire.ID_Mission_id)
+        ingeprev = Ingeprev.objects.get(Nom='INGEPREV')
+
+        # Création du pdf dans media
+        data = {}
+        data['facture'] = facture
+        data['Ref_Affaire'] = affaire.Ref_Affaire
+        data['affaire'] = affaire
+        data['Date_Echeance'] = facture.Date_Echeance1()
+        data['Montant_TTC'] = facture.Montant_Facture_TTC()
+        data['ingeprev'] = ingeprev
+        data['mission'] = mission
+        data['date'] = date.today()
+
+        if "Apercu_PDF_Facture" in request.POST:  # ouvre la fenètre de téléchargement de chrome - permet de visualiser la facture avant validation
+            source_html = 'bdd/Visualisation_Facture2.html'
+            filename = '{}.pdf'.format(facture.Numero_Facture)
+            fichier = DOSSIER + 'temp/FA0001.pdf'  # .format(facture.Numero_Facture)
+            template = get_template(source_html)
+            html = template.render(data)
+            write_to_file = open(fichier, "w+b")
+            pisa.CreatePDF(html, dest=write_to_file, link_callback=fetch_resources)
+            write_to_file.seek(0)
+            pdf = write_to_file.read()
+            reponse = HttpResponse(pdf, content_type='application/pdf')
+            reponse['Content-Disposition'] = 'filename={}'.format(filename)
+            write_to_file.close()
+            return reponse
         if "Fermer" in request.POST:
             url = '/admin/bdd/facture'
             return redirect(url)
@@ -844,6 +884,7 @@ class FactureAdmin(admin.ModelAdmin):
                     pass
             facture = get_object_or_404(Facture, pk = obj.pk)
             affaire = Affaire.objects.get(pk = obj.ID_Affaire_id)
+            ingeprev = Ingeprev.objects.get(Nom='INGEPREV')
 
             context = {}
             context['facture'] = facture
@@ -851,6 +892,7 @@ class FactureAdmin(admin.ModelAdmin):
             context['affaire'] = affaire
             context['Date_Echeance'] = facture.Date_Echeance1()
             context['Montant_TTC'] = facture.Montant_Facture_TTC()
+            context['ingeprev'] = ingeprev
             if facture.Facture_Avoir == "FA":
                 context['FA'] = True
             else:
@@ -915,7 +957,7 @@ class FactureAdmin(admin.ModelAdmin):
                 template = get_template(source_html)
                 html = template.render(data)
                 write_to_file = open(fichier, "w+b")
-                pisa.CreatePDF(html, dest=write_to_file, link_callback=link_callback)
+                pisa.CreatePDF(html, dest=write_to_file, link_callback=fetch_resources)
                 write_to_file.seek(0)
                 pdf = write_to_file.read()
                 reponse = HttpResponse(pdf, content_type='application/pdf')

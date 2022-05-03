@@ -56,7 +56,7 @@ TVA = [('20','20'),('10','10'),('5','5'),('0','0')]
 
 class Ingeprev(models.Model):
     Nom = models.CharField(max_length=50, blank=True, verbose_name = 'Nom de la societe')
-    logo = models.ImageField(upload_to=settings.STATIC_ROOT,null=True,blank=True)
+    logo = models.ImageField(upload_to='images/',null=True,blank=True)
     SIRET = models.CharField(max_length=50, blank=True, verbose_name="N° de SIRET")
     Adresse = models.CharField(max_length=500, blank=True)
     Complement_Adresse = models.CharField(max_length=500, blank=True, verbose_name = "Complément d'Adresse")
