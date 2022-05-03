@@ -23,6 +23,8 @@ from datetime import date
 
 from xhtml2pdf import pisa
 
+import tempfile
+
 from .fonctions import *
 from .models import *
 from .forms import *
@@ -873,8 +875,24 @@ class FactureAdmin(admin.ModelAdmin):
             data['Date_Echeance'] = facture.Date_Echeance1()
             data['Montant_TTC'] = facture.Montant_Facture_TTC()
             data['ingeprev'] = ingeprev
+            '''
+            file_name = ingeprev.logo.name
+            file_path = DOSSIER+ingeprev.logo.name
+
+            # create a named temporary file within the project base , here in media
+
+            lf = tempfile.NamedTemporaryFile(dir='media')
+            f = open(file_path, 'rb')
+            lf.write(f.read())
+            # doc object with file FileField.
+
+            ingeprev.logo.save(file_name, File(lf), save=True)
+            lf.close()
+            print('ici')
             if ingeprev.logo:
-                data['logo']='media/'+ingeprev.logo.name
+                data['logo']=DOSSIER+ingeprev.logo.name
+            '''
+
             if facture.Facture_Avoir == "FA":
                 data['FA'] = True
             else:
