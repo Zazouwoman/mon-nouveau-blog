@@ -91,6 +91,53 @@ def affichage_message_relance(messages, request, num):
                              "Nombre maximum de relances atteint.")
         return redirect('.')
 
+def fetch_resources(uri, rel):
+    path = os.path.join(settings.MEDIA_ROOT, uri.replace(settings.MEDIA_URL, ""))
+    return path
+
+def creer_html_to_pdf(sourcehtml, nompdf, data = {}):
+    template = get_template(sourcehtml)
+    html = template.render(data)
+    fichier = nompdf
+    write_to_file = open(fichier, "w+b")
+    result = pisa.CreatePDF(html, dest=write_to_file, link_callback=fetch_resources)
+    write_to_file.close()
+    return HttpResponse(result.err)
+
+def html_to_pdf(template_src, context_dict={}):
+    template = get_template(template_src)
+    html = template.render(context_dict)
+    result = BytesIO()
+    #pdf = pisa.pisaDocument(BytesIO(html.encode("ISO-8859-1")), result)
+    pdf = pisa.pisaDocument(BytesIO(html.encode("utf-8")), result, errors='ignore')
+    print('ici')
+    #pisa_status = pisa.CreatePDF(html.content, dest=pdfFile, encoding='utf-8')
+    if not pdf.err:
+        return HttpResponse(result.getvalue(), content_type='bdd/pdf')
+    return None
+
+def html_to_pdf2(template_src, context_dict={}):
+    template = get_template(template_src)
+    html = template.render(context_dict)
+    result = open(DOSSIER+'facture.pdf', 'w+b')
+    print('ici')
+    pisa.CreatePDF(html, dest=result, link_callback=fetch_resources)
+    #pdf = pisa.CreatePDF(html, dest = result, link_callback=link_callback)
+    #pisa_status = pisa.CreatePDF(html.content, dest=pdfFile, encoding='utf-8')
+    if pdf.err:
+        dumpErros(pdf)
+    return pisa.startViewer(result)
+
+def generate_pdf_through_template(template_src, context_dict={}):
+    template = get_template(template_src)
+    html = template.render(context_dict)
+    #html = render_to_string(html)
+    write_to_file = open(DOSSIER+'test_1.pdf', "w+b")
+    pisa.CreatePDF(html, dest=write_to_file, link_callback=fetch_resources)
+    #result = pisa.CreatePDF(html, dest=write_to_file, link_callback=link_callback)
+    write_to_file.close()
+    return HttpResponse(result.err)
+
 def link_callback(uri, rel):
     """
     Convert HTML URIs to absolute system paths so xhtml2pdf can access those
@@ -121,49 +168,3 @@ def link_callback(uri, rel):
             'media URI must start with %s or %s' % (sUrl, mUrl)
         )
     return path
-
-def creer_html_to_pdf(sourcehtml, nompdf, data = {}):
-    template = get_template(sourcehtml)
-    html = template.render(data)
-    fichier = nompdf
-    write_to_file = open(fichier, "w+b")
-    result = pisa.CreatePDF(html, dest=write_to_file, link_callback=link_callback)
-    write_to_file.close()
-    return HttpResponse(result.err)
-    if not pdf.err:
-        return HttpResponse(result.getvalue(), content_type='bdd/pdf')
-    return None
-
-
-def html_to_pdf(template_src, context_dict={}):
-    template = get_template(template_src)
-    html = template.render(context_dict)
-    result = BytesIO()
-    #pdf = pisa.pisaDocument(BytesIO(html.encode("ISO-8859-1")), result)
-    pdf = pisa.pisaDocument(BytesIO(html.encode("utf-8")), result, errors='ignore')
-    print('ici')
-    #pisa_status = pisa.CreatePDF(html.content, dest=pdfFile, encoding='utf-8')
-    if not pdf.err:
-        return HttpResponse(result.getvalue(), content_type='bdd/pdf')
-    return None
-
-def html_to_pdf2(template_src, context_dict={}):
-    template = get_template(template_src)
-    html = template.render(context_dict)
-    result = open(DOSSIER+'facture.pdf', 'w+b')
-    print('ici')
-    pdf = pisa.CreatePDF(html, dest = result, link_callback=link_callback)
-    #pisa_status = pisa.CreatePDF(html.content, dest=pdfFile, encoding='utf-8')
-    if pdf.err:
-        dumpErros(pdf)
-    return pisa.startViewer(result)
-
-
-def generate_pdf_through_template(template_src, context_dict={}):
-    template = get_template(template_src)
-    html = template.render(context_dict)
-    #html = render_to_string(html)
-    write_to_file = open(DOSSIER+'test_1.pdf', "w+b")
-    result = pisa.CreatePDF(html, dest=write_to_file, link_callback=link_callback)
-    write_to_file.close()
-    return HttpResponse(result.err)

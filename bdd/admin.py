@@ -37,12 +37,6 @@ DOSSIER = settings.MEDIA_ROOT #Nom du dossier dans lequel sont enregistrés les 
 
 admin.site.site_header = "UMSRA Admin"
 
-
-def fetch_resources(uri, rel):
-    path = os.path.join(settings.MEDIA_ROOT, uri.replace(settings.MEDIA_URL, ""))
-
-    return path
-
 #Définition des permissions pour l'affichage ou non dans le menu admin - Choisir entre personne ne voit ou bien seulement les superuse voient
 class IngeprevAdmin(admin.ModelAdmin):
     list_display = ['Nom','Capital',]
@@ -690,6 +684,10 @@ class FactureAdmin(admin.ModelAdmin):
         data['ingeprev'] = ingeprev
         data['mission'] = mission
         data['date'] = date.today()
+        if facture.Facture_Avoir == "FA":
+            data['FA'] = True
+        else:
+            data['FA'] = False
 
         if "Apercu_PDF_Facture" in request.POST:  # ouvre la fenètre de téléchargement de chrome - permet de visualiser la facture avant validation
             source_html = 'bdd/Visualisation_Facture2.html'
@@ -759,6 +757,10 @@ class FactureAdmin(admin.ModelAdmin):
                     data['ingeprev'] = ingeprev
                     data['mission'] = mission
                     data['date'] = date.today()
+                    if facture.Facture_Avoir == "FA":
+                        data['FA'] = True
+                    else:
+                        data['FA'] = False
 
                     # Création de l'email prérempli
                     message = message_relance(facture, affaire)
@@ -946,7 +948,7 @@ class FactureAdmin(admin.ModelAdmin):
                 html = template.render(data)
                 fichier = DOSSIER + 'factures/{}.pdf'.format(facture.Numero_Facture)
                 write_to_file = open(fichier, "w+b")
-                pisa.CreatePDF(html, dest=write_to_file, link_callback=link_callback)
+                pisa.CreatePDF(html, dest=write_to_file, link_callback=fetch_resources)
                 write_to_file.close()
                 return redirect('.')
 
@@ -977,7 +979,7 @@ class FactureAdmin(admin.ModelAdmin):
                 template = get_template(source_html)
                 html = template.render(data)
                 write_to_file = open(fichier, "w+b")
-                pisa.CreatePDF(html, dest=write_to_file, link_callback=link_callback)
+                pisa.CreatePDF(html, dest=write_to_file, link_callback=fetch_resources)
                 write_to_file.seek(0)
                 #pdf = write_to_file.read()
                 write_to_file.close()
