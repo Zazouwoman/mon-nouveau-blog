@@ -305,6 +305,10 @@ class Offre_MissionAdmin(admin.ModelAdmin):
             extra_context['attente'] = True
         else:
             extra_context['attente'] = False
+        if obj.Etat =='ACC':
+            extra_context['accepte'] = True
+        else:
+            extra_context['accepte'] = False
         return super().change_view(request, object_id, extra_context = extra_context)
 
     def response_change(self, request, obj, extra_context=None):

@@ -9,7 +9,9 @@
     <input type="submit" value="Valider Offre" name="Valider_Offre"
                onclick="return confirm('Confirmez-vous la cr&eacute;ation de l&rsquo; affaire correspondant &agrave; cette offre de mission ?');" />
     {% endif %}
-        <input type="submit" value="Classer sans suite" name="Sans_Suite"
+    {% if attente %}
+        <input type="submit" value="Classer Sans Suite" name="Sans_Suite"
                onclick="return confirm('Confirmez-vous le classement sans suite de l&rsquo;offre de mission ?');" />
+    {% endif %}
 </div>
 {% endblock %}
