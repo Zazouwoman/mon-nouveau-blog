@@ -285,7 +285,7 @@ class Offre_Mission(models.Model):
         super().save(*args,**kwargs)
 
 class Affaire(models.Model):
-    soldee = models.BooleanField(default = 'False')  #Pour savoir si l'affaire est soldée
+    soldee = models.BooleanField(default = 'False', verbose_name = "Archivée")  #Pour savoir si l'affaire est soldée
     Type_Dossier = models.CharField(default = "A",max_length = 3)
     Indice_Dossier = models.IntegerField(default = 0,blank=True)
     Ref_Affaire = models.CharField(default = "A0001",max_length = 50, verbose_name = "Réf. Affaire")
