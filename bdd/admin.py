@@ -143,21 +143,45 @@ class InfoEmailAdmin(admin.ModelAdmin):
         extra_context['facture'] = facture
         extra_context['envoifacture'] = envoifacture
         extra_context['historique_form'] = historique_form
-
-        return super().change_view(request, object_id, extra_context = extra_context)
-
-    def response_change(self, request, obj):
-        email = obj
-        factureid = email.ID_Facture
-        facture = Facture.objects.get(pk=factureid)
-
+        if "Relancer" in request.POST:
+            num = facture.Num_Relance
+            mise_a_jour_relance(facture, num)
+            email.delete()
+            messages.add_message(request, messages.INFO, 'Relance {} enregistrée avec succès !!'.format(num))
+            url = '/admin/bdd/facture/'
+            return redirect(url)
         if "Fermer" in request.POST:
             if facture.Num_Relance < 5:
                 facture.Num_RAR = 'A préciser'
             elif facture.Num_Relance == 5:
                 facture.Num_RAR_Demeure = 'A préciser'
             facture.save()
-            messages.add_message(request, messages.WARNING, "Aucune relance n'a été effectuée. Opération annulée.")
+            if facture.Num_Relance == 0:
+                messages.add_message(request, messages.WARNING, "Votre facture n'a pas été envoyée.")
+            else:
+                messages.add_message(request, messages.WARNING, "Aucune relance n'a été effectuée. Opération annulée.")
+            email.delete()
+            url = '/admin/bdd/facture'
+            return redirect(url)
+        return super().change_view(request, object_id, extra_context = extra_context)
+
+    def response_change(self, request, obj):
+        email = obj
+        factureid = email.ID_Facture
+        facture = Facture.objects.get(pk=factureid)
+        print('ici0')
+
+        if "Fermer" in request.POST:
+
+            if facture.Num_Relance < 5:
+                facture.Num_RAR = 'A préciser'
+            elif facture.Num_Relance == 5:
+                facture.Num_RAR_Demeure = 'A préciser'
+            facture.save()
+            if facture.Num_Relance == 0:
+                messages.add_message(request, messages.WARNING, "Votre facture n'a pas été envoyée.")
+            else:
+                messages.add_message(request, messages.WARNING, "Aucune relance n'a été effectuée. Opération annulée.")
             email.delete()
             url = '/admin/bdd/facture'
             return redirect(url)
@@ -174,6 +198,9 @@ class InfoEmailAdmin(admin.ModelAdmin):
             if obj.RAR == 'A préciser':
                 messages.add_message(request, messages.ERROR, "Vous devez rentrer un numéro de RAR valide. Il ne s'est rien passé !!")
                 return redirect('.')
+            else:
+                messages.add_message(request, messages.WARNING,
+                                     "Le numéro de RAR a été mis à jour. La dernière lettre relance est maintenant à jour.")
 
             if facture.Num_Relance == 4:
                 facture.Num_RAR = obj.RAR
@@ -195,8 +222,11 @@ class InfoEmailAdmin(admin.ModelAdmin):
             data['ingeprev'] = ingeprev
             data['mission'] = mission
             data['date'] = date.today()
+            if adresses_identiques(facture):
+                data['identiques'] = True
+            else:
+                data['identiques'] = False
 
-            #email = InfoEmail.objects.get(pk=obj.pk)
             if facture.Num_Relance == 4:
                 if "Mettre_a_jour_RAR" in request.POST:
                     attachment = Attachment.objects.filter(message_id = email.id).filter(nom = "Lettre de Relance 4")
@@ -468,6 +498,12 @@ class AffaireAdmin(admin.ModelAdmin):
 
     class Meta:
         model = Affaire
+
+    def save_model(self, request,obj,form,change):
+        if obj.ID_Envoi_Facture == None and obj.ID_Payeur != None:
+            messages.warning(request,
+                          "L'adesse d'envoi de la facture a été créée à l'identique de l'adresse du payeur avec les modalités de paiement par défaut. Vous pouvez la modifier si besoin.")
+        obj.save()
 
     def delete_model(self, request, obj):
         obj.custom_delete()
@@ -771,9 +807,13 @@ class FactureAdmin(admin.ModelAdmin):
                         data['FA'] = True
                     else:
                         data['FA'] = False
+                    if adresses_identiques(facture):
+                        data['identiques'] = True
+                    else:
+                        data['identiques'] = False
 
                     # Création de l'email prérempli
-                    message = message_relance(facture, affaire)
+                    message = message_relance(facture)
                     typeaction = 'Relance{}'.format(facture.Num_Relance)
                     idfacture = facture.id
                     sujet = 'Relance {} Facture Ingeprev'.format(facture.Num_Relance)
@@ -823,7 +863,7 @@ class FactureAdmin(admin.ModelAdmin):
                     pass
             return redirect(".")
 
-        if "Valider_Facture" in request.POST and request.method == 'POST':  #Crée la facture (numéro définitif + enregistrement du fichier pdf + rediriger vers envoi mail )
+        if "Valider_Facture" in request.POST:  #Crée la facture (numéro définitif + enregistrement du fichier pdf + rediriger vers envoi mail )
             if not obj.deja_validee:
                 try:
                     obj.deja_validee = True
@@ -853,7 +893,8 @@ class FactureAdmin(admin.ModelAdmin):
                     creer_html_to_pdf(source_html, fichier, data)
 
                     # Création de l'email prérempli
-                    message = message_facture(facture, affaire)
+                    offre = Offre_Mission.objects.get(pk = affaire.ID_Mission_id)
+                    message = message_facture(facture, offre)
                     typeaction = 'Envoi_Facture'
                     idfacture = facture.id
                     sujet = 'Facture Ingeprev'
@@ -1000,7 +1041,8 @@ class FactureAdmin(admin.ModelAdmin):
             creer_html_to_pdf(source_html,fichier, data)
 
             #Création de l'email prérempli
-            message = message_facture(facture, affaire, offre)
+            offre = Offre_Mission.objects.get(pk=affaire.ID_Mission_id)
+            message = message_facture(facture, offre)
             typeaction = 'Envoi_Facture'
             idfacture = facture.id
             sujet = 'Facture Ingeprev'

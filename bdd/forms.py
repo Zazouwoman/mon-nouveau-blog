@@ -167,7 +167,6 @@ class FactureForm(forms.ModelForm):
         super(FactureForm, self).__init__(*args, **kwargs)
         self.fields['Numero_Facture'].widget= forms.HiddenInput()
 
-
 class FactureFormModif(forms.ModelForm):
     class Meta:
         model = Facture

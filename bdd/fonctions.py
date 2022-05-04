@@ -9,6 +9,11 @@ from django.shortcuts import redirect
 from .models import *
 import os
 
+def adresses_identiques(facture):
+    L1 = [facture.Denomination_Client, facture.Adresse_Client, facture.CP_Client, facture.Ville_Client]
+    L2 = [facture.Denomination_Facture, facture.Adresse_Facture, facture.CP_Facture, facture.Ville_Facture]
+    return L1 == L2
+
 def calcul_indice(type,periode):
     recherche = Compteur_Indice.objects.filter(Type_Dossier = type, Periode = periode)
     if not recherche.exists():
@@ -22,7 +27,7 @@ def calcul_indice(type,periode):
         ligne.save(update_fields=['Compteur'])
     return indice
 
-def message_relance(facture, affaire):
+def message_relance(facture):
     civ = facture.Civilite_Facture
     if civ == 'M.':
         civ = 'Monsieur {},'.format(facture.Nom_Facture)
@@ -35,7 +40,7 @@ def message_relance(facture, affaire):
     message = civ + """\n\nPar la présente nous nous permettons de vous rappeler que notre facture n°{} en date du {} vient d'arriver à échéance.\nSi vous venez de procéder à son paiement, nous vous prions de bien vouloir ne pas tenir compte de ce courriel.\n\nBien cordialement, \n\nPour INGEPREV \n{}""".format(facture.Numero_Facture, facture.Date_Facture.strftime('%d/%m/%Y'), pilote)
     return message
 
-def message_facture(facture, affaire, offre):
+def message_facture(facture, offre):
     civ = facture.Civilite_Facture
     if civ == 'M.':
         civ = 'Monsieur {},'.format(facture.Nom_Facture)
@@ -50,8 +55,7 @@ def message_facture(facture, affaire, offre):
         type = 'avoir'
 
     pilote = '{} {}'.format(facture.Prenom_Pilote, facture.Nom_Pilote)
-    message = civ + '\n\nNous vous prions de trouver ci-joint votre {} n° {} pour la mission de conseil en sécurité incendie sur le site du {} {} {}. \n\nBien cordialement, \n\nPour INGEPREV \n{}'.format(
-        type,facture.Numero_Facture, offre.Adresse, offre.CP, offre.Ville, pilote)
+    message = civ + '\n\nNous vous prions de trouver ci-joint votre {} n° {} pour la mission de conseil en sécurité incendie sur le site du {} {} {}. \n\nBien cordialement, \n\nPour INGEPREV \n{}'.format(type,facture.Numero_Facture, offre.Adresse, offre.CP, offre.Ville, pilote)
     return message
 
 def mise_a_jour_relance(facture, num):  #mise à jour des dates de la facture lors de relance ou envoi facture
@@ -77,22 +81,22 @@ def mise_a_jour_relance(facture, num):  #mise à jour des dates de la facture lo
 
 def affichage_message_relance(messages, request, num):
     if num == 2:
-        messages.add_message(request, messages.INFO,
+        messages.add_message(request, messages.WARNING,
                              "Vous devez faire une relance téléphonique. Voici les coordonnées du contact. Validez la relance quand c'est effectué.")
     elif num == 3:
-        messages.add_message(request, messages.INFO,
+        messages.add_message(request, messages.WARNING,
                              "Vous devez faire une relance par courrier. Voici les courriers à imprimer et à envoyer : facture + lettre. Validez la relance quand c'est effectué ")
     elif num == 4:
-        messages.add_message(request, messages.INFO,
+        messages.add_message(request, messages.WARNING,
                                  "Vous devez faire une relance par courrier recommandé AR. Remplir le numéro du RAR, valider pour obtenir la lettre. Validez ensuite la relance quand c'est effectué.")
     elif num == 5:
-        messages.add_message(request, messages.INFO,
+        messages.add_message(request, messages.WARNING,
                                  "Vous devez faire une mise en demeure. Validez ensuite la relance quand c'est effectué.")
     elif num == 6:
-        messages.add_message(request, messages.INFO,
+        messages.add_message(request, messages.WARNING,
                                  "C'est l'heure de la mise en contentieux. Vous trouverez ci-dessous les différents courriers envoyés.")
     elif num >= 7:
-        messages.add_message(request, messages.WARNING,
+        messages.add_message(request, messages.ERRORS,
                              "Nombre maximum de relances atteint.")
         return redirect('.')
 

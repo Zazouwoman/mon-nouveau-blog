@@ -49,6 +49,7 @@
 
 	 </p>
  </td>
+    {% if not identiques %}
  <td class="right" valign=top >
      <p class="western" align = "left">
          {{facture.Denomination_Client}}
@@ -73,6 +74,28 @@
      Paris, le {{date}}
     </p>
  </td>
+    {% endif %}
+
+    {% if identiques %}
+ <td class="right" valign=top >
+     <p class="western" align = "left">
+    {{facture.Denomination_Facture}}
+   <br>
+   {{facture.Adresse_Facture}}
+   <br>
+   {{facture.CP_Facture}} {{facture.Ville_Facture}}
+   <br>
+  A l&apos;attention de {{facture.Civilite_Facture}} {{facture.Nom_Facture}} {{facture.Prenom_Facture}}
+      </p>
+     <p class="western" align = "left">
+         <br>
+         <br>
+         <br>
+     Paris, le {{date}}
+    </p>
+ </td>
+    {% endif %}
+
 </table>
 </div>
 <div>

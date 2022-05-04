@@ -39,6 +39,29 @@ def calcul_indice(type,periode):
         ligne.save(update_fields=['Compteur'])
     return indice
 
+def creer_Envoi_Facture(ID_Client):
+    """Etant donné l'id d'un client existant, crée une adresse d'envoi de facture
+    avec les mêmes valeurs. Les conditions de paiement étant aux valeurs par défaut."""
+    client = Client.objects.get(pk=ID_Client)
+    denomination = client.Denomination_Sociale
+    adresse = client.Adresse
+    cp = client.CP
+    ville = client.Ville
+    civ = client.Civilite
+    nom = client.Nom_Representant
+    prenom = client.Prenom_Representant
+    tel = client.Tel_Representant
+    email = client.Email_Representant
+    qs = Envoi_Facture.objects.filter(Denomination_Sociale=denomination, Adresse=adresse, CP=cp, Ville=ville, Civilite=civ,
+                                  Nom_Contact=nom, Prenom_Contact=prenom, Tel_Contact=tel, Email_Contact=email,
+                                   Mode_Paiement = "VI", Delais_Paiement = 30, Fin_Mois = "Non", Modalites_Paiement = ""   )
+    if qs.count() >= 1:
+        envoi_facture = qs[0]
+    else:
+        envoi_facture = Envoi_Facture.objects.create(Denomination_Sociale=denomination, Adresse=adresse, CP=cp, Ville=ville, Civilite=civ,
+                                  Nom_Contact=nom, Prenom_Contact=prenom, Tel_Contact=tel, Email_Contact=email, )
+    return envoi_facture
+
 CiviliteType = models.TextChoices('civ', 'M. Mme')
 tel_regex = RegexValidator(regex=r"^\+?1?\d{8,15}$", message=(
     "Un numero de téléphone est attendu."))
@@ -188,16 +211,16 @@ class Envoi_Offre(models.Model):
 
 class Envoi_Facture(models.Model):
     Denomination_Sociale = models.CharField(max_length=50, verbose_name = "Dénomination sociale")
-    Adresse = models.CharField(max_length=500)
-    CP = models.CharField(validators=[CP_regex], max_length=5, verbose_name='Code postal')
-    Ville = models.CharField(max_length=150)
+    Adresse = models.CharField(max_length=500, blank = True)
+    CP = models.CharField(validators=[CP_regex], max_length=5, verbose_name='Code postal', blank = True)
+    Ville = models.CharField(max_length=150, blank = True)
     Civilite = models.CharField(blank=True, choices=CiviliteType.choices, max_length=3)
     Nom_Contact = models.CharField(max_length=50, blank=True, verbose_name = "Nom")
     Prenom_Contact = models.CharField(max_length=50, blank=True, verbose_name = "Prénom")
     Tel_Contact = models.CharField(validators=[tel_regex], max_length=16, verbose_name='Numéro de téléphone',
                                         blank=True)
     Email_Contact = models.EmailField(max_length=70, blank=True, verbose_name = 'Email')
-    Mode_Paiement = models.CharField(default = "Non défini", choices = ModePaiementType, max_length = 20, verbose_name = "Mode de Paiement")
+    Mode_Paiement = models.CharField(default = "VI", choices = ModePaiementType, max_length = 20, verbose_name = "Mode de Paiement")
     Delais_Paiement = models.IntegerField(default = 30, verbose_name = "Délais de Paiement (en jours)")
     Fin_Mois = models.CharField(choices = OuiOuNonType.choices , max_length = 3, default = "Non", verbose_name = "Fin de Mois")
     Modalites_Paiement = models.TextField(blank = True, verbose_name = "Modalités particulières de Paiement")
@@ -319,7 +342,7 @@ class Affaire(models.Model):
     CP.short_description = "Code Postal"
     Ville.short_description = "Ville"
 
-    def save(self,*args,**kwargs):
+    def save(self, *args,**kwargs):
         if self.Ref_Affaire == 'A0001':  #Lors de la création de l'affaire, création du numéro, accepation de l'offre, remplissage automatique des champs connus
             aujourdhui = date.today()
             annee = aujourdhui.year
@@ -342,6 +365,10 @@ class Affaire(models.Model):
             self.Etat = 'ARC'
         if not self.soldee:
             self.Etat = 'EC'
+        if self.ID_Envoi_Facture == None and self.ID_Payeur != None:
+            envoi_facture = creer_Envoi_Facture(self.ID_Payeur_id)
+            idenvoifacture = envoi_facture.id
+            self.ID_Envoi_Facture_id = idenvoifacture
         super().save(*args,**kwargs)
 
     def client(self):
@@ -420,7 +447,7 @@ class Facture(models.Model):
     Prenom_Client = models.CharField(max_length=50, blank=True, verbose_name="Prénom")
     Email_Client = models.EmailField(max_length=70, blank=True, verbose_name="Email")
 
-    Denomination_Facture = models.CharField(max_length=50, verbose_name="Dénominsation sociale Facture")
+    Denomination_Facture = models.CharField(max_length=50, verbose_name="Dénomination sociale Facture")
     Adresse_Facture = models.CharField(max_length=500)
     CP_Facture = models.CharField(validators=[CP_regex], max_length=5, verbose_name='Code postal')
     Ville_Facture = models.CharField(max_length=150)
@@ -463,6 +490,10 @@ class Facture(models.Model):
             self.Etat_Paiement = 'PAYE'
         if not self.deja_payee:
             self.Etat_Paiement = 'ATT'
+        affaire = Affaire.objects.get(pk=self.ID_Affaire_id)
+        affaire.ID_Envoi_Facture = self.ID_Envoi_Facture
+        affaire.ID_Pilote = self.ID_Pilote
+        affaire.save()
         super().save(*args,**kwargs)
 
     def Reste_Affaire(self):
@@ -482,6 +513,10 @@ class Facture(models.Model):
     def Num_Affaire(self):
         affaire = Affaire.objects.get(pk=self.ID_Affaire_id)
         return affaire.Ref_Affaire
+
+    def Envoi_Facture_Affaire(self):
+        affaire = Affaire.objects.get(pk=self.ID_Affaire_id)
+        return affaire.ID_Envoi_Facture
 
     def Client_Cache(self):
         affaire = Affaire.objects.get(pk=self.ID_Affaire_id)
@@ -511,6 +546,7 @@ class Facture(models.Model):
         self.Denomination_Client = payeur.Denomination_Sociale
         self.Adresse_Client = payeur.Adresse
         self.CP_Client = payeur.CP
+        self.Ville_Client = payeur.Ville
         self.Civilite_Client = payeur.Civilite
         self.Nom_Client = payeur.Nom_Representant
         self.Prenom_Client = payeur.Prenom_Representant
@@ -525,6 +561,7 @@ class Facture(models.Model):
         self.Denomination_Facture = facture.Denomination_Sociale
         self.Adresse_Facture = facture.Adresse
         self.CP_Facture = facture.CP
+        self.Ville_Facture = facture.Ville
         self.Civilite_Facture = facture.Civilite
         self.Nom_Facture = facture.Nom_Contact
         self.Prenom_Facture = facture.Prenom_Contact
@@ -538,6 +575,7 @@ class Facture(models.Model):
         self.save()
 
     def Creation_Facture(self):
+        self.save()
         aujourdhui = date.today()
         annee = aujourdhui.year
         mois = aujourdhui.month
@@ -549,6 +587,7 @@ class Facture(models.Model):
         self.Denomination_Client = payeur.Denomination_Sociale
         self.Adresse_Client = payeur.Adresse
         self.CP_Client = payeur.CP
+        self.Ville = payeur.Ville
         self.Civilite_Client = payeur.Civilite
         self.Nom_Client = payeur.Nom_Representant
         self.Prenom_Client = payeur.Prenom_Representant
@@ -563,6 +602,7 @@ class Facture(models.Model):
         self.Denomination_Facture = facture.Denomination_Sociale
         self.Adresse_Facture = facture.Adresse
         self.CP_Facture = facture.CP
+        self.Ville_Facture = facture.Ville
         self.Civilite_Facture = facture.Civilite
         self.Nom_Facture = facture.Nom_Contact
         self.Prenom_Facture = facture.Prenom_Contact
@@ -574,11 +614,10 @@ class Facture(models.Model):
             self.Facture_Avoir = 'AV'
         self.save()
 
-
 class InfoEmail(models.Model):
     From = models.EmailField(max_length=70, verbose_name = 'De')
     To = models.EmailField(max_length=70, verbose_name = 'A')
-    Subject = models.CharField(max_length = 200, verbose_name = 'Sujet', default = 'Facture Ingeprev')
+    Subject = models.CharField(max_length = 100, verbose_name = 'Sujet', default = 'Facture Ingeprev')
     Message = models.TextField()
     File = models.FileField(blank = True)
     #ID_Facture = models.ForeignKey(Facture, related_name = '%(class)s_ID_Facture', on_delete = models.SET_NULL, blank = True, null = True)
