@@ -360,15 +360,15 @@ class Affaire(models.Model):
             self.Nom_Affaire = mission.Nom_Mission
             self.Honoraires_Global = mission.Honoraires_Proposes
             self.ID_Pilote = mission.ID_Pilote
-            self.save()
-        if self.soldee:
-            self.Etat = 'ARC'
-        if not self.soldee:
-            self.Etat = 'EC'
-        if self.ID_Envoi_Facture == None and self.ID_Payeur != None:
-            envoi_facture = creer_Envoi_Facture(self.ID_Payeur_id)
-            idenvoifacture = envoi_facture.id
-            self.ID_Envoi_Facture_id = idenvoifacture
+        else:
+            if self.soldee:
+                self.Etat = 'ARC'
+            if not self.soldee:
+                self.Etat = 'EC'
+            if self.ID_Envoi_Facture == None and self.ID_Payeur != None and self.Ref_Affaire != 'A0001':
+                envoi_facture = creer_Envoi_Facture(self.ID_Payeur_id)
+                idenvoifacture = envoi_facture.id
+                self.ID_Envoi_Facture_id = idenvoifacture
         super().save(*args,**kwargs)
 
     def client(self):
