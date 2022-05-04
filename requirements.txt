@@ -10,4 +10,4 @@ django-multiupload
 reportlab
 PyPDF3
 django-admin-interface
-
+mysqlclient

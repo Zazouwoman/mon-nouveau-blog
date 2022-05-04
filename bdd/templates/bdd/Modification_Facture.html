@@ -9,6 +9,7 @@
 </center>
 {% endcomment %}
 </br>
+
 {% if change and not Etat%}
 <div class="submit-row" action="">
     {% csrf_token %}
@@ -22,16 +23,13 @@
     <input id = "submitBtn" class = "btn btn-primary" type="submit" value="Valider Facture" name="Valider_Facture"
            onclick="return confirm('ATTENTION ! Une fois la facture valid&eacute;e elle ne pourra plus &ecirc;tre annul&eacute;e et devra faire l&rsquo;objet d&rsquo;un avoir. Etes-vous s&ucirc;r de valider la facture ?');" />
     <input type="submit" value="Enregistrer et Continuer les modifications" name="Save_Brouillon""/>
-    <input type="submit" value="Fermer sans enregistrer" name="Fermer"/>
-
-</div>
+    </div>
 {% endif %}
 
 {% if change and Etat %}
 <div class="submit-row" action="">
     {% csrf_token %}
-
-    {% if relance >= 1 and not Payee %}
+    {% if relance >= 1 and relance < 7 and not Payee %}
         <input type="submit" value="Relancer Facture" name="Relancer_Facture"/>
     {% endif %}
 
@@ -39,19 +37,25 @@
         <input type="submit" value="Envoyer Facture" name="Envoyer_Mail"/>
     {% endif %}
         <input type="submit" value="Aperçu PDF Facture" name="Apercu_PDF_Facture" formtarget="_blank"/>
-        <input type="submit" value="Fermer" name = "Fermer"/>
+    {% if Num_Facture == "FA0001" %}
 
-    {% comment %}
-    <input type="submit" value="Enregistrer Facture PDF" name="Generer_PDF"/>
-    <a href="{% url 'view-pdf-invoice' facture.pk %}"><button class="btn btn-info text-white"> VIEW CLIENT INVOICE </button></a>
-    {% endcomment %}
+    {% endif %}
+    {% if relance >= 1 %}
+        <input type="submit" value="Fermer" name = "Fermer_DejaValidee"/>
+    {% endif %}
+
 </div>
 {% endif %}
 
+{% if not change %}
+<div class="submit-row" action="">
+    <input type="button" value="Fermer Sans Enregistrer" onclick="history.go(-1)">
+</div>
+{% endif %}
 {% endblock %}
 
 {% block submit_buttons_bottom %}
 {% if not Etat %}
-    {{ block.super }}
+    {{block.super}}
 {% endif %}
 {% endblock %}

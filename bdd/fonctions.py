@@ -44,9 +44,14 @@ def message_facture(facture, affaire, offre):
     else:
         civ = 'Madame, monsieur,'
 
+    if facture.Facture_Avoir =='FA':
+        type = 'facture'
+    else:
+        type = 'avoir'
+
     pilote = '{} {}'.format(facture.Prenom_Pilote, facture.Nom_Pilote)
-    message = civ + '\n\nNous vous prions de trouver ci-joint votre facture n° {} pour la mission de conseil en sécurité incendie sur le site du {} {} {}. \n\nBien cordialement, \n\nPour INGEPREV \n{}'.format(
-        facture.Numero_Facture, offre.Adresse, offre.CP, offre.Ville, pilote)
+    message = civ + '\n\nNous vous prions de trouver ci-joint votre {} n° {} pour la mission de conseil en sécurité incendie sur le site du {} {} {}. \n\nBien cordialement, \n\nPour INGEPREV \n{}'.format(
+        type,facture.Numero_Facture, offre.Adresse, offre.CP, offre.Ville, pilote)
     return message
 
 def mise_a_jour_relance(facture, num):  #mise à jour des dates de la facture lors de relance ou envoi facture
@@ -87,7 +92,7 @@ def affichage_message_relance(messages, request, num):
         messages.add_message(request, messages.INFO,
                                  "C'est l'heure de la mise en contentieux. Vous trouverez ci-dessous les différents courriers envoyés.")
     elif num >= 7:
-        messages.add_message(request, messages.INFO,
+        messages.add_message(request, messages.WARNING,
                              "Nombre maximum de relances atteint.")
         return redirect('.')
 

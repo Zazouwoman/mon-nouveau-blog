@@ -144,6 +144,24 @@ class InfoEmailAdmin(admin.ModelAdmin):
         extra_context['envoifacture'] = envoifacture
         extra_context['historique_form'] = historique_form
 
+        return super().change_view(request, object_id, extra_context = extra_context)
+
+    def response_change(self, request, obj):
+        email = obj
+        factureid = email.ID_Facture
+        facture = Facture.objects.get(pk=factureid)
+
+        if "Fermer" in request.POST:
+            if facture.Num_Relance < 5:
+                facture.Num_RAR = 'A préciser'
+            elif facture.Num_Relance == 5:
+                facture.Num_RAR_Demeure = 'A préciser'
+            facture.save()
+            messages.add_message(request, messages.WARNING, "Aucune relance n'a été effectuée. Opération annulée.")
+            email.delete()
+            url = '/admin/bdd/facture'
+            return redirect(url)
+
         if "Relancer" in request.POST:
             num = facture.Num_Relance
             mise_a_jour_relance(facture, num)
@@ -152,27 +170,11 @@ class InfoEmailAdmin(admin.ModelAdmin):
             url = '/admin/bdd/facture/'
             return redirect(url)
 
-        if "Fermer" in request.POST:
-            if facture.Num_Relance < 5:
-                facture.Num_RAR = 'A préciser'
-            elif facture.Num_Relance == 5:
-                facture.Num_RAR_Demeure = 'A préciser'
-            facture.save()
-            messages.add_message(request, messages.INFO, "Aucune relance n'a été effectuée. Opération annulée.")
-            email.delete()
-            url = '/admin/bdd/facture'
-            return redirect(url)
-
-        return super().change_view(request, object_id, extra_context = extra_context)
-
-    def response_change(self, request, obj, extra_context = None):
-
         if ("Valider_RAR" in request.POST) or ("Mettre_a_jour_RAR" in request.POST):
             if obj.RAR == 'A préciser':
-                messages.add_message(request, messages.INFO, 'Vous devez rentrer un numéro de RAR valide !!')
+                messages.add_message(request, messages.ERROR, "Vous devez rentrer un numéro de RAR valide. Il ne s'est rien passé !!")
                 return redirect('.')
 
-            facture = Facture.objects.get(pk=obj.ID_Facture)
             if facture.Num_Relance == 4:
                 facture.Num_RAR = obj.RAR
             elif facture.Num_Relance ==5:
@@ -194,7 +196,7 @@ class InfoEmailAdmin(admin.ModelAdmin):
             data['mission'] = mission
             data['date'] = date.today()
 
-            email = InfoEmail.objects.get(pk=obj.pk)
+            #email = InfoEmail.objects.get(pk=obj.pk)
             if facture.Num_Relance == 4:
                 if "Mettre_a_jour_RAR" in request.POST:
                     attachment = Attachment.objects.filter(message_id = email.id).filter(nom = "Lettre de Relance 4")
@@ -216,7 +218,6 @@ class InfoEmailAdmin(admin.ModelAdmin):
                 chemin = Path(fichier)
                 with chemin.open(mode='rb') as f:
                      Attachment.objects.create(file=File(f, name=chemin.name), message=email, nom = "Lettre de Relance 5")
-
             return redirect('.')
 
         if "Envoyer" in request.POST:
@@ -253,7 +254,7 @@ class InfoEmailAdmin(admin.ModelAdmin):
             url = '/admin/bdd/facture/'
             return redirect(url)
 
-        return super().response_change(request, obj, extra_context)
+        return super().response_change(request, obj)
 
 class ClientAdmin(admin.ModelAdmin):
     list_display = ("Denomination_Sociale", "SIRET", "Adresse", "CP", "Ville", 'Total_Affaire')
@@ -288,6 +289,18 @@ class Offre_MissionAdmin(admin.ModelAdmin):
     class  Meta:
         model = Offre_Mission
 
+    def delete_model(self, request, obj):
+        obj.custom_delete()
+        if obj.Etat == 'ACC':
+            messages.warning(request, "L'offre est déjà acceptée. Elle ne peut pas être supprimée.")
+            #messages.success(request, "")
+            #messages.add_message(request, messages.WARNING, "L'offre est déjà acceptée. Elle ne peut pas être supprimée.")
+
+    def delete_queryset(self, request, queryset):
+        for obj in queryset:
+            obj.custom_delete()
+        messages.add_message(request, messages.WARNING, "Seules les offres non acceptées ont été supprimées.")
+
     def get_form(self, request, obj=None, **kwargs):
 
         if not obj:
@@ -311,30 +324,26 @@ class Offre_MissionAdmin(admin.ModelAdmin):
             extra_context['accepte'] = True
         else:
             extra_context['accepte'] = False
-        return super().change_view(request, object_id, extra_context = extra_context)
+        print('ici1')
+        return super().change_view(request, object_id, extra_context=extra_context)
 
-    def response_change(self, request, obj, extra_context=None):
-        extra_context = extra_context or {}
-        if obj.Etat == 'ATT':
-            extra_context['attente'] = True
-        else:
-            extra_context['attente'] = False
+    def response_change(self, request, obj):
         if "Sans_Suite" in request.POST:
             if obj.Etat == "ATT":
                 obj.Etat = "REF"
                 obj.save()
                 return redirect('.')
             elif obj.Etat == "ACC":
-                messages.add_message(request, messages.INFO,
+                messages.add_message(request, messages.ERROR,
                                      "Impossible de classer cette offre de mission sans suite. Elle a déjà été acceptée.")
                 return redirect('.')
         if "Valider_Offre" in request.POST:
             if obj.Etat =="ACC":
-                messages.add_message(request, messages.INFO,
+                messages.add_message(request, messages.ERROR,
                                      "Impossible de créer l'affaire. Cette offre de mission est déjà acceptée.")
                 return redirect('.')
             elif obj.Etat == 'REF':
-                messages.add_message(request, messages.INFO,
+                messages.add_message(request, messages.ERROR,
                                      "Impossible de créer l'affaire. Cette offre de mission est refusée.")
                 return redirect('.')
             else:
@@ -362,8 +371,7 @@ class Offre_MissionAdmin(admin.ModelAdmin):
                 id = affaire.pk
                 url = '/admin/bdd/affaire/{}/change'.format(id)
                 return redirect(url, pk=id)
-
-        return super().response_change(request, obj, extra_context=extra_context)
+        return super().response_change(request, obj)
 
 
 #Filtre du prévisionnel de facturation
@@ -476,14 +484,12 @@ class AffaireAdmin(admin.ModelAdmin):
         #self.readonly_fields = ('Solde', )
         return super().get_changelist_form(request, **kwargs)
 
-
     def response_add(self, request, obj, post_url_continue=None):
         id = obj.id
         url = '/admin/bdd/affaire/{}/change'.format(id)
         return redirect(url)
 
-    def response_change(self, request, obj, extra_context=None):
-        extra_context = extra_context or {}
+    def response_change(self, request, obj):
         if "Facturer" in request.POST:
             obj.save()
             idaffaire = obj.pk
@@ -501,8 +507,20 @@ class AffaireAdmin(admin.ModelAdmin):
             id = facture.pk
             url = '/admin/bdd/facture/{}/change'.format(id)
             return redirect(url, pk=id)
+        return super().response_change(request, obj)
 
-        return super().response_change(request, obj, extra_context=extra_context)
+    '''
+    def changeform_view(self, request, object_id=None, form_url='', extra_context=None):
+        extra_context = extra_context or {}
+        extra_context["show_save"] = False
+        extra_context["show_save_and_continue"] = False
+        extra_context["show_close"] = True
+        return super().changeform_view(
+            request,
+            object_id=object_id,
+            form_url=form_url,
+            extra_context=extra_context
+        )'''
 
 
     def changelist_view(self, request, extra_context=None):
@@ -559,7 +577,8 @@ class A_Relancer_Filter(admin.SimpleListFilter):
                ('Rel3','3ème relance (Courrier)'),
                ('Rel4','4ème relance (RAR)'),
                ('Rel5', '5ème relance (Mise en Demeure)'),
-               ('Rel6', 'Contencieux'),)
+               ('Rel6', 'Contencieux'),
+               ('Rel7', 'Contencieux transmis'),)
 
     def queryset(self, request, queryset):
         """
@@ -572,7 +591,7 @@ class A_Relancer_Filter(admin.SimpleListFilter):
                     q_array.append(element.id)
             return queryset.filter(pk__in=q_array)
 
-        for k in range(1,7):
+        for k in range(1,8):
             titre = 'Rel{}'.format(k)
             if self.value() == titre:
                 q_array = []
@@ -620,6 +639,21 @@ class FactureAdmin(admin.ModelAdmin):
     form = FactureFormModif
     #actions = ['my_action']
 
+    actions = ['delete_selected']
+
+    def delete_queryset(self, request, queryset):
+        for obj in queryset:
+            obj.custom_delete()
+        messages.add_message(request, messages.WARNING, "Seules les factures non validées ont été supprimées.")
+
+    '''Une autre version qui marche
+        def delete_queryset(self, request, queryset):
+            q_array = []
+            for element in queryset:
+                if element.deja_validee == False:
+                    q_array.append(element.id)
+            super().delete_queryset(request, queryset.filter(pk__in=q_array))'''
+
     def Date_Prev_Affaire_aff(self,obj):
         return obj.Date_Prev_Affaire().strftime('%d/%m/%Y')
 
@@ -653,7 +687,6 @@ class FactureAdmin(admin.ModelAdmin):
 
     def fetch_resources(uri, rel):
         path = os.path.join(settings.MEDIA_ROOT, uri.replace(settings.MEDIA_URL, ""))
-
         return path
 
     def change_view(self,request, object_id, extra_context = None):
@@ -662,74 +695,38 @@ class FactureAdmin(admin.ModelAdmin):
         affaire = Affaire.objects.get(pk=id)
         reste = affaire.Reste_A_Regler()
         extra_context = extra_context or {}
+        extra_context['Num_Facture'] = facture.Numero_Facture
         extra_context['Reste_Affaire'] = reste
         extra_context['Etat'] = facture.deja_validee
         extra_context['Payee'] = facture.deja_payee
+        extra_context['Date_Prev'] = facture.Date_Prev_Affaire()
         extra_context['show_save_and_continue'] = False
         extra_context['show_save'] = False
         extra_context['show_save_and_add_another'] = False
+        extra_context['show_delete'] = True
         extra_context['relance'] = facture.Num_Relance
         extra_context['instance'] = facture
-
-        mission = Offre_Mission.objects.get(pk=affaire.ID_Mission_id)
-        ingeprev = Ingeprev.objects.get(Nom='INGEPREV')
-
-        # Création du pdf dans media
-        data = {}
-        data['facture'] = facture
-        data['Ref_Affaire'] = affaire.Ref_Affaire
-        data['affaire'] = affaire
-        data['Date_Echeance'] = facture.Date_Echeance1()
-        data['Montant_TTC'] = facture.Montant_Facture_TTC()
-        data['ingeprev'] = ingeprev
-        data['mission'] = mission
-        data['date'] = date.today()
-        if facture.Facture_Avoir == "FA":
-            data['FA'] = True
-        else:
-            data['FA'] = False
-
-        if "Apercu_PDF_Facture" in request.POST:  # ouvre la fenètre de téléchargement de chrome - permet de visualiser la facture avant validation
-            source_html = 'bdd/Visualisation_Facture2.html'
-            filename = '{}.pdf'.format(facture.Numero_Facture)
-            fichier = DOSSIER + 'temp/FA0001.pdf'  # .format(facture.Numero_Facture)
-            template = get_template(source_html)
-            html = template.render(data)
-            write_to_file = open(fichier, "w+b")
-            pisa.CreatePDF(html, dest=write_to_file, link_callback=fetch_resources)
-            write_to_file.seek(0)
-            pdf = write_to_file.read()
-            reponse = HttpResponse(pdf, content_type='application/pdf')
-            reponse['Content-Disposition'] = 'filename={}'.format(filename)
-            write_to_file.close()
-            return reponse
-        if "Fermer" in request.POST:
-            url = '/admin/bdd/facture'
-            return redirect(url)
+        extra_context = extra_context or {}
         return super().change_view(request, object_id, extra_context = extra_context)
 
-    def response_change(self, request, obj, extra_context = None):
-        extra_context = extra_context or {}
-        extra_context['Etat'] = obj.deja_validee
-        extra_context['Date_Prev'] = obj.Date_Prev_Affaire()
-
-        if "Supprimer" in request.POST:
+    def response_change(self, request, obj):
+        if "Supprimer" in request.POST and request.method == 'POST':
             if not obj.deja_validee:
                 obj.delete()
             url = '/admin/bdd/facture'
             return redirect(url)
 
-        if "Fermer" in request.POST:
+        if "Fermer_DejaValidee" in request.POST and request.method == 'POST':
             url = '/admin/bdd/facture'
             return redirect(url)
 
-        if "Home" in request.POST:
+        if "Home" in request.POST and request.method == 'POST':
             return redirect('home')
             #return redirect('/admin/bdd')
 
-        if "Relancer_Facture" in request.POST:
+        if "Relancer_Facture" in request.POST and request.method == 'POST':
             if obj.deja_payee:
-                messages.add_message(request, messages.INFO,
+                messages.add_message(request, messages.ERROR,
                                      "La facture a été payée. Vous ne pouvez pas la relancer.")
                 return redirect('.')
             if obj.Num_Relance >= 7:
@@ -787,7 +784,6 @@ class FactureAdmin(admin.ModelAdmin):
                     with chemin.open(mode='rb') as f:
                         Attachment.objects.create(file=File(f, name=chemin.name), message=email, nom = 'Facture')
 
-
                     #Création des lettres de relance
                     if facture.Num_Relance == 3:
                         source_html = 'bdd/Lettre_Relance3.html'
@@ -814,7 +810,7 @@ class FactureAdmin(admin.ModelAdmin):
                     pass
             return redirect(".")
 
-        if "Valider_Facture" in request.POST:  #Crée la facture (numéro définitif + enregistrement du fichier pdf + rediriger vers envoi mail )
+        if "Valider_Facture" in request.POST and request.method == 'POST':  #Crée la facture (numéro définitif + enregistrement du fichier pdf + rediriger vers envoi mail )
             if not obj.deja_validee:
                 try:
                     obj.deja_validee = True
@@ -855,8 +851,6 @@ class FactureAdmin(admin.ModelAdmin):
                     email.save()
 
                     chemin = Path(DOSSIER + 'factures/{}.pdf'.format(facture.Numero_Facture))
-                    #print(chemin)
-                    #chemin = DOSSIER + 'factures/{}.pdf'.format(facture.Numero_Facture)
                     with chemin.open(mode='rb') as f:
                         Attachment.objects.create(file=File(f, name=chemin.name), message=email, nom = 'Facture')
 
@@ -905,7 +899,6 @@ class FactureAdmin(admin.ModelAdmin):
             if not obj.deja_validee:
                 try:
                     obj.Remplissage_Facture()
-                    obj.save()
                 except(ValueError, TypeError):
                     pass
             facture = get_object_or_404(Facture, pk=obj.pk)
@@ -919,24 +912,6 @@ class FactureAdmin(admin.ModelAdmin):
             data['Date_Echeance'] = facture.Date_Echeance1()
             data['Montant_TTC'] = facture.Montant_Facture_TTC()
             data['ingeprev'] = ingeprev
-            '''
-            file_name = ingeprev.logo.name
-            file_path = DOSSIER+ingeprev.logo.name
-
-            # create a named temporary file within the project base , here in media
-
-            lf = tempfile.NamedTemporaryFile(dir='media')
-            f = open(file_path, 'rb')
-            lf.write(f.read())
-            # doc object with file FileField.
-
-            ingeprev.logo.save(file_name, File(lf), save=True)
-            lf.close()
-            print('ici')
-            if ingeprev.logo:
-                data['logo']=DOSSIER+ingeprev.logo.name
-            '''
-
             if facture.Facture_Avoir == "FA":
                 data['FA'] = True
             else:
@@ -1033,7 +1008,7 @@ class FactureAdmin(admin.ModelAdmin):
             url = '/admin/bdd/infoemail/{}/change'.format(id)
             return redirect(url, pk=email.pk)
 
-        return super().response_change(request, obj, extra_context = extra_context)
+        return super().response_change(request, obj)
 
 admin.site.register(InfoEmail, InfoEmailAdmin)
 admin.site.register(Pilote)

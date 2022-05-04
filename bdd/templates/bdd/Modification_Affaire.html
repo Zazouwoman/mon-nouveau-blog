@@ -5,9 +5,10 @@
 {{ block.super }}
 <div class="submit-row" action="">
     {% csrf_token %}
-
+    {% if change %}
     <input type="submit" value="Facturer" name="Facturer"/>
-
+    {% endif %}
+    <input type="button" value="Fermer Sans Enregistrer" onclick="history.go(-1)">
 </div>
 {% endblock %}
 

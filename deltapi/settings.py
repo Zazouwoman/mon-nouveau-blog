@@ -89,7 +89,21 @@ WSGI_APPLICATION = 'deltapi.wsgi.application'
 
 # Database
 # https://docs.djangoproject.com/en/4.0/ref/settings/#databases
+'''
+#Mysql
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.mysql',
+        'NAME': 'DELTAPI',
+        'USER': 'root',
+        'PASSWORD': config('PASSWORD_DATABASE'),
+        'HOST':'localhost',
+        'PORT':'3306',
+    }
+}
+'''
 
+#sqlite
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',

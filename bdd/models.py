@@ -21,6 +21,7 @@ from django.forms.utils import flatatt
 
 from datetime import date, timedelta
 from dateutil.relativedelta import relativedelta
+from django.contrib import messages
 
 
 from .fonctions import *
@@ -229,6 +230,10 @@ class Offre_Mission(models.Model):
     Etat = models.CharField(choices = EtatType, max_length = 20, default = "ATT")
     ID_Pilote = models.ForeignKey(Pilote, on_delete=models.SET_NULL, verbose_name = "Pilote", blank = True, null = True)
 
+    def custom_delete(self):
+        if self.Etat != 'ACC':
+            self.delete()
+
     def Client(self):
         ID = self.ID_Envoi_Offre_id
         envoi_offre = Envoi_Offre.objects.get(id=ID)
@@ -351,6 +356,8 @@ class Affaire(models.Model):
         reste = self.Honoraires_Global - resultat
         return reste
 
+    Solde.short_description = "Reste à payer"
+
     class Meta:
         verbose_name_plural = "2. Affaires"
 
@@ -424,6 +431,12 @@ class Facture(models.Model):
     class Meta:
         verbose_name_plural = "3. Factures"
 
+    def custom_delete(self):
+        if not self.deja_validee:
+            self.delete()
+        else:
+            pass
+
     def Montant_Facture_TTC(self):
         return self.Montant_Facture_HT * (100+int(self.Taux_TVA))/100
 
@@ -486,7 +499,6 @@ class Facture(models.Model):
     Honoraire_Affaire.short_description = "Montant honoraires de l'affaire"
 
     def Remplissage_Facture(self):
-        self.save()
         payeur = Client.objects.get(pk=self.ID_Payeur_id)
         self.Denomination_Client = payeur.Denomination_Sociale
         self.Adresse_Client = payeur.Adresse
