@@ -278,6 +278,10 @@ class Affaire(models.Model):
     ID_Pilote = models.ForeignKey(Pilote, on_delete=models.SET_NULL, verbose_name = "Pilote", blank = True, null = True)
     Etat = models.CharField(choices = EtatAffaireType, max_length = 8, verbose_name = "Etat de l'Affaire", default = "EC", blank = True)
 
+    def custom_delete(self):
+        if self.Etat != 'EC':
+            self.delete()
+
     def get_absolute_url(self):
         return reverse('admin : bdd_Affaire_change', kwargs={'pk': self.pk})
 
@@ -334,6 +338,10 @@ class Affaire(models.Model):
             self.Honoraires_Global = mission.Honoraires_Proposes
             self.ID_Pilote = mission.ID_Pilote
             self.save()
+        if self.soldee:
+            self.Etat = 'ARC'
+        if not self.soldee:
+            self.Etat = 'EC'
         super().save(*args,**kwargs)
 
     def client(self):

@@ -423,7 +423,7 @@ class Previsionnel_Filter(admin.SimpleListFilter):
 
 #Filtre des affaires à solder
 class ASolder_Filter(admin.SimpleListFilter):
-    title = "Affaire à envoyer"
+    title = "Affaire à solder"
     parameter_name = 'Solder'
 
     def lookups(self, request, model_admin):
@@ -451,8 +451,8 @@ class ASolder_Filter(admin.SimpleListFilter):
 class AffaireAdmin(admin.ModelAdmin):
     list_display = ("Nom_Affaire", "ID_Payeur", "Honoraires_Global", 'Reste_A_Regler', 'Solde', 'soldee', "Date_Previsionnelle",)
     search_fields = ("Nom_Affaire__startswith",)
-    list_filter = (Previsionnel_Filter, ASolder_Filter, 'ID_Pilote',)
-    radio_fields = {"Type_Affaire":admin.HORIZONTAL,"Etat": admin.HORIZONTAL}
+    list_filter = (Previsionnel_Filter, ASolder_Filter, 'ID_Pilote', 'Etat')
+    radio_fields = {"Type_Affaire":admin.HORIZONTAL,"Etat":admin.HORIZONTAL}
     list_editable = ('Date_Previsionnelle','soldee',)
     totalsum_list = ('Reste_A_Regler',)
     localized_fields = ('Honoraires_Global','Reste_A_Regler',)
@@ -468,6 +468,19 @@ class AffaireAdmin(admin.ModelAdmin):
 
     class Meta:
         model = Affaire
+
+    def delete_model(self, request, obj):
+        obj.custom_delete()
+        if obj.Etat == 'EC':
+            messages.warning(request, "L'affaire est en cours. Elle ne peut pas être supprimée.")
+            #messages.success(request, "")
+            #messages.add_message(request, messages.WARNING, "L'offre est déjà acceptée. Elle ne peut pas être supprimée.")
+
+    def delete_queryset(self, request, queryset):
+        for obj in queryset:
+            obj.custom_delete()
+        messages.add_message(request, messages.WARNING, "Seules les affaires archivées ont été supprimées.")
+
 
     def get_readonly_fields(self, request, obj = None):
         if not obj:
