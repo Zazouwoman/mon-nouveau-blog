@@ -517,7 +517,7 @@ class Facture(models.Model):
         if self.Facture_Avoir == "AV" and self.deja_validee:
             num = self.Facture_Liee
             qs = Facture.objects.filter(Numero_Facture=num)
-            if qs.count() == 1:
+            if qs.count() >= 1:
                 facture = Facture.objects.get(Numero_Facture=num)
                 facture.Avoir_Lie = self.Numero_Facture
                 if self.deja_envoyee:
@@ -527,7 +527,7 @@ class Facture(models.Model):
                     facture.deja_payee=True
                     facture.Etat_Paiement = 'PAYE'
                 facture.save()
-        print(date_derniere_facture())
+        #print(date_derniere_facture())
         super().save(*args,**kwargs)
 
     def Reste_Affaire(self):

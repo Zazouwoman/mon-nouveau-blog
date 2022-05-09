@@ -28,6 +28,7 @@ import tempfile
 from .fonctions import *
 from .models import *
 from .forms import *
+from decimal import Decimal
 # Register your models here.
 
 #DOSSIER = 'media/'
@@ -807,7 +808,7 @@ class FactureAdmin(admin.ModelAdmin):
                                                  ID_Payeur = idpayeur, Nom_Affaire = nomaffaire,
                                                  ID_Envoi_Facture = idenvoifacture, ID_Pilote = idpilote,
                                                  Numero_Facture = numfacture,Facture_Liee=obj.Numero_Facture,
-                                                 Montant_Facture_HT = -obj.Montant_Facture_HT,
+                                                 Montant_Facture_HT = Decimal(-obj.Montant_Facture_HT),
                                                  Descriptif=descriptif )
 
                 id = facture.pk
