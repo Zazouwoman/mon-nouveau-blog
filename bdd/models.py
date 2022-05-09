@@ -1,6 +1,6 @@
 
 from django.db import models
-from django.db.models import Sum
+from django.db.models import Sum,Max
 from django.db import models
 from django.shortcuts import render, redirect, get_object_or_404
 from django.urls import reverse
@@ -23,8 +23,12 @@ from datetime import date, timedelta
 from dateutil.relativedelta import relativedelta
 from django.contrib import messages
 
-
+from decimal import Decimal
 from .fonctions import *
+
+def date_derniere_facture():
+    datemax=Facture.objects.all().aggregate(Max('Date_Facture'))['Date_Facture__max']
+    return datemax
 
 def calcul_indice(type,periode):
     recherche = Compteur_Indice.objects.filter(Type_Dossier = type, Periode = periode)
@@ -33,7 +37,7 @@ def calcul_indice(type,periode):
         new = Compteur_Indice(Type_Dossier = type, Periode = periode, Compteur = indice)
         new.save()
     else:
-        ligne = Compteur_Indice.objects.get(Type_Dossier = type, Periode = periode)
+        ligne = Compteur_Indice.objects.get(Type_Dossier=type, Periode=periode)
         indice = ligne.Compteur + 1
         ligne.Compteur += 1
         ligne.save(update_fields=['Compteur'])
@@ -297,7 +301,7 @@ class Affaire(models.Model):
     Honoraires_Global = models.DecimalField(max_digits=12, decimal_places=2, verbose_name = 'Honoraire Global H.T.', default = 0)
     Date_Creation = models.DateField(default=date.today, verbose_name = "Date de création")
     Date_Previsionnelle = models.DateField(blank = True, null = True, default = None, verbose_name = "Date prévisionnelle de facturation")
-    Type_Affaire = models.CharField(choices = AffaireType, max_length = 12, verbose_name = "Type d'Affaire", blank = True)
+    Type_Affaire = models.CharField(choices = AffaireType, default="C", max_length = 12, verbose_name = "Type d'Affaire", blank = True)
     ID_Pilote = models.ForeignKey(Pilote, on_delete=models.SET_NULL, verbose_name = "Pilote", blank = True, null = True)
     Etat = models.CharField(choices = EtatAffaireType, max_length = 8, verbose_name = "Etat de l'Affaire", default = "EC", blank = True)
 
@@ -391,7 +395,7 @@ class Affaire(models.Model):
         reste = self.Honoraires_Global - resultat
         return reste
 
-    Solde.short_description = "Reste à payer"
+    Solde.short_description = "Reste à Payer"
 
     class Meta:
         verbose_name_plural = "2. Affaires"
@@ -411,12 +415,14 @@ class Facture(models.Model):
     ID_Pilote = models.ForeignKey(Pilote, on_delete=models.SET_NULL, null = True, verbose_name = "Pilote")
 
     Descriptif = models.TextField()
-    Montant_Facture_HT = models.DecimalField(max_digits=12, decimal_places=2, verbose_name = 'Montant de la facture H.T.', default = 0)
+    Montant_Facture_HT = models.DecimalField(max_digits=12, decimal_places=2, verbose_name = 'Montant Facture H.T.', default = 0)
     Taux_TVA = models.CharField(choices = TVA, max_length = 2, verbose_name = "Taux de T.V.A.", default = "20")
 
     Date_Facture = models.DateField(default=date.today, verbose_name = "Date de la facture")
 
     Facture_Avoir = models.CharField(choices = FactureType, max_length = 10, verbose_name = "Facture ou Avoir", default = "FA")
+    Facture_Liee = models.CharField(max_length=20, null=True, blank=True, verbose_name="Facture liée")  # Numéro de la facture liée à l'avoir
+    Avoir_Lie = models.CharField(max_length=20, null=True, blank=True,verbose_name="Avoir lié")  #Numéro de l'avoir lié à la facture si existe
 
     Etat = models.CharField(choices = EtatFacture, max_length = 8, verbose_name = "Etat", default = "BR")
     Etat_Paiement = models.CharField(choices = EtatPaiement, max_length = 8, verbose_name = "Etat du paiement", default = "ATT",blank = True)
@@ -472,6 +478,20 @@ class Facture(models.Model):
         else:
             pass
 
+    def Reste_A_Payer(self):
+        montantfacture = self.Montant_Facture_HT
+        reste = montantfacture
+        qs = Facture.objects.filter(Numero_Facture=self.Avoir_Lie)
+        for avoir in qs:
+            montantavoir = avoir.Montant_Facture_HT
+            if avoir.deja_payee:
+                reste += montantavoir
+        if self.Facture_Avoir =='AV':
+            reste = Decimal('0.00')
+        return reste
+
+    Reste_A_Payer.short_description = "Montant Avoirs Déduits"
+
     def Montant_Facture_TTC(self):
         return self.Montant_Facture_HT * (100+int(self.Taux_TVA))/100
 
@@ -494,6 +514,20 @@ class Facture(models.Model):
         affaire.ID_Envoi_Facture = self.ID_Envoi_Facture
         affaire.ID_Pilote = self.ID_Pilote
         affaire.save()
+        if self.Facture_Avoir == "AV" and self.deja_validee:
+            num = self.Facture_Liee
+            qs = Facture.objects.filter(Numero_Facture=num)
+            if qs.count() == 1:
+                facture = Facture.objects.get(Numero_Facture=num)
+                facture.Avoir_Lie = self.Numero_Facture
+                if self.deja_envoyee:
+                    self.deja_payee = True
+                    self.Etat_Paiement = 'PAYE'
+                if abs(facture.Reste_A_Payer())<10**(-2):
+                    facture.deja_payee=True
+                    facture.Etat_Paiement = 'PAYE'
+                facture.save()
+        print(date_derniere_facture())
         super().save(*args,**kwargs)
 
     def Reste_Affaire(self):

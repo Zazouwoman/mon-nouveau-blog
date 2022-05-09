@@ -29,20 +29,21 @@
 {% if change and Etat %}
 <div class="submit-row" action="">
     {% csrf_token %}
-    {% if relance >= 1 and relance < 7 and not Payee %}
+    {% if relance > 0 and not Payee and FA %}
+        <input type="submit" value="Créer un Avoir" name="Creer_Avoir"/>
+    {% endif %}
+
+    {% if relance >= 1 and relance < 7 and not Payee and FA %}
         <input type="submit" value="Relancer Facture" name="Relancer_Facture"/>
     {% endif %}
 
     {% if relance == 0 %}
         <input type="submit" value="Envoyer Facture" name="Envoyer_Mail"/>
     {% endif %}
-        <input type="submit" value="Aperçu PDF Facture" name="Apercu_PDF_Facture" formtarget="_blank"/>
-    {% if Num_Facture == "FA0001" %}
 
-    {% endif %}
-    {% if relance >= 1 %}
+        <input type="submit" value="Aperçu PDF Facture" name="Apercu_PDF_Facture" formtarget="_blank"/>
+
         <input type="submit" value="Fermer" name = "Fermer_DejaValidee"/>
-    {% endif %}
 
 </div>
 {% endif %}

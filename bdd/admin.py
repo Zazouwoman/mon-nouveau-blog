@@ -290,6 +290,7 @@ class ClientAdmin(admin.ModelAdmin):
     list_display = ("Denomination_Sociale", "SIRET", "Adresse", "CP", "Ville", 'Total_Affaire')
     search_fields = ("Denomination_Sociale__startswith",)
     form = ClientForm
+    list_per_page = 12
 
     def get_form(self, request, obj=None, **kwargs):
         form = super().get_form(request, obj, **kwargs)
@@ -315,6 +316,7 @@ class Offre_MissionAdmin(admin.ModelAdmin):
             'widget': forms.TextInput(attrs={'style': 'text-align:right;', }),
         },
     }
+    list_per_page = 12
 
     class  Meta:
         model = Offre_Mission
@@ -485,12 +487,14 @@ class AffaireAdmin(admin.ModelAdmin):
     list_filter = (Previsionnel_Filter, ASolder_Filter, 'ID_Pilote', 'Etat')
     radio_fields = {"Type_Affaire":admin.HORIZONTAL,"Etat":admin.HORIZONTAL}
     list_editable = ('Date_Previsionnelle','soldee',)
-    totalsum_list = ('Reste_A_Regler',)
+    totalsum_list = ('Honoraires_Global','Reste_A_Regler','Solde',)
     localized_fields = ('Honoraires_Global','Reste_A_Regler',)
+    list_per_page = 9
     formfield_overrides = {models.DecimalField: {
             'widget': forms.TextInput(attrs={'style': 'text-align:right;', }),
         },
     }
+
     unit_of_measure = ""
     totalsum_decimal_places = 2
     change_list_template = 'bdd/Liste_Affaires.html'
@@ -559,20 +563,6 @@ class AffaireAdmin(admin.ModelAdmin):
             return redirect(url, pk=id)
         return super().response_change(request, obj)
 
-    '''
-    def changeform_view(self, request, object_id=None, form_url='', extra_context=None):
-        extra_context = extra_context or {}
-        extra_context["show_save"] = False
-        extra_context["show_save_and_continue"] = False
-        extra_context["show_close"] = True
-        return super().changeform_view(
-            request,
-            object_id=object_id,
-            form_url=form_url,
-            extra_context=extra_context
-        )'''
-
-
     def changelist_view(self, request, extra_context=None):
         response = super(AffaireAdmin, self).changelist_view(request, extra_context)
         if not hasattr(response, "context_data") or "cl" not in response.context_data:
@@ -585,13 +575,10 @@ class AffaireAdmin(admin.ModelAdmin):
         for elem in self.totalsum_list:
             try:
                 self.model._meta.get_field(elem)  # Checking if elem is a field
-                total = filtered_query_set.aggregate(totalsum_field=Sum(elem))[
-                    "totalsum_field"
-                ]
+                total = filtered_query_set.aggregate(totalsum_field=Sum(elem))["totalsum_field"]
                 if total is not None:
                     extra_context["totals"][
-                        label_for_field(elem, self.model, self)
-                    ] = round(total, self.totalsum_decimal_places)
+                        label_for_field(elem, self.model, self)] = round(total, self.totalsum_decimal_places)
             except FieldDoesNotExist:  # maybe it's a property
                 if hasattr(self.model, elem):
                     total = 0
@@ -627,7 +614,7 @@ class A_Relancer_Filter(admin.SimpleListFilter):
                ('Rel3','3ème relance (Courrier)'),
                ('Rel4','4ème relance (RAR)'),
                ('Rel5', '5ème relance (Mise en Demeure)'),
-               ('Rel6', 'Contencieux'),
+               ('Rel6', 'A Mettre en contencieux'),
                ('Rel7', 'Contencieux transmis'),)
 
     def queryset(self, request, queryset):
@@ -671,23 +658,24 @@ class FactureAdmin(admin.ModelAdmin):
     #list_display = ('Numero_Facture','Etat','Date_Dernier_Rappel','Date_Envoi','Date_Relance1','Date_Relance2', 'Date_Relance3', 'Date_Relance4', 'Date_Relance5', 'Num_Relance','deja_validee','deja_envoyee','deja_payee','Nom_Affaire', 'Montant_Facture_HT', 'ID_Payeur','Date_Echeance1', 'Date_Relance', 'Date_Dernier_Rappel')
     list_display = (
     'Numero_Facture', 'Etat', 'deja_validee', 'deja_envoyee', 'deja_payee', 'Nom_Affaire',
-    'Montant_Facture_HT', 'ID_Payeur', 'Date_Echeance1', 'Num_Relance', 'Date_Dernier_Rappel')
+    'Montant_Facture_HT', 'Reste_A_Payer','ID_Payeur', 'Date_Echeance1', 'Num_Relance', 'Date_Dernier_Rappel')
     seach_fiels = ('Nom_Affaire__Startswith')
     list_filter = (A_Relancer_Filter,A_Envoyer_Filter,'Etat_Paiement','Etat','Nom_Affaire',)
     list_editable = ('deja_payee',)
-    list_per_page = 20
+    list_per_page = 12
     formfield_overrides = {models.DecimalField: {
             'widget': forms.TextInput(attrs={'style': 'text-align:right;', }),
         },
     }
     localized_fields = ('Honoraire_Affaire', 'Reste_Affaire','Montant_Facture_HT','Date_Prev_Affaire',)
+    totalsum_list = ('Montant_Facture_HT','Reste_A_Payer')
 
-    #Changement ici
-    form = FactureForm
     change_form_template = 'bdd/Modification_Facture.html'
-    change_list_template = 'admin/change_list2.html'
+    #change_list_template = 'admin/change_list2.html'
     form = FactureFormModif
-    #actions = ['my_action']
+    unit_of_measure = ""
+    totalsum_decimal_places = 2
+    change_list_template = 'bdd/Liste_Affaires.html'
 
     actions = ['delete_selected']
 
@@ -724,7 +712,7 @@ class FactureAdmin(admin.ModelAdmin):
             return []
         elif obj.deja_validee:
             return ['Numero_Facture','Nom_Affaire','ID_Payeur','ID_Envoi_Facture','ID_Pilote',
-                  'Descriptif','Montant_Facture_HT','Taux_TVA','Date_Facture','Modalites_Paiement']
+                  'Descriptif','Montant_Facture_HT','Taux_TVA','Reste_A_Payer','Avoir_Lie','Facture_Liee','Date_Facture','Modalites_Paiement']
         elif obj.Num_Relance == 0 and not obj.deja_validee:
             return ('Date_Prev_Affaire_aff','Honoraire_Affaire', 'Reste_Affaire', 'Num_Affaire','Modalites_Paiement',)
         else:
@@ -739,8 +727,34 @@ class FactureAdmin(admin.ModelAdmin):
         path = os.path.join(settings.MEDIA_ROOT, uri.replace(settings.MEDIA_URL, ""))
         return path
 
+    def changelist_view(self, request, extra_context=None):
+        response = super(FactureAdmin, self).changelist_view(request, extra_context)
+        if not hasattr(response, "context_data") or "cl" not in response.context_data:
+            return response
+        filtered_query_set = response.context_data["cl"].queryset
+        extra_context = extra_context or {}
+        extra_context["totals"] = {}
+        extra_context["unit_of_measure"] = self.unit_of_measure
+        for elem in self.totalsum_list:
+            try:
+                self.model._meta.get_field(elem)  # Checking if elem is a field
+                total = filtered_query_set.aggregate(totalsum_field=Sum(elem))["totalsum_field"]
+                if total is not None:
+                    extra_context["totals"][label_for_field(elem, self.model, self)] = round(total, self.totalsum_decimal_places)
+            except FieldDoesNotExist:  # maybe it's a property
+                if hasattr(self.model, elem):
+                    total = 0
+                    for f in filtered_query_set:
+                        try:
+                            total += getattr(f, elem, 0)
+                        except TypeError:
+                            total += getattr(f, elem, 0)()
+                    extra_context["totals"][label_for_field(elem, self.model, self)] = round(total, self.totalsum_decimal_places)
+        response.context_data.update(extra_context)
+        return response
+
     def change_view(self,request, object_id, extra_context = None):
-        facture = Facture.objects.get(pk = object_id)
+        facture = Facture.objects.get(pk=object_id)
         id = facture.ID_Affaire_id
         affaire = Affaire.objects.get(pk=id)
         reste = affaire.Reste_A_Regler()
@@ -756,6 +770,10 @@ class FactureAdmin(admin.ModelAdmin):
         extra_context['show_delete'] = True
         extra_context['relance'] = facture.Num_Relance
         extra_context['instance'] = facture
+        if facture.Facture_Avoir == "FA":
+            extra_context['FA'] = True
+        else:
+            extra_context['FA'] = False
         extra_context = extra_context or {}
         return super().change_view(request, object_id, extra_context = extra_context)
 
@@ -773,6 +791,32 @@ class FactureAdmin(admin.ModelAdmin):
         if "Home" in request.POST and request.method == 'POST':
             return redirect('home')
             #return redirect('/admin/bdd')
+
+        if "Creer_Avoir" in request.POST:
+            if obj.deja_envoyee:
+                obj.save()
+                idaffaire = obj.ID_Affaire_id
+                affaire = Affaire.objects.get(pk=idaffaire)
+                idpayeur = affaire.ID_Payeur
+                nomaffaire = affaire.Nom_Affaire
+                idenvoifacture = affaire.ID_Envoi_Facture
+                idpilote = affaire.ID_Pilote
+                numfacture = 'FA0001'
+                descriptif="Avoir à valoir sur la facture n°{}".format(obj.Numero_Facture)
+                facture = Facture.objects.create(ID_Affaire_id=idaffaire,
+                                                 ID_Payeur = idpayeur, Nom_Affaire = nomaffaire,
+                                                 ID_Envoi_Facture = idenvoifacture, ID_Pilote = idpilote,
+                                                 Numero_Facture = numfacture,Facture_Liee=obj.Numero_Facture,
+                                                 Montant_Facture_HT = -obj.Montant_Facture_HT,
+                                                 Descriptif=descriptif )
+
+                id = facture.pk
+                url = '/admin/bdd/facture/{}/change'.format(id)
+                return redirect(url, pk=id)
+            else:
+                messages.add_message(request, messages.ERROR,
+                                     "La facture n'a pas été envoyée. Vous ne pouvez pas créer d'avoir. Envoyez votre facture d'abord." )
+                return redirect(".")
 
         if "Relancer_Facture" in request.POST and request.method == 'POST':
             if obj.deja_payee:
@@ -867,6 +911,25 @@ class FactureAdmin(admin.ModelAdmin):
         if "Valider_Facture" in request.POST:  #Crée la facture (numéro définitif + enregistrement du fichier pdf + rediriger vers envoi mail )
             if not obj.deja_validee:
                 try:
+                    if obj.Montant_Facture_HT<0:
+                        num = obj.Facture_Liee
+                        qs = Facture.objects.filter(Numero_Facture=num)
+                        if qs.count() < 1:
+                            messages.error(request,"Le numéro de Facture à lier à l'avoir est incorrect. Validation impossible.")
+                            return redirect('.')
+                        else:
+                            facture=Facture.objects.get(Numero_Facture=num)
+                            if facture.Montant_Facture_HT+obj.Montant_Facture_HT<0:
+                                messages.error(request,
+                                               "Le montant de l'avoir est supérieur au montant de la facture ({} euros). Validation impossible."
+                                               .format(facture.Montant_Facture_HT))
+                                return redirect('.')
+                    '''Pour éviter les factures antérieures à la dernière facture
+                    if obj.Date_Facture < date_derniere_facture():
+                        messages.error(request,
+                                       "La date de la facture est antérieure à la date de la dernière facture enregistrée ({}). Validation impossible.".format(date_derniere_facture()))
+                        return redirect('.')
+                        '''
                     obj.deja_validee = True
                     obj.Etat = 'VA'
                     obj.Creation_Facture()
@@ -898,7 +961,10 @@ class FactureAdmin(admin.ModelAdmin):
                     message = message_facture(facture, offre)
                     typeaction = 'Envoi_Facture'
                     idfacture = facture.id
-                    sujet = 'Facture Ingeprev'
+                    if facture.Facture_Avoir == 'FA':
+                        sujet = 'Facture Ingéprev'
+                    else:
+                        sujet = 'Avoir Ingéprev'
                     RAR = facture.Num_RAR
                     From = settings.DEFAULT_FROM_EMAIL
                     email = InfoEmail.objects.create(From = From, To=facture.Email_Facture, Message=message, Subject=sujet,
@@ -1046,7 +1112,10 @@ class FactureAdmin(admin.ModelAdmin):
             message = message_facture(facture, offre)
             typeaction = 'Envoi_Facture'
             idfacture = facture.id
-            sujet = 'Facture Ingeprev'
+            if facture.Facture_Avoir == "FA":
+                sujet = 'Facture Ingéprev'
+            else:
+                sujet = 'Avoir Ingéprev'
             From = settings.DEFAULT_FROM_EMAIL
             if facture.Num_Relance < 5:
                 RAR = facture.Num_RAR
