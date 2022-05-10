@@ -171,7 +171,7 @@ class FactureFormModif(forms.ModelForm):
     class Meta:
         model = Facture
         fields = ['Numero_Facture','ID_Affaire','Nom_Affaire','ID_Payeur','ID_Envoi_Facture','ID_Pilote',
-                  'Descriptif','Montant_Facture_HT','Taux_TVA','Date_Facture','Avoir_Lie','Facture_Liee']
+                  'Descriptif','Montant_Facture_HT','Taux_TVA','Date_Facture','Facture_Liee']
         localized_fields = ('Montant_Facture_HT',)
 
     Date_Prev = forms.DateField(label="Nouvelle date prévisionnelle de l'affaire", required=False)
@@ -185,7 +185,6 @@ class FactureFormModif(forms.ModelForm):
         id=self.initial['ID_Affaire']
         affaire=Affaire.objects.get(pk=id)
         self.fields['Date_Prev'].initial = affaire.Date_Previsionnelle
-        self.fields['Avoir_Lie'].widget.attrs['readonly'] = True
 
     def save(self, commit=True):
         instance = super(FactureFormModif, self).save(commit)

@@ -422,7 +422,7 @@ class Facture(models.Model):
 
     Facture_Avoir = models.CharField(choices = FactureType, max_length = 10, verbose_name = "Facture ou Avoir", default = "FA")
     Facture_Liee = models.CharField(max_length=20, null=True, blank=True, verbose_name="Facture liée")  # Numéro de la facture liée à l'avoir
-    Avoir_Lie = models.CharField(max_length=20, null=True, blank=True,verbose_name="Avoir lié")  #Numéro de l'avoir lié à la facture si existe
+    #Avoir_Lie = models.CharField(max_length=20, null=True, blank=True,verbose_name="Avoir lié")  #Numéro de l'avoir lié à la facture si existe
 
     Etat = models.CharField(choices = EtatFacture, max_length = 8, verbose_name = "Etat", default = "BR")
     Etat_Paiement = models.CharField(choices = EtatPaiement, max_length = 8, verbose_name = "Etat du paiement", default = "ATT",blank = True)
@@ -490,11 +490,10 @@ class Facture(models.Model):
         qs = Facture.objects.filter(Facture_Liee=self.Numero_Facture)
         date = None
         for facture in qs:
-            #print(facture)
             date = facture.Date_Facture
         return date
 
-    def Nb_Avoir(self):  #nb d'avoir liés à la facture et validés
+    def Nb_Avoir(self):  #nb d'avoirs liés à la facture et validés
         nb = 0
         qs = Facture.objects.filter(Facture_Liee=self.Numero_Facture)
         for avoir in qs:
@@ -528,7 +527,7 @@ class Facture(models.Model):
             reste = Decimal('0.00')
         return reste
 
-    Reste_A_Payer.short_description = "Montant Avoirs Déduits"
+    Reste_A_Payer.short_description = "Montant Avoirs Payés Déduits"
 
     def Montant_Facture_TTC(self):
         return self.Montant_Facture_HT * (100+int(self.Taux_TVA))/100
@@ -553,38 +552,19 @@ class Facture(models.Model):
         affaire.ID_Pilote = self.ID_Pilote
         affaire.save()
         if self.Facture_Avoir == "AV" and self.deja_envoyee:
-            print('ici3',self.deja_envoyee)
             self.deja_payee=True
             self.Etat_Paiement="PAYE"
             num = self.Facture_Liee
             qs = Facture.objects.filter(Numero_Facture=num)
             if qs.count() >= 1:
                 facture = Facture.objects.get(Numero_Facture=num)
-                # facture.Avoir_Lie = self.Numero_Facture
                 if abs(facture.Reste_A_Payer()) < 10 ** (-2):
                     facture.deja_payee = True
                     facture.Etat_Paiement = 'PAYE'
                 facture.save()
-        """
-        if self.Facture_Avoir == "AV" and self.deja_validee:
-            num = self.Facture_Liee
-            qs = Facture.objects.filter(Numero_Facture=num)
-            if qs.count() >= 1:
-                facture = Facture.objects.get(Numero_Facture=num)
-                #facture.Avoir_Lie = self.Numero_Facture
-                if self.deja_envoyee:
-                    self.deja_payee = True
-                    self.Etat_Paiement = 'PAYE'
-                if abs(facture.Reste_A_Payer())<10**(-2):
-                    facture.deja_payee=True
-                    facture.Etat_Paiement = 'PAYE'
-                facture.save()
-                """
         if self.Facture_Avoir == "FA" and self.Reste_A_Payer()<10**(-2) and self.deja_envoyee:
-            print('ici4',self.Numero_Facture,self.deja_envoyee)
             self.deja_payee=True
             self.Etat_Paiement='PAYE'
-        #print(date_derniere_facture())
         super().save(*args,**kwargs)
 
     def Reste_Affaire(self):
@@ -711,7 +691,6 @@ class InfoEmail(models.Model):
     Subject = models.CharField(max_length = 100, verbose_name = 'Sujet', default = 'Facture Ingeprev')
     Message = models.TextField()
     File = models.FileField(blank = True)
-    #ID_Facture = models.ForeignKey(Facture, related_name = '%(class)s_ID_Facture', on_delete = models.SET_NULL, blank = True, null = True)
     ID_Facture = models.IntegerField(null = True, blank = True)
     Type_Action = models.CharField(max_length = 100, blank = True)
     RAR = models.CharField(max_length = 100, blank = True, null = True)

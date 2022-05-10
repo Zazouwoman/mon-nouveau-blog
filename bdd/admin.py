@@ -174,7 +174,6 @@ class InfoEmailAdmin(admin.ModelAdmin):
         email = obj
         factureid = email.ID_Facture
         facture = Facture.objects.get(pk=factureid)
-        print('ici0')
 
         if "Fermer" in request.POST:
             if facture.Num_Relance < 5:
@@ -528,7 +527,6 @@ class AffaireAdmin(admin.ModelAdmin):
             obj.custom_delete()
         messages.add_message(request, messages.WARNING, "Seules les affaires archivées ont été supprimées.")
 
-
     def get_readonly_fields(self, request, obj = None):
         if not obj:
             return []
@@ -662,33 +660,61 @@ class A_Envoyer_Filter(admin.SimpleListFilter):
 
 class FactureAdmin(admin.ModelAdmin):
     #list_display = ('Numero_Facture','Etat','Date_Dernier_Rappel','Date_Envoi','Date_Relance1','Date_Relance2', 'Date_Relance3', 'Date_Relance4', 'Date_Relance5', 'Num_Relance','deja_validee','deja_envoyee','deja_payee','Nom_Affaire', 'Montant_Facture_HT', 'ID_Payeur','Date_Echeance1', 'Date_Relance', 'Date_Dernier_Rappel')
-    list_display = (
-    'Numero_Facture', 'Etat', 'deja_validee', 'deja_envoyee', 'deja_payee', 'Nom_Affaire',
-    'Montant_Facture_HT', 'Reste_A_Payer','ID_Payeur', 'Date_Echeance1', 'Num_Relance', 'Date_Dernier_Rappel')
+    list_display = ('Numero_Facture', 'Etat', 'deja_validee', 'deja_envoyee', 'deja_payee', 'Nom_Affaire',
+                    'Montant_Facture_HT', 'Reste_A_Payer','ID_Payeur', 'Date_Echeance1', 'Num_Relance', 'Date_Dernier_Rappel')
     seach_fiels = ('Nom_Affaire__Startswith')
     list_filter = (A_Relancer_Filter,A_Envoyer_Filter,'Etat_Paiement','Etat','Nom_Affaire',)
     list_editable = ('deja_payee',)
-    list_per_page = 12
+    #list_per_page = 12
     formfield_overrides = {models.DecimalField: {
             'widget': forms.TextInput(attrs={'style': 'text-align:right;', }),
         },
     }
     localized_fields = ('Honoraire_Affaire', 'Reste_Affaire','Montant_Facture_HT','Date_Prev_Affaire',)
-    totalsum_list = ('Montant_Facture_HT','Reste_A_Payer')
 
     change_form_template = 'bdd/Modification_Facture.html'
-    #change_list_template = 'admin/change_list2.html'
+    change_list_template = 'admin/change_list2.html'
     form = FactureFormModif
+    '''
+    totalsum_list = ('Montant_Facture_HT','Reste_A_Payer')
     unit_of_measure = ""
     totalsum_decimal_places = 2
     change_list_template = 'bdd/Liste_Affaires.html'
+    def changelist_view(self, request, extra_context=None):
+        response = super(FactureAdmin, self).changelist_view(request, extra_context)
+        if not hasattr(response, "context_data") or "cl" not in response.context_data:
+            return response
+        filtered_query_set = response.context_data["cl"].queryset
+        extra_context = extra_context or {}
+        extra_context["totals"] = {}
+        extra_context["unit_of_measure"] = self.unit_of_measure
+        for elem in self.totalsum_list:
+            try:
+                self.model._meta.get_field(elem)  # Checking if elem is a field
+                total = filtered_query_set.aggregate(totalsum_field=Sum(elem))["totalsum_field"]
+                if total is not None:
+                    extra_context["totals"][label_for_field(elem, self.model, self)] = round(total, self.totalsum_decimal_places)
+            except FieldDoesNotExist:  # maybe it's a property
+                if hasattr(self.model, elem):
+                    total = 0
+                    for f in filtered_query_set:
+                        try:
+                            total += getattr(f, elem, 0)
+                        except TypeError:
+                            total += getattr(f, elem, 0)()
+                    extra_context["totals"][label_for_field(elem, self.model, self)] = round(total, self.totalsum_decimal_places)
+        response.context_data.update(extra_context)
+        return response
+    '''
 
     actions = ['delete_selected']
-
+    '''A mettre pour éviter les suppressions de factures validées
+    
     def delete_queryset(self, request, queryset):
         for obj in queryset:
             obj.custom_delete()
         messages.add_message(request, messages.WARNING, "Seules les factures non validées ont été supprimées.")
+    '''
 
     '''Une autre version qui marche
         def delete_queryset(self, request, queryset):
@@ -732,32 +758,6 @@ class FactureAdmin(admin.ModelAdmin):
     def fetch_resources(uri, rel):
         path = os.path.join(settings.MEDIA_ROOT, uri.replace(settings.MEDIA_URL, ""))
         return path
-
-    def changelist_view(self, request, extra_context=None):
-        response = super(FactureAdmin, self).changelist_view(request, extra_context)
-        if not hasattr(response, "context_data") or "cl" not in response.context_data:
-            return response
-        filtered_query_set = response.context_data["cl"].queryset
-        extra_context = extra_context or {}
-        extra_context["totals"] = {}
-        extra_context["unit_of_measure"] = self.unit_of_measure
-        for elem in self.totalsum_list:
-            try:
-                self.model._meta.get_field(elem)  # Checking if elem is a field
-                total = filtered_query_set.aggregate(totalsum_field=Sum(elem))["totalsum_field"]
-                if total is not None:
-                    extra_context["totals"][label_for_field(elem, self.model, self)] = round(total, self.totalsum_decimal_places)
-            except FieldDoesNotExist:  # maybe it's a property
-                if hasattr(self.model, elem):
-                    total = 0
-                    for f in filtered_query_set:
-                        try:
-                            total += getattr(f, elem, 0)
-                        except TypeError:
-                            total += getattr(f, elem, 0)()
-                    extra_context["totals"][label_for_field(elem, self.model, self)] = round(total, self.totalsum_decimal_places)
-        response.context_data.update(extra_context)
-        return response
 
     def change_view(self,request, object_id, extra_context = None):
         facture = Facture.objects.get(pk=object_id)
@@ -1163,6 +1163,7 @@ admin.site.register(Attachment, AttachmentAdmin)
 admin.site.register(Envoi_Facture, EnvoiFactureAdmin)
 admin.site.register(Compteur_Indice, CompteurIndiceAdmin)
 admin.site.register(Ingeprev,IngeprevAdmin)
+
 #admin.site.disable_action('delete_selected')
 
 '''
