@@ -675,11 +675,12 @@ class FactureAdmin(admin.ModelAdmin):
     change_form_template = 'bdd/Modification_Facture.html'
     change_list_template = 'admin/change_list2.html'
     form = FactureFormModif
-    '''
+
     totalsum_list = ('Montant_Facture_HT','Reste_A_Payer')
     unit_of_measure = ""
     totalsum_decimal_places = 2
     change_list_template = 'bdd/Liste_Affaires.html'
+
     def changelist_view(self, request, extra_context=None):
         response = super(FactureAdmin, self).changelist_view(request, extra_context)
         if not hasattr(response, "context_data") or "cl" not in response.context_data:
@@ -705,16 +706,14 @@ class FactureAdmin(admin.ModelAdmin):
                     extra_context["totals"][label_for_field(elem, self.model, self)] = round(total, self.totalsum_decimal_places)
         response.context_data.update(extra_context)
         return response
-    '''
 
     actions = ['delete_selected']
-    '''A mettre pour éviter les suppressions de factures validées
-    
+
+    #A mettre pour éviter les suppressions de factures validées
     def delete_queryset(self, request, queryset):
         for obj in queryset:
             obj.custom_delete()
         messages.add_message(request, messages.WARNING, "Seules les factures non validées ont été supprimées.")
-    '''
 
     '''Une autre version qui marche
         def delete_queryset(self, request, queryset):
