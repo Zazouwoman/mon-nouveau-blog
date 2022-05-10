@@ -157,8 +157,12 @@ class InfoEmailAdmin(admin.ModelAdmin):
             elif facture.Num_Relance == 5:
                 facture.Num_RAR_Demeure = 'A préciser'
             facture.save()
-            if facture.Num_Relance == 0:
-                messages.add_message(request, messages.WARNING, "Votre facture n'a pas été envoyée.")
+            if facture.Num_Relance == 0 and facture.Facture_Avoir == "FA":
+                messages.add_message(request, messages.WARNING, "Votre facture {} n'a pas été envoyée.".format(facture.Numero_Facture))
+            elif facture.Num_Relance == 0 and facture.Facture_Avoir == "AV":
+                messages.add_message(request, messages.WARNING,
+                                     "Votre avoir {} n'a pas été envoyé. Si vous souhaitez le passer à payer sans l'envoyer il faut le faire manuellement"
+                                     .format(facture.Numero_Facture))
             else:
                 messages.add_message(request, messages.WARNING, "Aucune relance n'a été effectuée. Opération annulée.")
             email.delete()
@@ -173,14 +177,15 @@ class InfoEmailAdmin(admin.ModelAdmin):
         print('ici0')
 
         if "Fermer" in request.POST:
-
             if facture.Num_Relance < 5:
                 facture.Num_RAR = 'A préciser'
             elif facture.Num_Relance == 5:
                 facture.Num_RAR_Demeure = 'A préciser'
             facture.save()
-            if facture.Num_Relance == 0:
+            if facture.Num_Relance == 0 and facture.Facture_Avoir == "FA":
                 messages.add_message(request, messages.WARNING, "Votre facture n'a pas été envoyée.")
+            elif facture.Num_Relance == 0 and facture.Facture_Avoir == "AV":
+                messages.add_message(request, messages.WARNING, "Votre avoir n'a pas été envoyé. Si vous souhaitez valider son paiement sans l'envoyer il faut le faire manuellement")
             else:
                 messages.add_message(request, messages.WARNING, "Aucune relance n'a été effectuée. Opération annulée.")
             email.delete()
@@ -191,7 +196,7 @@ class InfoEmailAdmin(admin.ModelAdmin):
             num = facture.Num_Relance
             mise_a_jour_relance(facture, num)
             email.delete()
-            messages.add_message(request, messages.INFO, 'Relance {} enregistrée avec succès !!'.format(num))
+            messages.add_message(request, messages.INFO, 'Relance {} sur la facture n°{} enregistrée avec succès !!'.format(num,facture.Numero_Facture))
             url = '/admin/bdd/facture/'
             return redirect(url)
 
@@ -703,9 +708,9 @@ class FactureAdmin(admin.ModelAdmin):
             self.readonly_fields = ()
             return CreationFactureForm
         elif obj.deja_validee:
-            self.readonly_fields = ('Date_Prev_Affaire', 'Honoraire_Affaire', 'Reste_Affaire', 'Num_Affaire')
+            self.readonly_fields = ('Avoirs_Lies','Date_Prev_Affaire', 'Honoraire_Affaire', 'Reste_Affaire', 'Num_Affaire')
             return FactureForm
-        self.readonly_fields = ('Date_Prev_Affaire', 'Honoraire_Affaire', 'Reste_Affaire', 'Num_Affaire')
+        self.readonly_fields = ('Avoirs_Lies','Date_Prev_Affaire', 'Honoraire_Affaire', 'Reste_Affaire', 'Num_Affaire')
         return super().get_form(request, obj, **kwargs)
 
     def get_readonly_fields(self, request, obj = None):
@@ -713,7 +718,7 @@ class FactureAdmin(admin.ModelAdmin):
             return []
         elif obj.deja_validee:
             return ['Numero_Facture','Nom_Affaire','ID_Payeur','ID_Envoi_Facture','ID_Pilote',
-                  'Descriptif','Montant_Facture_HT','Taux_TVA','Reste_A_Payer','Avoir_Lie','Facture_Liee','Date_Facture','Modalites_Paiement']
+                  'Descriptif','Montant_Facture_HT','Taux_TVA','Solde_Pour_Avoir_Eventuel','Avoirs_Lies','Facture_Liee','Date_Facture','Modalites_Paiement']
         elif obj.Num_Relance == 0 and not obj.deja_validee:
             return ('Date_Prev_Affaire_aff','Honoraire_Affaire', 'Reste_Affaire', 'Num_Affaire','Modalites_Paiement',)
         else:
@@ -794,7 +799,8 @@ class FactureAdmin(admin.ModelAdmin):
             #return redirect('/admin/bdd')
 
         if "Creer_Avoir" in request.POST:
-            if obj.deja_envoyee:
+            print(obj.Nb_Avoir(), obj.Solde_Pour_Avoir_Eventuel())
+            if obj.deja_envoyee and obj.Solde_Pour_Avoir_Eventuel()>0:
                 obj.save()
                 idaffaire = obj.ID_Affaire_id
                 affaire = Affaire.objects.get(pk=idaffaire)
@@ -803,17 +809,24 @@ class FactureAdmin(admin.ModelAdmin):
                 idenvoifacture = affaire.ID_Envoi_Facture
                 idpilote = affaire.ID_Pilote
                 numfacture = 'FA0001'
-                descriptif="Avoir à valoir sur la facture n°{}".format(obj.Numero_Facture)
+                descriptif="Avoir à valoir sur la facture n°{} du {}".format(obj.Numero_Facture,obj.Date_Facture)
                 facture = Facture.objects.create(ID_Affaire_id=idaffaire,
                                                  ID_Payeur = idpayeur, Nom_Affaire = nomaffaire,
                                                  ID_Envoi_Facture = idenvoifacture, ID_Pilote = idpilote,
-                                                 Numero_Facture = numfacture,Facture_Liee=obj.Numero_Facture,
-                                                 Montant_Facture_HT = Decimal(-obj.Montant_Facture_HT),
+                                                 Numero_Facture = numfacture,
+                                                 Facture_Liee=obj.Numero_Facture,
+                                                 Montant_Facture_HT = Decimal(-obj.Solde_Pour_Avoir_Eventuel()),
+                                                 Taux_TVA = obj.Taux_TVA,
                                                  Descriptif=descriptif )
 
                 id = facture.pk
                 url = '/admin/bdd/facture/{}/change'.format(id)
                 return redirect(url, pk=id)
+            elif obj.Nb_Avoir() >=1 and obj.Solde_Pour_Avoir_Eventuel()<10**-1:
+                messages.add_message(request, messages.ERROR,
+                                     "Vous ne pouvez pas créer de nouvel avoir pour cette facture car la totalité du montant initial a déjà fait l'objet d'avoir ({})."
+                                     .format(obj.Avoirs_Lies()))
+                return redirect(".")
             else:
                 messages.add_message(request, messages.ERROR,
                                      "La facture n'a pas été envoyée. Vous ne pouvez pas créer d'avoir. Envoyez votre facture d'abord." )
@@ -920,10 +933,10 @@ class FactureAdmin(admin.ModelAdmin):
                             return redirect('.')
                         else:
                             facture=Facture.objects.get(Numero_Facture=num)
-                            if facture.Montant_Facture_HT+obj.Montant_Facture_HT<0:
+                            if facture.Solde_Pour_Avoir_Eventuel()+obj.Montant_Facture_HT<0:
                                 messages.error(request,
-                                               "Le montant de l'avoir est supérieur au montant de la facture ({} euros). Validation impossible."
-                                               .format(facture.Montant_Facture_HT))
+                                               "Le montant de l'avoir est supérieur au montant restant de la facture ({} euros). Validation impossible."
+                                               .format(facture.Solde_Pour_Avoir_Eventuel()))
                                 return redirect('.')
                     '''Pour éviter les factures antérieures à la dernière facture
                     if obj.Date_Facture < date_derniere_facture():
@@ -952,6 +965,7 @@ class FactureAdmin(admin.ModelAdmin):
                         data['FA'] = True
                     else:
                         data['FA'] = False
+                    data['datefactureliee'] = facture.Date_Facture_Liee()
 
                     source_html = 'bdd/Visualisation_Facture2.html'
                     fichier = DOSSIER + 'factures/{}.pdf'.format(facture.Numero_Facture)
@@ -1038,6 +1052,7 @@ class FactureAdmin(admin.ModelAdmin):
                 data['FA'] = True
             else:
                 data['FA'] = False
+            data['datefactureliee'] = facture.Date_Facture_Liee()
 
             if "Generer_PDF" in request.POST:  #Crée un fichier .pdf et l'enregistre dans le dossier media (pas celui de MEDIA_ROOT)
                 source_html = 'bdd/Visualisation_Facture2.html'
@@ -1103,6 +1118,7 @@ class FactureAdmin(admin.ModelAdmin):
                 data['FA'] = True
             else:
                 data['FA'] = False
+            data['datefactureliee'] = facture.Date_Facture_Liee()
 
             source_html = 'bdd/Visualisation_Facture2.html'
             fichier = DOSSIER + 'factures/{}.pdf'.format(facture.Numero_Facture)

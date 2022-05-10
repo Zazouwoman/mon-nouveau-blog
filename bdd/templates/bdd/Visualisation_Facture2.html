@@ -43,9 +43,9 @@
  style='width:100%;mso-cellspacing:0cm;mso-yfti-tbllook:1184;mso-padding-alt:
  5.25pt 5.25pt 5.25pt 5.25pt'>
  <td class="left">
-	 <p class="western" align="justify"><font color="#0070c0">Facture n&deg : </font>{{facture.Numero_Facture}}
+	 <p class="western" align="justify"><font color="#0070c0">{% if FA %} Facture {% endif %} {%if not FA %} Avoir {% endif %}n&deg; : </font>{{facture.Numero_Facture}}
          <br/>
-     <font color="#0070c0">Date de la facture&nbsp;: </font>{{facture.Date_Facture}}
+     <font color="#0070c0">Date de {% if FA %}la facture{% endif %} {%if not FA %}l&apos;avoir{% endif %}&nbsp;: </font>{{facture.Date_Facture}}
          <br/>
          <font color="#0070c0">Num&eacute;ro de dossier : </font>{{affaire.Ref_Affaire}}
          <br/>
@@ -118,7 +118,8 @@
   <td valign=top style='width:100%;border:solid black 0.5pt;
   mso-border-alt:solid black .5pt;padding:0cm 5.75pt 0cm 5.75pt'>
   <p class=western >
-   <b><span style='color:#0070C0'>Objet de la pr&eacute;sente facture</b></p>
+   {% if FA %} <b><span style='color:#0070C0'>Objet de la pr&eacute;sente facture</b></p> {% endif %}
+   {%if not FA %} <b><span style='color:#0070C0'>Avoir sur la facture n&deg; : {{facture.Facture_Liee}} en date du {{datefactureliee}}</b></p> {% endif %}
   </td>
  </tr>
  <tr>

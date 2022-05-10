@@ -478,15 +478,53 @@ class Facture(models.Model):
         else:
             pass
 
+    def Avoirs_Lies(self):
+        L = []
+        qs = Facture.objects.filter(Facture_Liee=self.Numero_Facture).filter(deja_validee=True)
+        for avoir in qs:
+            if avoir.deja_validee:
+                L.append(avoir.Numero_Facture)
+        return L
+
+    def Date_Facture_Liee(self):
+        qs = Facture.objects.filter(Facture_Liee=self.Numero_Facture)
+        date = None
+        for facture in qs:
+            #print(facture)
+            date = facture.Date_Facture
+        return date
+
+    def Nb_Avoir(self):  #nb d'avoir liés à la facture et validés
+        nb = 0
+        qs = Facture.objects.filter(Facture_Liee=self.Numero_Facture)
+        for avoir in qs:
+            if avoir.deja_validee:
+                nb += 1
+        return nb
+
+    def Solde_Pour_Avoir_Eventuel(self):
+        montantfacture = self.Montant_Facture_HT
+        reste = montantfacture
+        L_Avoirs_Lies_Valides = self.Avoirs_Lies()
+        for num in L_Avoirs_Lies_Valides:
+            for avoir in Facture.objects.filter(Numero_Facture=num):
+                if avoir.deja_validee:
+                    montantavoir = avoir.Montant_Facture_HT
+                    reste += montantavoir
+        return reste
+
+    Solde_Pour_Avoir_Eventuel.short_description = "Montant disponible pour avoirs éventuels."
+
     def Reste_A_Payer(self):
         montantfacture = self.Montant_Facture_HT
         reste = montantfacture
-        qs = Facture.objects.filter(Numero_Facture=self.Avoir_Lie)
-        for avoir in qs:
-            montantavoir = avoir.Montant_Facture_HT
-            if avoir.deja_payee:
-                reste += montantavoir
-        if self.Facture_Avoir =='AV':
+        L_Avoirs_Lies_Valides = self.Avoirs_Lies()
+        for num in L_Avoirs_Lies_Valides:
+            for avoir in Facture.objects.filter(Numero_Facture=num):
+                if avoir.deja_payee:
+                    montantavoir = avoir.Montant_Facture_HT
+                    reste += montantavoir
+        if self.Facture_Avoir =='AV' and self.deja_payee:
             reste = Decimal('0.00')
         return reste
 
@@ -514,12 +552,26 @@ class Facture(models.Model):
         affaire.ID_Envoi_Facture = self.ID_Envoi_Facture
         affaire.ID_Pilote = self.ID_Pilote
         affaire.save()
+        if self.Facture_Avoir == "AV" and self.deja_envoyee:
+            print('ici3',self.deja_envoyee)
+            self.deja_payee=True
+            self.Etat_Paiement="PAYE"
+            num = self.Facture_Liee
+            qs = Facture.objects.filter(Numero_Facture=num)
+            if qs.count() >= 1:
+                facture = Facture.objects.get(Numero_Facture=num)
+                # facture.Avoir_Lie = self.Numero_Facture
+                if abs(facture.Reste_A_Payer()) < 10 ** (-2):
+                    facture.deja_payee = True
+                    facture.Etat_Paiement = 'PAYE'
+                facture.save()
+        """
         if self.Facture_Avoir == "AV" and self.deja_validee:
             num = self.Facture_Liee
             qs = Facture.objects.filter(Numero_Facture=num)
             if qs.count() >= 1:
                 facture = Facture.objects.get(Numero_Facture=num)
-                facture.Avoir_Lie = self.Numero_Facture
+                #facture.Avoir_Lie = self.Numero_Facture
                 if self.deja_envoyee:
                     self.deja_payee = True
                     self.Etat_Paiement = 'PAYE'
@@ -527,6 +579,11 @@ class Facture(models.Model):
                     facture.deja_payee=True
                     facture.Etat_Paiement = 'PAYE'
                 facture.save()
+                """
+        if self.Facture_Avoir == "FA" and self.Reste_A_Payer()<10**(-2) and self.deja_envoyee:
+            print('ici4',self.Numero_Facture,self.deja_envoyee)
+            self.deja_payee=True
+            self.Etat_Paiement='PAYE'
         #print(date_derniere_facture())
         super().save(*args,**kwargs)
 
