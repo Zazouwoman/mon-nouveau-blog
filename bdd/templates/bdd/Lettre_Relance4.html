@@ -118,14 +118,28 @@
         Pour m&eacute;moire, cette facture a d&eacute;j&agrave; d&ucirc; faire l&apos;objet d&apos;une relance par
         mail le {{facture.Date_Relance1}} puis d&apos;une relance t&eacute;l&eacute;phonique le {{facture.Date_Relance2}}.
     </p>
+    {% if nb == 1 %}
+        <p class="western" align="justify">
+            En tenant compte de l&apos;avoir partiel {% for x in avoir%}n&deg;{{x}}, {% endfor %} d&apos;un montant de {% for x in montant_avoir_lie%}{{x}} &euro; TTC, {% endfor %}
+            la somme restant &agrave; r&eacute;gler est de {{facture.Reste_A_Payer_TTC}} &euro; TTC.
+        </p>
+        {% endif %}
+        {% if nb > 1 %}
+        <p class="western" align="justify">
+            En tenant compte des avoirs partiels {% for x in avoir%}n&deg;{{x}}, {% endfor %} de montants respectifs
+            {% for x in montant_avoir_lie%}{{x}} &euro; TTC, {% endfor %}
+            la somme restant &agrave; r&eacute;gler est de {{facture.Reste_A_Payer_TTC}} &euro; TTC.
+        </p>
+        {% endif %}
         <p class="western" align="justify">
             Ainsi, sauf erreur de notre part, nous sommes au regret de constater qu&apos;aucun paiement n&apos;a &eacute;t&eacute;
-            effectu&eacute; pour r&eacute;gler cette facture. Nous vous demandons de bien vouloir r&eacute;gler
+            effectu&eacute; pour r&eacute;gler {% if nb == 0 %}cette facture.{% endif %} {% if nb > 0 %}le montant restant d&ucirc;.{% endif %} Nous vous demandons de bien vouloir r&eacute;gler
             cette situation, et de proc&eacute;der au r&egrave;glement de la somme due.
         </p>
         <p class="western" align="justify">
-            Vous trouverez en attach&eacute; de ce courrier, une photocopie de la facture concern&eacute;e
-            et une copie de la premi&egrave;re lettre de relance qui vous a &eacute;t&eacute; envoy&eacute;e.
+            Vous trouverez en attach&eacute; de ce courrier, une photocopie de la facture {% if nb == 0 %}concern&eacute; et {% endif %}
+            {% if nb > 0 %}et des avoirs concern&eacute;s ainsi qu&apos;{% endif %}
+            une copie de la premi&egrave;re lettre de relance qui vous a &eacute;t&eacute; envoy&eacute;e.
         </p>
         <p class="western" align="justify">
             Si vous avez d&eacute;j&agrave; proc&eacute;d&eacute; au r&egrave;glement avant r&eacute;ception de ce
@@ -159,10 +173,18 @@
 <div>
     <p class="western">
         <br>
+        {% if nb == 0 %}
         <br>
        Pi&egrave;ces jointes : copie de la facture n&deg;{{facture.Numero_Facture}} + copie de la lettre de relance n&deg;1
         <br>
         <br>
+        {% endif %}
+        {% if nb == 1 %}
+       Pi&egrave;ces jointes : copie de la facture n&deg;{{facture.Numero_Facture}} + copie de l&apos;avoir + copie de la lettre de relance n&deg;1
+        {% endif %}
+        {% if nb > 1 %}
+       Pi&egrave;ces jointes : copie de la facture n&deg;{{facture.Numero_Facture}} + copie des avoirs + copie de la lettre de relance n&deg;1
+        {% endif %}
         <br>
         <br>
     </p>

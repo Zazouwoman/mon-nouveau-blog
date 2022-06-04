@@ -486,6 +486,36 @@ class Facture(models.Model):
                 L.append(avoir.Numero_Facture)
         return L
 
+    Avoirs_Lies.short_description = 'Avoirs liés'
+
+    def Montants_Avoirs_Lies(self):
+        L = []
+        qs = Facture.objects.filter(Facture_Liee=self.Numero_Facture).filter(deja_validee=True)
+        for avoir in qs:
+            if avoir.deja_validee:
+                val = avoir.Montant_Facture_HT
+                affiche = '{:,.2f}'.format(val).replace(',', ' ').replace('.', ',')
+                L.append(affiche)
+        return L
+
+    Montants_Avoirs_Lies.short_description = 'Montants Avoirs liés'
+
+    def Montants_Avoirs_Lies_TTC(self):
+        L = []
+        qs = Facture.objects.filter(Facture_Liee=self.Numero_Facture).filter(deja_validee=True)
+        for avoir in qs:
+            if avoir.deja_validee:
+                L.append(avoir.Montant_Facture_TTC())
+        return L
+
+    def Somme_Avoirs_Lies(self):
+        s = Decimal('0.00')
+        qs = Facture.objects.filter(Facture_Liee=self.Numero_Facture).filter(deja_validee=True)
+        for avoir in qs:
+            if avoir.deja_validee:
+                s += avoir.Montant_Facture_HT
+        return s
+
     def Date_Facture_Liee(self):
         qs = Facture.objects.filter(Facture_Liee=self.Numero_Facture)
         date = None
@@ -528,6 +558,10 @@ class Facture(models.Model):
         return reste
 
     Reste_A_Payer.short_description = "Montant Avoirs Payés Déduits"
+
+    def Reste_A_Payer_TTC(self):
+        reste = self.Reste_A_Payer()
+        return reste*(100+int(self.Taux_TVA))/100
 
     def Montant_Facture_TTC(self):
         return self.Montant_Facture_HT * (100+int(self.Taux_TVA))/100

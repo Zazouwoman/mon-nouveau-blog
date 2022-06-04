@@ -11,6 +11,19 @@
     {% csrf_token %}
     {{ facture_form.as_p }}
 </form>
+{% if not FA %}
+<p class="western" align="left">
+    <b>
+Reste &agrave; payer H.T. Avoirs d&eacute;duits : {{facture.Reste_A_Payer}}
+</br>
+Liste des avoirs li&eacute;s : {% for x in facture.Avoirs_Lies %}{{x}} ; {% endfor %}
+</br>
+    Liste des montants des avoirs li&eacute;s H.T. : {% for x in facture.Montants_Avoirs_Lies %}{{x}} ; {% endfor %}
+        </br>
+        Somme des montants des avoirs H.T. : {{facture.Somme_Avoirs_Lies}}
+        </b>
+</p>
+{% endif %}
 <b>Coordonnees pour envoi de la facture</b>
 <form method = "post">
     {% csrf_token %}

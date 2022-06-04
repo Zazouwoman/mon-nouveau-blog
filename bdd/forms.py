@@ -57,7 +57,7 @@ class RelanceForm4(forms.ModelForm):
         super(RelanceForm4, self).__init__(*args, **kwargs)
         self.fields['Subject'].widget.attrs['readonly'] = True
 
-    Pieces_Jointes = MultiFileField(label = 'Pièces jointes', min_num=0, max_num=3, max_file_size=1024 * 1024 * 5)
+    Pieces_Jointes = MultiFileField(label = 'Pièces jointes', min_num=0, max_num=10, max_file_size=1024 * 1024 * 5)
 
     def save(self, commit=True):
         instance = super(RelanceForm4, self).save(commit)
@@ -200,8 +200,11 @@ class FactureFormModif(forms.ModelForm):
 class VisualisationFactureForm(forms.ModelForm):
     class Meta:
         model = Facture
-        fields = ['Numero_Facture', 'Nom_Affaire']
-        fields = ['Numero_Facture','Num_RAR','Nom_Affaire','ID_Payeur','ID_Envoi_Facture','ID_Pilote','Descriptif','Montant_Facture_HT', 'Taux_TVA','Date_Facture']
+        #fields = ['Numero_Facture', 'Nom_Affaire']
+        fields = ['Numero_Facture','Nom_Affaire','ID_Payeur','ID_Envoi_Facture','ID_Pilote','Descriptif','Montant_Facture_HT',
+                  'Taux_TVA', 'Date_Facture']
+        localized_fields = ('Montant_Facture_HT',)
+        readonly_fields = ['Reste_A_Payer','Avoirs_Lies']
 
     def __init__(self, *args, **kwargs):
         super(VisualisationFactureForm, self).__init__(*args, **kwargs)

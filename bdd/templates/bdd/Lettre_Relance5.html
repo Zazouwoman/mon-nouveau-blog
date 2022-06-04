@@ -117,12 +117,26 @@
         en date du {{facture.Date_Relance2}}, une troisi&eacute;me relance par courrier en date du {{facture.Date_Relance3}}
         puis une quatri&egrave;me relance par courrier RAR n&deg;{{facture.Num_RAR}} en date du {{facture.Date_Relance4}}
     </p>
+        {% if nb == 1 %}
+        <p class="western" align="justify">
+            En tenant compte de l&apos;avoir partiel {% for x in avoir%}n&deg;{{x}}, {% endfor %} d&apos;un montant de {% for x in montant_avoir_lie%}{{x}} &euro; TTC, {% endfor %}
+            la somme restant &agrave; r&eacute;gler est de {{facture.Reste_A_Payer_TTC}} &euro; TTC.
+        </p>
+        {% endif %}
+        {% if nb > 1 %}
+        <p class="western" align="justify">
+            En tenant compte des avoirs partiels {% for x in avoir%}n&deg;{{x}}, {% endfor %} de montants respectifs
+            {% for x in montant_avoir_lie%}{{x}} &euro; TTC, {% endfor %}
+            la somme restant &agrave; r&eacute;gler est de {{facture.Reste_A_Payer_TTC}} &euro; TTC.
+        </p>
+        {% endif %}
         <p class="western" align="justify">
             Ainsi, par la pr&eacute;sente, nous vous mettons en demeure de nous verser, &agrave; tritre principal, la somme de
-            {{facture.Montant_Facture_TTC}} &euro; TTC. Cette somme sera major&eacute;e des int&eacute;r&ecirc;ts au taux
+            {{facture.Reste_A_Payer_TTC}} &euro; TTC. Cette somme sera major&eacute;e des int&eacute;r&ecirc;ts au taux
             l&eacute;gal en vertu de l&apos;article 1153 du code civil. Nous vous informons que ces p&eacute;nalit&eacute;s
             courent d&egrave;s r&eacute;ception de cette lettre.
         </p>
+
         <p class="western" align="justify">
             Si, dans un d&eacute;lai de quinze jours &agrave; compter de cette date, nous ne vous &ecirc;tes toujours
             pas acquitt&eacute; de votre obligation, nous saisirons la juridiction comp&eacute;tente afin d&apos;obtenir
@@ -141,13 +155,23 @@
     </p>
     </div>
 <div>
-    <p>
+        <p class="western">
         <br>
+        {% if nb == 0 %}
         <br>
-        <br>
-       Pi&egrave;ces jointes : copies de la facture n&deg;{{facture.Numero_Facture}} + lettre de relance 3 + lettre
+       Pi&egrave;ces jointes : copie de la facture n&deg;{{facture.Numero_Facture}} + + lettre de relance 3 + lettre
         de relance 4
         <br>
+        <br>
+        {% endif %}
+        {% if nb == 1 %}
+       Pi&egrave;ces jointes : copie de la facture n&deg;{{facture.Numero_Facture}} + copie de l&apos;avoir + lettre de relance 3 + lettre
+        de relance 4
+        {% endif %}
+        {% if nb > 1 %}
+       Pi&egrave;ces jointes : copie de la facture n&deg;{{facture.Numero_Facture}} + copie des avoirs + lettre de relance 3 + lettre
+        de relance 4
+        {% endif %}
         <br>
         <br>
     </p>
