@@ -183,7 +183,7 @@ EMAIL_BACKEND = 'django.core.mail.backends.filebased.EmailBackend'
 EMAIL_FILE_PATH = 'media/email/'
 '''
 
-'''
+
 #Pour envoi effectif de mail crypté
 EMAIL_BACKEND = config('EMAIL_BACKEND')
 EMAIL_HOST = config('EMAIL_HOST')
@@ -192,7 +192,7 @@ EMAIL_HOST_PASSWORD = config('EMAIL_HOST_PASSWORD')
 EMAIL_PORT = config('EMAIL_PORT',cast = int)
 EMAIL_USE_TLS = config('EMAIL_USE_TLS', cast = bool)
 EMAIL_USE_SSL = config('EMAIL_USE_SSL', cast = bool)
-'''
+
 
 '''Des essais - python -m smtpd -n -c DebuggingServer localhost:1025
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'

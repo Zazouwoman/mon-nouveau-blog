@@ -13,7 +13,7 @@ class InfoEmailForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super(InfoEmailForm, self).__init__(*args, **kwargs)
 
-    Pieces_Jointes = MultiFileField(label = 'Pièces jointes', min_num=0, max_num=3, max_file_size=1024 * 1024 * 5)
+    Pieces_Jointes = MultiFileField(label = 'Pièces jointes', min_num=0, max_num=5, max_file_size=1024 * 1024 * 5)
 
     def save(self, commit=True):
         instance = super(InfoEmailForm, self).save(commit)

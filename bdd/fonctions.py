@@ -91,7 +91,7 @@ def affichage_message_relance(messages, request, num):
                                  "Vous devez faire une relance par courrier recommandé AR. Remplir le numéro du RAR, valider pour obtenir la lettre. Validez ensuite la relance quand c'est effectué.")
     elif num == 5:
         messages.add_message(request, messages.WARNING,
-                                 "Vous devez faire une mise en demeure. Validez ensuite la relance quand c'est effectué.")
+                                 "Vous devez faire une mise en demeure. Commencez par rentrer le numéro du recommandé pour obtenir la lettre de mise en demeure. Validez ensuite la relance quand c'est effectué.")
     elif num == 6:
         messages.add_message(request, messages.WARNING,
                                  "C'est l'heure de la mise en contentieux. Vous trouverez ci-dessous les différents courriers envoyés.")

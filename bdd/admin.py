@@ -81,8 +81,13 @@ class CompteurIndiceAdmin(admin.ModelAdmin):
 class AttachmentInline(admin.TabularInline):
     model = Attachment
     extra = 0
+    fields = ['nom','file']
+    '''Version fichiers liés non modifiables : 
+    on peut rajouter un seul fichier joint, on peut supprimer un ou plusieurs des fichiers préjoints
+    Intérêt : quand on clique sur les fichiers qui sont déjà présents ils s'ouvrent dans une nouvelle fenêtre, sinon c'est dans la même fenêtre.
     fields = ['nom','file_link',]
     readonly_fields = ['nom','file_link',]
+    '''
 
     def get_model_perms(self, request, *args, **kwargs):
         if not request.user.is_superuser:
@@ -92,16 +97,42 @@ class AttachmentInline(admin.TabularInline):
     def __init__(self,*args,**kwargs):
         super(AttachmentInline,self).__init__(*args,**kwargs)
 
-class InfoEmailAdmin(admin.ModelAdmin):
-    list_display = ('Subject',)
-    form = InfoEmailForm
-    change_form_template = 'bdd/Creation_Email.html'
-    inlines = [AttachmentInline,]
+class AttachmentInline2(admin.TabularInline):
+    model = Attachment
+    extra = 0
+    #fields = ['nom','file']
+    '''Version fichiers liés non modifiables : 
+    on peut rajouter un seul fichier joint, on peut supprimer un ou plusieurs des fichiers préjoints
+    Intérêt : quand on clique sur les fichiers qui sont déjà présents ils s'ouvrent dans une nouvelle fenêtre, sinon c'est dans la même fenêtre.
+    '''
+    fields = ['nom','file_link',]
+    readonly_fields = ['nom','file_link',]
 
     def get_model_perms(self, request, *args, **kwargs):
         if not request.user.is_superuser:
             return {}
         return super().get_model_perms(request)
+
+    def __init__(self,*args,**kwargs):
+        super(AttachmentInline2,self).__init__(*args,**kwargs)
+
+class InfoEmailAdmin(admin.ModelAdmin):
+    list_display = ('Subject',)
+    form = InfoEmailForm
+    change_form_template = 'bdd/Creation_Email.html'
+    inlines = [AttachmentInline,]
+    other_set_inlines = [AttachmentInline2,]
+
+    def get_model_perms(self, request, *args, **kwargs):
+        if not request.user.is_superuser:
+            return {}
+        return super().get_model_perms(request)
+
+    def get_inlines(self, request, obj=None):
+        if obj and obj.Type_Action in ['Relance2','Relance3','Relance4','Relance5','Relance6']:
+            return self.other_set_inlines
+        else:
+            return self.inlines
 
     def get_form(self, request, obj=None, **kwargs):
         if not obj:
@@ -284,6 +315,7 @@ class InfoEmailAdmin(admin.ModelAdmin):
             facture = Facture.objects.get(pk = obj.ID_Facture)
             num = facture.Num_Relance
             mise_a_jour_relance(facture, num)
+            facture.save()
             obj.delete()
             messages.add_message(request, messages.INFO, 'Votre email a été envoyé avec succès !!')
             url = '/admin/bdd/facture/'
@@ -798,7 +830,7 @@ class FactureAdmin(admin.ModelAdmin):
             #return redirect('/admin/bdd')
 
         if "Creer_Avoir" in request.POST:
-            print(obj.Nb_Avoir(), obj.Solde_Pour_Avoir_Eventuel())
+            #print(obj.Nb_Avoir(), obj.Solde_Pour_Avoir_Eventuel())
             if obj.deja_envoyee and obj.Solde_Pour_Avoir_Eventuel()>0:
                 obj.save()
                 idaffaire = obj.ID_Affaire_id
@@ -924,7 +956,10 @@ class FactureAdmin(admin.ModelAdmin):
         if "Valider_Facture" in request.POST:  #Crée la facture (numéro définitif + enregistrement du fichier pdf + rediriger vers envoi mail )
             if not obj.deja_validee:
                 try:
-                    if obj.Montant_Facture_HT<0:
+                    obj.save()
+                    reste = obj.Montant_Facture_HT-obj.Valeur_Reste_Affaire()
+                    print('on est là ', reste)
+                    if obj.Montant_Facture_HT<0:  #Cas d'un avoir
                         num = obj.Facture_Liee
                         qs = Facture.objects.filter(Numero_Facture=num)
                         if qs.count() < 1:
@@ -937,12 +972,18 @@ class FactureAdmin(admin.ModelAdmin):
                                                "Le montant de l'avoir est supérieur au montant restant de la facture ({} euros). Validation impossible."
                                                .format(facture.Solde_Pour_Avoir_Eventuel()))
                                 return redirect('.')
+                    elif obj.Montant_Facture_HT-obj.Valeur_Reste_Affaire() > 0:
+                        messages.error(request,
+                                      "Le montant de la facture est supérieur au montant restant à facturer ({} euros). Validation impossible. Si besoin, modifiez le montant des honoraires de l'affaire.".format(obj.Reste_Affaire()))
+                        return redirect('.')
+
                     '''Pour éviter les factures antérieures à la dernière facture
                     if obj.Date_Facture < date_derniere_facture():
                         messages.error(request,
                                        "La date de la facture est antérieure à la date de la dernière facture enregistrée ({}). Validation impossible.".format(date_derniere_facture()))
                         return redirect('.')
                         '''
+
                     obj.deja_validee = True
                     obj.Etat = 'VA'
                     obj.Creation_Facture()
@@ -952,7 +993,7 @@ class FactureAdmin(admin.ModelAdmin):
                     affaire = Affaire.objects.get(pk=obj.ID_Affaire_id)
                     ingeprev = Ingeprev.objects.get(Nom = 'INGEPREV')
 
-                    # Création du pdf dans media
+                    # Création du pdf de la facture dans media
                     data = {}
                     data['facture'] = facture
                     data['Ref_Affaire'] = affaire.Ref_Affaire
@@ -970,7 +1011,7 @@ class FactureAdmin(admin.ModelAdmin):
                     fichier = DOSSIER + 'factures/{}.pdf'.format(facture.Numero_Facture)
                     creer_html_to_pdf(source_html, fichier, data)
 
-                    # Création de l'email prérempli
+                    # Création de l'email d'envoi de la favture prérempli
                     offre = Offre_Mission.objects.get(pk = affaire.ID_Mission_id)
                     message = message_facture(facture, offre)
                     typeaction = 'Envoi_Facture'

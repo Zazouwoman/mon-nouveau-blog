@@ -514,7 +514,7 @@ class Facture(models.Model):
 
     Solde_Pour_Avoir_Eventuel.short_description = "Montant disponible pour avoirs éventuels."
 
-    def Reste_A_Payer(self):
+    def Reste_A_Payer(self): #Montant restant de la facture initiale, avoirs payés déduits
         montantfacture = self.Montant_Facture_HT
         reste = montantfacture
         L_Avoirs_Lies_Valides = self.Avoirs_Lies()
@@ -541,7 +541,7 @@ class Facture(models.Model):
             self.ID_Pilote = affaire.ID_Pilote
             self.Numero_Facture = 'FA0001'
             self.save()
-        if not self.deja_validee:
+        if not self.deja_validee or not self.deja_envoyee:
             self.deja_payee = False
         if self.deja_payee:
             self.Etat_Paiement = 'PAYE'
@@ -571,6 +571,11 @@ class Facture(models.Model):
         affaire = Affaire.objects.get(pk = self.ID_Affaire_id)
         reste = affaire.Reste_A_Regler()
         return '{:,.2f}'.format(reste).replace(',', ' ').replace('.', ',')
+
+    def Valeur_Reste_Affaire(self):
+        affaire = Affaire.objects.get(pk = self.ID_Affaire_id)
+        reste = affaire.Reste_A_Regler()
+        return reste
 
     def Honoraire_Affaire(self):
         affaire = Affaire.objects.get(pk=self.ID_Affaire_id)
