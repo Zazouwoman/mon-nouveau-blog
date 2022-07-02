@@ -103,6 +103,21 @@ DATABASES = {
 }
 '''
 
+'''
+#PostGre
+'''
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.postgresql_psycopg2',
+        'NAME': 'DELTAPI',
+        'USER': 'postgres',
+        'PASSWORD': config('PASSWORD_DATABASE'),
+        'HOST':'localhost',
+        'PORT':'',
+    }
+}
+
+'''
 #sqlite
 DATABASES = {
     'default': {
@@ -110,6 +125,7 @@ DATABASES = {
         'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
     }
 }
+'''
 
 #ADMIN_REORDER
 
