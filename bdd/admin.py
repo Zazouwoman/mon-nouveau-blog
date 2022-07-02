@@ -1026,13 +1026,12 @@ class FactureAdmin(admin.ModelAdmin):
                                       "Le montant de la facture est supérieur au montant restant à facturer ({} euros). Validation impossible. Si besoin, modifiez le montant des honoraires de l'affaire.".format(obj.Reste_Affaire()))
                         return redirect('.')
 
-                    '''Pour éviter les factures antérieures à la dernière facture
+                    '''Pour éviter les factures antérieures à la dernière facture'''
                     if obj.Date_Facture < date_derniere_facture():
                         messages.error(request,
                                        "La date de la facture est antérieure à la date de la dernière facture enregistrée ({}). Validation impossible.".format(date_derniere_facture()))
                         return redirect('.')
-                        '''
-
+                        
                     obj.deja_validee = True
                     obj.Etat = 'VA'
                     obj.Creation_Facture()
