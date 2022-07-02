@@ -1031,7 +1031,7 @@ class FactureAdmin(admin.ModelAdmin):
                         messages.error(request,
                                        "La date de la facture est antérieure à la date de la dernière facture enregistrée ({}). Validation impossible.".format(date_derniere_facture()))
                         return redirect('.')
-                        
+
                     obj.deja_validee = True
                     obj.Etat = 'VA'
                     obj.Creation_Facture()

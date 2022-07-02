@@ -110,7 +110,7 @@ DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql_psycopg2',
         'NAME': 'DELTAPI',
-        'USER': 'postgres',
+        'USER': 'claire',
         'PASSWORD': config('PASSWORD_DATABASE'),
         'HOST':'localhost',
         'PORT':'',
