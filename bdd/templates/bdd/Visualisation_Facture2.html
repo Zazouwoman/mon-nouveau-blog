@@ -24,7 +24,7 @@
 <table >
  <tr>
  <td class="left">
-	 <p valign=center style="font-size: 36pt; color:#0070c0; padding-top:20px">
+	 <p valign=center style="font-size: 36pt; color: #006cc0 ; padding-top:20px">
 	 {% if FA %} FACTURE {% endif %} {%if not FA %} AVOIR {% endif %}
 	 </p>
  </td>
@@ -43,23 +43,23 @@
  style='width:100%;mso-cellspacing:0cm;mso-yfti-tbllook:1184;mso-padding-alt:
  5.25pt 5.25pt 5.25pt 5.25pt'>
  <td class="left">
-	 <p class="western" align="justify"><font color="#0070c0">{% if FA %} Facture {% endif %} {%if not FA %} Avoir {% endif %}n&deg; : </font>{{facture.Numero_Facture}}
+	 <p class="western" align="justify"><font color="#006cc0">{% if FA %} Facture {% endif %} {%if not FA %} Avoir {% endif %}n&deg; : </font>{{facture.Numero_Facture}}
          <br/>
-     <font color="#0070c0">Date de {% if FA %}la facture{% endif %} {%if not FA %}l&apos;avoir{% endif %}&nbsp;: </font>{{facture.Date_Facture}}
+     <font color="#006cc0">Date de {% if FA %}la facture{% endif %} {%if not FA %}l&apos;avoir{% endif %}&nbsp;: </font>{{facture.Date_Facture}}
          <br/>
-         <font color="#0070c0">Num&eacute;ro de dossier : </font>{{affaire.Ref_Affaire}}
+         <font color="#006cc0">Num&eacute;ro de dossier : </font>{{affaire.Ref_Affaire}}
          <br/>
-         <font color="#0070c0">Date d&apos;&eacute;ch&eacute;ance&nbsp;: </font>{{Date_Echeance}}
+         <font color="#006cc0">Date d&apos;&eacute;ch&eacute;ance&nbsp;: </font>{{Date_Echeance}}
 	 </p>
  </td>
  <td class="right" valign=top >
      <p class="western" align="left">
-  <span style='color:#0070C0'>Votre contact&nbsp;:</span> {{facture.Prenom_Pilote}}
+  <span style='color:#006cc0'>Votre contact&nbsp;:</span> {{facture.Prenom_Pilote}}
 {{facture.Nom_Pilote}}
          <br/>
-         <span style='color:#0070C0'>T&eacute;l. :</span> {{facture.Tel_Portable_Pilote}}
+         <span style='color:#006cc0'>T&eacute;l. :</span> {{facture.Tel_Portable_Pilote}}
           <br/>
-         <font color="#0070c0">Mail : </font>{{Facture.Email_Pilote}}
+         <font color="#006cc0">Mail : </font>{{Facture.Email_Pilote}}
          <br/>
      </p>
  </td>
@@ -73,13 +73,13 @@
   <td valign=top style='width:100%;border:solid black 0.5pt;
   mso-border-alt:solid black .5pt;padding:0cm 5.75pt 0cm 5.75pt'>
   <p class=western>
-      <b><span style='color:#0070C0'>Factur&eacute &agrave</span></b>
+      <b><span style='color:#006cc0'>Factur&eacute &agrave</span></b>
   </p>
   </td>
   <td width=287 valign=top style='border:solid black 0.5pt;
   mso-border-alt:solid black .5pt;padding:0cm 5.75pt 0cm 5.75pt'>
   <p class=western>
-      <b><span style='color:#0070C0'>Envoy&eacute &agrave</span></b>
+      <b><span style='color:#006cc0'>Envoy&eacute &agrave</span></b>
       </p>
   </td>
  </tr>
@@ -118,8 +118,8 @@
   <td valign=top style='width:100%;border:solid black 0.5pt;
   mso-border-alt:solid black .5pt;padding:0cm 5.75pt 0cm 5.75pt'>
   <p class=western >
-   {% if FA %} <b><span style='color:#0070C0'>Objet de la pr&eacute;sente facture</b></p> {% endif %}
-   {%if not FA %} <b><span style='color:#0070C0'>Avoir sur la facture n&deg; : {{facture.Facture_Liee}} en date du {{datefactureliee}}</b></p> {% endif %}
+   {% if FA %} <b><span style='color:#006cC0'>Objet de la pr&eacute;sente facture</b></p> {% endif %}
+   {%if not FA %} <b><span style='color:#006cc0'>Avoir sur la facture n&deg; {{facture.Facture_Liee}} en date du {{datefactureliee}}</b></p> {% endif %}
   </td>
  </tr>
  <tr>
@@ -137,32 +137,32 @@
  style='width:100%;mso-cellspacing:0cm;mso-yfti-tbllook:1184;mso-padding-alt:
  5.25pt 5.25pt 5.25pt 5.25pt'>
  <tr>
-  <td valign=top style='text-align: center;width:40%;border:solid #0070C0 2.25pt;
+  <td valign=top style='text-align: center;width:40%;border:solid #006cc0 2.25pt;
   padding:0cm 5.75pt 0cm 5.75pt'>
-  <p class=western style='color:#0070C0;text-align: center'>
+  <p class=western style='color:#006cc0;text-align: center'>
    <b>Montant HT de la facture</b></p>
   </td>
-  <td valign=top style='text-align: center;width:20%;border:solid #0070C0 2.25pt;
+  <td valign=top style='text-align: center;width:20%;border:solid #006cc0 2.25pt;
   padding:0cm 5.75pt 0cm 5.75pt'>
-  <p class=western style='color:#0070C0;text-align: center'>
+  <p class=western style='color:#006cc0;text-align: center'>
    <b>Taux TVA</b></p>
   </td>
-  <td valign=top style='text-align: center;width:40%;border:solid #0070C0 2.25pt;
+  <td valign=top style='text-align: center;width:40%;border:solid #006cc0 2.25pt;
   padding:0cm 5.75pt 0cm 5.75pt'>
-  <p class=western style='color:#0070C0;text-align: center'>
+  <p class=western style='color:#006cc0;text-align: center'>
    <b>Montant TTC de la facture</b></p>
   </td>
  </tr>
  <tr>
-  <td valign=top style='text-align: center;width:40%;border:solid #0070C0 2.25pt;
+  <td valign=top style='text-align: center;width:40%;border:solid #006cc0 2.25pt;
   padding:0cm 5.75pt 0cm 5.75pt'>
    <p class=western style='text-align: center'><b>{{facture.Montant_Facture_HT}} &euro;</b></p>
   </td>
-  <td valign=top style='text-align: center;width:20%;border:solid #0070C0 2.25pt;
+  <td valign=top style='text-align: center;width:20%;border:solid #006cc0 2.25pt;
   padding:0cm 5.75pt 0cm 5.75pt'>
    <p class=western style='text-align: center'><b>{{facture.Taux_TVA}} %</b></p>
   </td>
-  <td valign=top style='text-align: center;width:40%;border:solid #0070C0 2.25pt;
+  <td valign=top style='text-align: center;width:40%;border:solid #006cc0 2.25pt;
   padding:0cm 5.75pt 0cm 5.75pt'>
   <p class=western style='text-align: center'><b>{{Montant_TTC}} &euro;</b></p>
   </td>
@@ -177,20 +177,20 @@
  <tr>
   <td valign=top style='width:33%;border:solid black 0.5pt;
   mso-border-alt:solid black .5pt;padding:0cm 5.75pt 0cm 5.75pt'>
-  <p class=western style='text-align: center;color:#0070C0'>
+  <p class=western style='text-align: center;color:#006cc0'>
       <b>Code Banque</b>
   </p>
   </td>
   <td valign=top style='width: 33%;border:solid black 0.5pt;
   mso-border-alt:solid black .5pt;padding:0cm 5.75pt 0cm 5.75pt'>
 
-  <p class=western style='text-align: center;color:#0070C0'><b>Code Guichet</b></p>
+  <p class=western style='text-align: center;color:#006cc0'><b>Code Guichet</b></p>
 
   </td>
    <td valign=top style='width: 33%;border:solid black 0.5pt;
   mso-border-alt:solid black .5pt;padding:0cm 5.75pt 0cm 5.75pt'>
 
-  <p class=western style='text-align: center;color:#0070C0'>
+  <p class=western style='text-align: center;color:#006cc0'>
       <b>Code BIC</b>
       </p>
 
@@ -220,7 +220,7 @@
   <tr>
   <td valign=top colspan = 2 style='width:50%;border:solid black 0.5pt;
   mso-border-alt:solid black .5pt;padding:0cm 5.75pt 0cm 5.75pt'>
-  <p class=western style='color:#0070C0;text-align: center'>
+  <p class=western style='color:#006cc0;text-align: center'>
       <b>Num&eacute;ro de compte bancaire</b>
   </p>
   </td>
@@ -246,7 +246,7 @@
  <tr>
   <td valign=top colspan = 3 style='width:100%;border:solid black 0.5pt;
   mso-border-alt:solid black .5pt;padding:0cm 5.75pt 0cm 5.75pt'>
-  <p class=western style='color:#0070C0;text-align: center''>
+  <p class=western style='color:#006cc0;text-align: center''>
       <b>Domiciliation</b>
   </p>
   </td>
@@ -266,7 +266,7 @@
   <td valign=top colspan = 3 style='width:100%;border:solid black 0.5pt;
   mso-border-alt:solid black .5pt;padding:0cm 5.75pt 0cm 5.75pt'>
   <p class=western>
-      <span style='color:#0070C0;text-align: center'><b>IBAN : </b> {{ingeprev.IBAN}}</span>
+      <span style='color:#006cc0;text-align: center'><b>IBAN : </b> {{ingeprev.IBAN}}</span>
   </p>
   </td>
  </tr>

@@ -11,3 +11,4 @@ reportlab
 PyPDF3
 django-admin-interface
 mysqlclient
+psycopg2-binary

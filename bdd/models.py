@@ -517,7 +517,7 @@ class Facture(models.Model):
         return s
 
     def Date_Facture_Liee(self):
-        qs = Facture.objects.filter(Facture_Liee=self.Numero_Facture)
+        qs = Facture.objects.filter(Numero_Facture = self.Facture_Liee)
         date = None
         for facture in qs:
             date = facture.Date_Facture
@@ -553,7 +553,7 @@ class Facture(models.Model):
                 if avoir.deja_payee:
                     montantavoir = avoir.Montant_Facture_HT
                     reste += montantavoir
-        if self.Facture_Avoir =='AV' and self.deja_payee:
+        if self.Facture_Avoir == 'AV' and self.deja_payee:
             reste = Decimal('0.00')
         return reste
 

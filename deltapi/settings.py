@@ -32,7 +32,7 @@ SECRET_KEY = config('SECRET_KEY')
 #DEBUG = True
 DEBUG = config('DEBUG', cast = bool)
 
-ALLOWED_HOSTS = ['127.0.0.1', '.pythonanywhere.com']
+ALLOWED_HOSTS = ['127.0.0.1', '.pythonanywhere.com','deltapi.ingeprev.com']
 #ALLOWED_HOSTS = env.list('ALLOWED_HOST')
 #ALLOWED_HOST = config('ALLOWED_HOST', cast = list)
 
@@ -190,8 +190,10 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 DEFAULT_FROM_EMAIL = config('DEFAULT_FROM_EMAIL')
 
+'''
 #Les mails ne sont pas envoyés réellement, on les voit dans la console
 EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+'''
 
 '''
 #Les mails ne sont pas envoyés réellement, ils sont enregistrés dans media
@@ -199,16 +201,15 @@ EMAIL_BACKEND = 'django.core.mail.backends.filebased.EmailBackend'
 EMAIL_FILE_PATH = 'media/email/'
 '''
 
-'''
 #Pour envoi effectif de mail crypté
 EMAIL_BACKEND = config('EMAIL_BACKEND')
 EMAIL_HOST = config('EMAIL_HOST')
 EMAIL_HOST_USER = config('EMAIL_HOST_USER')
+DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
 EMAIL_HOST_PASSWORD = config('EMAIL_HOST_PASSWORD')
 EMAIL_PORT = config('EMAIL_PORT',cast = int)
 EMAIL_USE_TLS = config('EMAIL_USE_TLS', cast = bool)
 EMAIL_USE_SSL = config('EMAIL_USE_SSL', cast = bool)
-'''
 
 '''Des essais - python -m smtpd -n -c DebuggingServer localhost:1025
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'

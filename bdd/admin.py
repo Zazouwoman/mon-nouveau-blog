@@ -310,7 +310,7 @@ class InfoEmailAdmin(admin.ModelAdmin):
                 attachments = []  # start with an empty list
                 attach_files = Attachment.objects.filter(message_id = obj.pk)
 
-                email = EmailMessage(Subject, Message, From, [To], attachments = attachments)
+                email = EmailMessage(Subject, Message, From, [To], ['compta@ingeprev.com'], attachments = attachments)
 
                 for attach in attach_files:
                     f = settings.MEDIA_ROOT + attach.file.name
@@ -854,7 +854,7 @@ class FactureAdmin(admin.ModelAdmin):
                 idenvoifacture = affaire.ID_Envoi_Facture
                 idpilote = affaire.ID_Pilote
                 numfacture = 'FA0001'
-                descriptif="Avoir à valoir sur la facture n°{} du {}".format(obj.Numero_Facture,obj.Date_Facture)
+                descriptif="Avoir à valoir sur la facture n°{} du {}".format(obj.Numero_Facture,obj.Date_Facture.strftime("%d/%m/%Y"))
                 facture = Facture.objects.create(ID_Affaire_id=idaffaire,
                                                  ID_Payeur = idpayeur, Nom_Affaire = nomaffaire,
                                                  ID_Envoi_Facture = idenvoifacture, ID_Pilote = idpilote,
@@ -1007,7 +1007,6 @@ class FactureAdmin(admin.ModelAdmin):
                 try:
                     obj.save()
                     reste = obj.Montant_Facture_HT-obj.Valeur_Reste_Affaire()
-                    print('on est là ', reste)
                     if obj.Montant_Facture_HT<0:  #Cas d'un avoir
                         num = obj.Facture_Liee
                         qs = Facture.objects.filter(Numero_Facture=num)
