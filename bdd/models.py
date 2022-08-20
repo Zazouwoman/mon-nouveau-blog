@@ -26,6 +26,16 @@ from django.contrib import messages
 from decimal import Decimal
 from .fonctions import *
 
+def formater_tel(tel_int):
+    tel_str = str(tel_int)
+    numeros = [tel_str[x:x+2] for x in range(len(tel_str)//2)]
+    return '.'.join(numeros)
+
+def formater_IBAN(iban):
+    iban_str = str(iban)
+    numeros = [iban_str[x:x+4] for x in range(len(tel_str)//4)]
+    return ' '.join(numeros)
+
 def date_derniere_facture():
     datemax=Facture.objects.all().aggregate(Max('Date_Facture'))['Date_Facture__max']
     return datemax
@@ -120,6 +130,15 @@ class Ingeprev(models.Model):
         if os.path.isfile(self.logo.path):
             os.remove(self.logo.path)
         super(Ingeprev, self).delete(*args,**kwargs)
+
+    def Tel_Banque_Affiche(self):
+        return formater_tel(self.Tel_Banque)
+
+    def Tel_Affiche(self):
+        return formater_tel(self.Tel)
+
+    def IBAN_Affiche(self):
+        return formater_IBAN(self.IBAN)
 
 class Pilote(models.Model):
     Civilite = models.CharField(blank=True, choices=CiviliteType.choices, max_length=3)
