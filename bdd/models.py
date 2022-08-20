@@ -28,12 +28,12 @@ from .fonctions import *
 
 def formater_tel(tel_int):
     tel_str = str(tel_int)
-    numeros = [tel_str[x:x+2] for x in range(len(tel_str)//2)]
+    numeros = [tel_str[x:x+2] for x in range(0,len(tel_str),2)]
     return '.'.join(numeros)
 
 def formater_IBAN(iban):
     iban_str = str(iban)
-    numeros = [iban_str[x:x+4] for x in range(len(tel_str)//4)]
+    numeros = [iban_str[x:x+4] for x in range(0,len(iban_str),4)]
     return ' '.join(numeros)
 
 def date_derniere_facture():
@@ -490,6 +490,9 @@ class Facture(models.Model):
 
     class Meta:
         verbose_name_plural = "3. Factures"
+
+    def Tel_Portable_Pilote_Affiche(self):
+        return formater_tel(self.Tel_Portable_Pilote)
 
     def custom_delete(self):
         if not self.deja_validee:

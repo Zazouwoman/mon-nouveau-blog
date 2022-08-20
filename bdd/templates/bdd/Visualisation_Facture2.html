@@ -57,7 +57,7 @@
   <span style='color:#006cc0'>Votre contact&nbsp;:</span> {{facture.Prenom_Pilote}}
 {{facture.Nom_Pilote}}
          <br/>
-         <span style='color:#006cc0'>T&eacute;l. :</span> {{facture.Tel_Portable_Pilote}}
+         <span style='color:#006cc0'>T&eacute;l. :</span> {{facture.Tel_Portable_Pilote_Affiche}}
           <br/>
          <font color="#006cc0">Mail : </font>{{Facture.Email_Pilote}}
          <br/>
@@ -266,7 +266,8 @@
   <td valign=top colspan = 3 style='width:100%;border:solid black 0.5pt;
   mso-border-alt:solid black .5pt;padding:0cm 5.75pt 0cm 5.75pt'>
   <p class=western>
-      <span style='color:#006cc0;text-align: center'><b>IBAN : </b> {{ingeprev.IBAN_Affiche}}</span>
+   <span style='color:#006cc0;text-align: center'><b>IBAN : </b> </span>
+   <span style='text-align: center'>{{ingeprev.IBAN_Affiche}}</span>
   </p>
   </td>
  </tr>
