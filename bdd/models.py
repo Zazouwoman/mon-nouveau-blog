@@ -603,7 +603,7 @@ class Facture(models.Model):
             self.Etat_Paiement = 'PAYE'
         if not self.deja_payee:
             self.Etat_Paiement = 'ATT'
-        affaire = Affaire.objects.get(pk=self.ID_Affaire_id)
+        affaire = Affaire.objects.get(pk=self.ID_Affaire_id)   #Mise à jour de l'affaire en cas de modifs lors de la facture
         affaire.ID_Envoi_Facture = self.ID_Envoi_Facture
         affaire.ID_Pilote = self.ID_Pilote
         affaire.save()
