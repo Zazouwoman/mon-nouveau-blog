@@ -25,13 +25,21 @@ class InfoEmailForm(forms.ModelForm):
 class RelanceForm2(forms.ModelForm):
     class Meta:
         model = InfoEmail
-        fields = ('Subject',)
+        fields = ['Subject','Suivi']
 
     def __init__(self, *args, **kwargs):
         super(RelanceForm2, self).__init__(*args, **kwargs)
         self.fields['Subject'].widget.attrs['readonly'] = True
 
-class RelanceForm3(forms.ModelForm):
+    Pieces_Jointes = MultiFileField(label='Pièces jointes', min_num=0, max_num=3, max_file_size=1024 * 1024 * 5)
+
+    def save(self, commit=True):
+        instance = super(RelanceForm2, self).save(commit)
+        for each in self.cleaned_data['Pieces_Jointes']:
+            Attachment.objects.create(file=each, message=instance)
+        return instance
+
+'''class RelanceForm3(forms.ModelForm):
     class Meta:
         model = InfoEmail
         fields = ('Subject',)
@@ -39,8 +47,26 @@ class RelanceForm3(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super(RelanceForm3, self).__init__(*args, **kwargs)
         self.fields['Subject'].widget.attrs['readonly'] = True
+    
+    # Pieces_Jointes = MultiFileField(label='Pièces jointes', min_num=0, max_num=3, max_file_size=1024 * 1024 * 5)
+        
+    def save(self, commit=True):
+        instance = super(RelanceForm3, self).save(commit)
+        for each in self.cleaned_data['Pieces_Jointes']:
+            Attachment.objects.create(file=each, message=instance)
+        return instance
+'''
 
-    #Pieces_Jointes = MultiFileField(label='Pièces jointes', min_num=0, max_num=3, max_file_size=1024 * 1024 * 5)
+class RelanceForm3(forms.ModelForm):
+    class Meta:
+        model = InfoEmail
+        fields = ['Subject', 'RAR']
+
+    def __init__(self, *args, **kwargs):
+        super(RelanceForm3, self).__init__(*args, **kwargs)
+        self.fields['Subject'].widget.attrs['readonly'] = True
+
+    Pieces_Jointes = MultiFileField(label = 'Pièces jointes', min_num=0, max_num=10, max_file_size=1024 * 1024 * 5)
 
     def save(self, commit=True):
         instance = super(RelanceForm3, self).save(commit)
@@ -57,18 +83,10 @@ class RelanceForm4(forms.ModelForm):
         super(RelanceForm4, self).__init__(*args, **kwargs)
         self.fields['Subject'].widget.attrs['readonly'] = True
 
-    Pieces_Jointes = MultiFileField(label = 'Pièces jointes', min_num=0, max_num=10, max_file_size=1024 * 1024 * 5)
-
-    def save(self, commit=True):
-        instance = super(RelanceForm4, self).save(commit)
-        for each in self.cleaned_data['Pieces_Jointes']:
-            Attachment.objects.create(file=each, message=instance)
-        return instance
-
 class RelanceForm5(forms.ModelForm):
     class Meta:
         model = InfoEmail
-        fields = ['Subject', 'RAR']
+        fields = ('Subject',)
 
     def __init__(self, *args, **kwargs):
         super(RelanceForm5, self).__init__(*args, **kwargs)
@@ -143,7 +161,7 @@ class CreationFactureForm(forms.ModelForm):
 class FactureHistoriqueForm(forms.ModelForm):
     class Meta:
         model = Facture
-        fields = ['Numero_Facture', 'Date_Envoi', 'Date_Relance1', 'Date_Relance2', 'Date_Relance3', 'Date_Relance4', 'Num_RAR','Num_RAR_Demeure']
+        fields = ['Numero_Facture', 'Date_Envoi', 'Date_Relance1', 'Date_Relance2', 'Num_Suivi', 'Date_Relance3', 'Num_RAR', 'Date_Relance4', 'Num_RAR_Demeure']
         #widget = {'style': 'text-align:right;'}
 
     def __init__(self, *args, **kwargs):

@@ -446,16 +446,17 @@ class Facture(models.Model):
     Etat = models.CharField(choices = EtatFacture, max_length = 8, verbose_name = "Etat", default = "BR")
     Etat_Paiement = models.CharField(choices = EtatPaiement, max_length = 8, verbose_name = "Etat du paiement", default = "ATT",blank = True)
     Date_Envoi = models.DateField(default=date.today, verbose_name="Date d'envoi", blank=True)
-    Date_Relance1 = models.DateField(default=date.today, verbose_name="Date de relance1 - relance par mail", blank=True)
-    Date_Relance2 = models.DateField(default=date.today, verbose_name="Date de relance2 - relance téléphonique", blank=True)
-    Date_Relance3 = models.DateField(default=date.today, verbose_name="Date de relance3 - relance courrier", blank=True)
-    Date_Relance4 = models.DateField(default=date.today, verbose_name="Date de relance4 - relance RAR", blank=True)
-    Date_Relance5 = models.DateField(default=date.today, verbose_name="Date de relance5 - mise en demeure", blank=True)
-    Date_Relance6 = models.DateField(default=date.today, verbose_name="Date de relance6 - contentieux", blank=True)
+    Date_Relance1 = models.DateField(default=date.today, verbose_name="Date de relance1 - relance par mail - J", blank=True)
+    Date_Relance2 = models.DateField(default=date.today, verbose_name="Date de relance2 - relance courrier suivi - J+30", blank=True)
+    Date_Relance3 = models.DateField(default=date.today, verbose_name="Date de relance3 - relance RAR - J+60", blank=True)
+    Date_Relance4 = models.DateField(default=date.today, verbose_name="Date de relance4 - nise en demeure - J+90", blank=True)
+    Date_Relance5 = models.DateField(default=date.today, verbose_name="Date de relance5 - conciliation - J+100", blank=True)
+    Date_Relance6 = models.DateField(default=date.today, verbose_name="Date de relance6 - assignation - J+220", blank=True)
     Date_Dernier_Rappel = models.DateField(default=date.today, verbose_name = "Date dernier rappel", blank = True)
     Num_Relance = models.IntegerField(default = 0, blank = True)
-    Num_RAR = models.CharField(max_length = 20, blank = True, default = 'A préciser', verbose_name = "Numéro RAR relance 4") #Numéro du RAR de la relance 4
-    Num_RAR_Demeure = models.CharField(max_length = 20, blank = True, default = 'A préciser', verbose_name = "Numéro RAR mise en demeure") #Numéro du RAR de la mise en demeure
+    Num_Suivi = models.CharField(max_length = 20, blank = True, default = 'A préciser', verbose_name = "Numéro Suivi - Relance2") #Numéro du RAR de la relance 2
+    Num_RAR = models.CharField(max_length = 25, blank = True, default = 'A préciser', verbose_name = "Numéro RAR - Relance3") #Numéro du RAR de la relance 3
+    Num_RAR_Demeure = models.CharField(max_length = 25, blank = True, default = 'A préciser', verbose_name = "Numéro RAR - Relance4 (Mise en demeure)") #Numéro du RAR de la mise en demeure
 
     Mode_Paiement = models.CharField(default="Non défini", choices=ModePaiementType, max_length=20,
                                      verbose_name="Mode de Paiement")
@@ -668,6 +669,10 @@ class Facture(models.Model):
         dateecheance1 = self.Date_Echeance1()
         relance = self.Num_Relance
         daterelance = dateecheance1 + timedelta(days = 30*relance)
+        if relance == 5:
+            daterelance = dateecheance1 + timedelta(days=100)
+        elif relance == 6:
+            daterelance = dateecheance1 + timedelta(days=220)
         return daterelance
 
     Reste_Affaire.short_description = "Montant de l'affaire qu'il reste à facturer"
@@ -754,7 +759,8 @@ class InfoEmail(models.Model):
     File = models.FileField(blank = True)
     ID_Facture = models.IntegerField(null = True, blank = True)
     Type_Action = models.CharField(max_length = 100, blank = True)
-    RAR = models.CharField(max_length = 100, blank = True, null = True)
+    RAR = models.CharField(max_length = 20, blank = True, null = True)
+    Suivi = models.CharField(max_length = 20, blank = True, null = True)
 
     def envoi_email(self):
         Subject = self.Subject

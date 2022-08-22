@@ -160,7 +160,15 @@ class InfoEmailAdmin(admin.ModelAdmin):
         envoifacture = Envoi_Facture.objects.get(pk = facture.ID_Envoi_Facture_id)
         historique_form = FactureHistoriqueForm(instance = facture)
         extra_context = extra_context or {}
-        if facture.Num_Relance != 5:
+
+        suivi = facture.Num_Suivi
+        if suivi == 'A préciser' or suivi == ' ':
+            extra_context['Suivi'] = False
+        else:
+            extra_context['Suivi'] = True
+        print(suivi, extra_context['Suivi'])
+
+        if facture.Num_Relance != 4:
             RAR = facture.Num_RAR
         else:
             RAR = facture.Num_RAR_Demeure
@@ -168,6 +176,7 @@ class InfoEmailAdmin(admin.ModelAdmin):
             extra_context['RAR'] = False
         else:
             extra_context['RAR'] = True
+
         envoi_facture_form = EnvoiFactureForm(instance = envoifacture)
         #extra_context['facture_form'] = facture_form
         extra_context['facture_form'] = visualisation_facture_form
@@ -177,10 +186,12 @@ class InfoEmailAdmin(admin.ModelAdmin):
         extra_context['facture'] = facture
         extra_context['envoifacture'] = envoifacture
         extra_context['historique_form'] = historique_form
+
         if facture.Facture_Avoir == 'FA':
             extra_context['FA'] = True
         else:
             extra_context['FA'] = False
+
         if "Relancer" in request.POST:
             num = facture.Num_Relance
             mise_a_jour_relance(facture, num)
@@ -188,20 +199,21 @@ class InfoEmailAdmin(admin.ModelAdmin):
             messages.add_message(request, messages.INFO, 'Relance {} enregistrée avec succès !!'.format(num))
             url = '/admin/bdd/facture/'
             return redirect(url)
+
         if "Fermer" in request.POST:
-            if facture.Num_Relance < 5:
+            if facture.Num_Relance < 4:
                 facture.Num_RAR = 'A préciser'
-            elif facture.Num_Relance == 5:
+            elif facture.Num_Relance == 4:
                 facture.Num_RAR_Demeure = 'A préciser'
+            if facture.Num_Relance == 2:
+                facture.Num_Suivi = 'A préciser'
             facture.save()
             if facture.Num_Relance == 0 and facture.Facture_Avoir == "FA":
-                messages.add_message(request, messages.WARNING, "Votre facture {} n'a pas été envoyée.".format(facture.Numero_Facture))
+                messages.add_message(request, messages.WARNING, "Votre facture n'a pas été envoyée.")
             elif facture.Num_Relance == 0 and facture.Facture_Avoir == "AV":
-                messages.add_message(request, messages.WARNING,
-                                     "Votre avoir {} n'a pas été envoyé. Si vous souhaitez le passer à payer sans l'envoyer il faut le faire manuellement"
-                                     .format(facture.Numero_Facture))
+                messages.add_message(request, messages.WARNING, "Votre avoir n'a pas été envoyé. Si vous souhaitez valider son paiement sans l'envoyer il faut le faire manuellement.")
             else:
-                messages.add_message(request, messages.WARNING, "Aucune relance n'a été effectuée. Opération annulée.")
+                messages.add_message(request, messages.WARNING, "Votre dernière opération n'a pas été validée. La relance n'a donc pas été enregistrée.")
             email.delete()
             url = '/admin/bdd/facture'
             return redirect(url)
@@ -213,15 +225,17 @@ class InfoEmailAdmin(admin.ModelAdmin):
         facture = Facture.objects.get(pk=factureid)
 
         if "Fermer" in request.POST:
-            if facture.Num_Relance < 5:
+            if facture.Num_Relance < 4:
                 facture.Num_RAR = 'A préciser'
-            elif facture.Num_Relance == 5:
+            elif facture.Num_Relance == 4:
                 facture.Num_RAR_Demeure = 'A préciser'
+            if facture.Num_Relance == 2:
+                facture.Num_Suivi = 'A préciser'
             facture.save()
             if facture.Num_Relance == 0 and facture.Facture_Avoir == "FA":
                 messages.add_message(request, messages.WARNING, "Votre facture n'a pas été envoyée.")
             elif facture.Num_Relance == 0 and facture.Facture_Avoir == "AV":
-                messages.add_message(request, messages.WARNING, "Votre avoir n'a pas été envoyé. Si vous souhaitez valider son paiement sans l'envoyer il faut le faire manuellement")
+                messages.add_message(request, messages.WARNING, "Votre avoir n'a pas été envoyé. Si vous souhaitez valider son paiement sans l'envoyer il faut le faire manuellement.")
             else:
                 messages.add_message(request, messages.WARNING, "Aucune relance n'a été effectuée. Opération annulée.")
             email.delete()
@@ -236,17 +250,29 @@ class InfoEmailAdmin(admin.ModelAdmin):
             url = '/admin/bdd/facture/'
             return redirect(url)
 
+        if ("Valider_Suivi" in request.POST) or ("Mettre_a_jour_Suivi" in request.POST):
+            if obj.Suivi == 'A préciser':
+                messages.add_message(request, messages.ERROR,
+                                     "Vous devez rentrer un numéro de Suivi valide. Il ne s'est rien passé !!")
+                return redirect('.')
+            else:
+                messages.add_message(request, messages.WARNING,
+                                     'Le numéro de Suivi a été mis à jour. Vous pouvez maintenant cliquer sur le bouton "Relance Faite" pour valider la relance.')
+                facture.Num_Suivi = obj.Suivi
+                facture.save()
+                return redirect('.')
+
         if ("Valider_RAR" in request.POST) or ("Mettre_a_jour_RAR" in request.POST):
             if obj.RAR == 'A préciser':
                 messages.add_message(request, messages.ERROR, "Vous devez rentrer un numéro de RAR valide. Il ne s'est rien passé !!")
                 return redirect('.')
             else:
                 messages.add_message(request, messages.WARNING,
-                                     "Le numéro de RAR a été mis à jour. La dernière lettre relance est maintenant à jour.")
+                                     """Le numéro de RAR a été mis à jour. La dernière lettre relance est maintenant à jour. Vous pouvez maintenant imprimer le tout et cliquer sur le bouton "Relance Faite" pour valider la relance quand c'est envoyé.""")
 
-            if facture.Num_Relance == 4:
+            if facture.Num_Relance == 3:
                 facture.Num_RAR = obj.RAR
-            elif facture.Num_Relance ==5:
+            elif facture.Num_Relance == 4:
                 facture.Num_RAR_Demeure = obj.RAR
             facture.save()
 
@@ -277,6 +303,17 @@ class InfoEmailAdmin(admin.ModelAdmin):
             else:
                 data['FA'] = False
 
+            if facture.Num_Relance == 3:
+                if "Mettre_a_jour_RAR" in request.POST:
+                    attachment = Attachment.objects.filter(message_id = email.id).filter(nom = "Lettre de Relance 3")
+                    attachment.delete()
+                source_html = 'bdd/Lettre_Relance3.html'
+                fichier = DOSSIER + 'relances/Relance3-{}.pdf'.format(facture.Numero_Facture)
+                creer_html_to_pdf(source_html, fichier, data)
+                chemin = Path(fichier)
+                with chemin.open(mode='rb') as f:
+                     Attachment.objects.create(file=File(f, name=chemin.name), message=email, nom = "Lettre de Relance 3")
+
             if facture.Num_Relance == 4:
                 if "Mettre_a_jour_RAR" in request.POST:
                     attachment = Attachment.objects.filter(message_id = email.id).filter(nom = "Lettre de Relance 4")
@@ -287,17 +324,6 @@ class InfoEmailAdmin(admin.ModelAdmin):
                 chemin = Path(fichier)
                 with chemin.open(mode='rb') as f:
                      Attachment.objects.create(file=File(f, name=chemin.name), message=email, nom = "Lettre de Relance 4")
-
-            if facture.Num_Relance == 5:
-                if "Mettre_a_jour_RAR" in request.POST:
-                    attachment = Attachment.objects.filter(message_id = email.id).filter(nom = "Lettre de Relance 5")
-                    attachment.delete()
-                source_html = 'bdd/Lettre_Relance5.html'
-                fichier = DOSSIER + 'relances/Relance5-{}.pdf'.format(facture.Numero_Facture)
-                creer_html_to_pdf(source_html, fichier, data)
-                chemin = Path(fichier)
-                with chemin.open(mode='rb') as f:
-                     Attachment.objects.create(file=File(f, name=chemin.name), message=email, nom = "Lettre de Relance 5")
             return redirect('.')
 
         if "Envoyer" in request.POST:
@@ -869,7 +895,7 @@ class FactureAdmin(admin.ModelAdmin):
                 return redirect(url, pk=id)
             elif obj.Nb_Avoir() >=1 and obj.Solde_Pour_Avoir_Eventuel()<10**-1:
                 messages.add_message(request, messages.ERROR,
-                                     "Vous ne pouvez pas créer de nouvel avoir pour cette facture car la totalité du montant initial a déjà fait l'objet d'avoir ({})."
+                                     "Vous ne pouvez pas créer de nouvel avoir pour cette facture car la totalité du montant initial a déjà fait l'objet d'avoir(s) ({})."
                                      .format(obj.Avoirs_Lies()))
                 return redirect(".")
             else:
@@ -931,13 +957,14 @@ class FactureAdmin(admin.ModelAdmin):
                     fichier = DOSSIER + 'factures/{}.pdf'.format(facture.Numero_Facture)
                     creer_html_to_pdf(source_html, fichier, data)
 
-                    if facture.Num_Relance <= 4:
+                    if facture.Num_Relance <= 3:
                         RAR = facture.Num_RAR
                     else:
                         RAR = facture.Num_RAR_Demeure
+                    Suivi = facture.Num_Suivi
 
                     email = InfoEmail.objects.create(From = From, To=facture.Email_Facture, Message=message,
-                                                     Subject=sujet, RAR = RAR,
+                                                     Subject=sujet, RAR = RAR, Suivi = Suivi,
                                                      ID_Facture=idfacture, Type_Action=typeaction)
 
                     #Récupération de la facture pdf
@@ -977,16 +1004,23 @@ class FactureAdmin(admin.ModelAdmin):
                                 Attachment.objects.create(file=File(f, name=chemin.name), message=email, nom='Avoir')
 
                     #Création des lettres de relance
-                    if facture.Num_Relance >= 3:
-                        source_html = 'bdd/Lettre_Relance3.html'
-                        fichier = DOSSIER + 'relances/Relance3-{}.pdf'.format(facture.Numero_Facture)
+                    if facture.Num_Relance >= 2:
+                        source_html = 'bdd/Lettre_Relance2.html'
+                        fichier = DOSSIER + 'relances/Relance2-{}.pdf'.format(facture.Numero_Facture)
                         creer_html_to_pdf(source_html, fichier, data)
-                        chemin = Path(DOSSIER + 'relances/Relance3-{}.pdf'.format(facture.Numero_Facture))
+                        chemin = Path(DOSSIER + 'relances/Relance2-{}.pdf'.format(facture.Numero_Facture))
                         with chemin.open(mode='rb') as f:
-                            Attachment.objects.create(file=File(f, name=chemin.name), message=email, nom = 'Lettre de Relance 3')
-
-                    if facture.Num_Relance == 5 or facture.Num_Relance == 6:
-                        for k in range(4,facture.Num_Relance):
+                            Attachment.objects.create(file=File(f, name=chemin.name), message=email, nom = 'Lettre de Relance 2')
+                    if facture.Num_Relance == 4:
+                        for k in range(3,facture.Num_Relance):
+                            source_html = 'bdd/Lettre_Relance{}.html'.format(k)
+                            fichier = DOSSIER + 'relances/Relance{}-{}.pdf'.format(k,facture.Numero_Facture)
+                            creer_html_to_pdf(source_html, fichier, data)
+                            chemin = Path(DOSSIER + 'relances/Relance{}-{}.pdf'.format(k,facture.Numero_Facture))
+                            with chemin.open(mode='rb') as f:
+                                Attachment.objects.create(file=File(f, name=chemin.name), message=email, nom = 'Lettre de Relance {}'.format(k))
+                    elif facture.Num_Relance == 5 or facture.Num_Relance == 6:
+                        for k in range(3,5):
                             source_html = 'bdd/Lettre_Relance{}.html'.format(k)
                             fichier = DOSSIER + 'relances/Relance{}-{}.pdf'.format(k,facture.Numero_Facture)
                             creer_html_to_pdf(source_html, fichier, data)

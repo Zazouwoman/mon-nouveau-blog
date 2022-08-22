@@ -44,12 +44,9 @@
          <br>
          {{mission.Adresse_Mission}}
          <br>{{mission.CP}} {{mission.Ville}}
-                </p>
-
-
-	 </p>
  </td>
-  {% if not identiques %}
+
+ {% if not identiques %}
  <td class="right" valign=top >
      <p class="western" align = "left">
          {{facture.Denomination_Client}}
@@ -100,25 +97,27 @@
 </div>
 <div>
 <p class="western" align="left">
-             <br>
-    Objet : 4&egrave;me relance suite au non-paiement d&apos;une facture.
     <br>
-    Courrier RAR n&deg;{{facture.Num_RAR}}
+    Objet : Lettre recommand&eacute;e de mise en demeure avec AR.
     <br>
-    <br>
+    Courrier RAR n&deg;{{facture.Num_RAR_Demeure}}
 </p>
 </div>
 <div>
     <p class="western" align="left">
+        <br>
+    <br>
     Madame, Monsieur,
     </p>
     <p class="western" align="justify">
-    Nous vous avions demand&eacute; de proc&eacute;der au paiement de la facture n&deg;{{facture.Numero_Facture}} d&apos;un
-        montant de {{facture.Montant_Facture_TTC}} &euro; TTC par courrier, en date du {{facture.Date_Relance3}}.
-        Pour m&eacute;moire, cette facture a d&eacute;j&agrave; d&ucirc; faire l&apos;objet d&apos;une relance par
-        mail le {{facture.Date_Relance1}} puis d&apos;une relance t&eacute;l&eacute;phonique le {{facture.Date_Relance2}}.
+    Nous constatons avec regret que votre soci&eacute;t&eacute; n&apos;a toujours pas r&eacute;gl&eacute; le solde de
+        notre facture n&deg;{{facture.Numero_Facture}} en date du {{facture.Date_Facture}} arriv&eacute;e &agrave;
+        &eacute;ch&eacute;ance le {{facture.Date_Echeance1}} malgr&eacute; nos quatre relances pr&eacute;c&eacute;dentes ;
+        une premi&egrave;re relance par mail en date du {{facture.Date_Relance1}}, une deuxi&egrave;me relance t&eacute;l&eacute;phonique
+        en date du {{facture.Date_Relance2}}, une troisi&eacute;me relance par courrier en date du {{facture.Date_Relance3}}
+        puis une quatri&egrave;me relance par courrier RAR n&deg;{{facture.Num_RAR}} en date du {{facture.Date_Relance4}}
     </p>
-    {% if nb == 1 %}
+        {% if nb == 1 %}
         <p class="western" align="justify">
             En tenant compte de l&apos;avoir partiel {% for x in avoir%}n&deg;{{x}}, {% endfor %} d&apos;un montant de {% for x in montant_avoir_lie%}{{x}} &euro; TTC, {% endfor %}
             la somme restant &agrave; r&eacute;gler est de {{facture.Reste_A_Payer_TTC}} &euro; TTC.
@@ -132,57 +131,46 @@
         </p>
         {% endif %}
         <p class="western" align="justify">
-            Ainsi, sauf erreur de notre part, nous sommes au regret de constater qu&apos;aucun paiement n&apos;a &eacute;t&eacute;
-            effectu&eacute; pour r&eacute;gler {% if nb == 0 %}cette facture.{% endif %} {% if nb > 0 %}le montant restant d&ucirc;.{% endif %} Nous vous demandons de bien vouloir r&eacute;gler
-            cette situation, et de proc&eacute;der au r&egrave;glement de la somme due.
+            Ainsi, par la pr&eacute;sente, nous vous mettons en demeure de nous verser, &agrave; titre principal, la somme de
+            {{facture.Reste_A_Payer_TTC}} &euro; TTC. Cette somme sera major&eacute;e des int&eacute;r&ecirc;ts au taux
+            l&eacute;gal en vertu de l&apos;article 1153 du code civil. Nous vous informons que ces p&eacute;nalit&eacute;s
+            courent d&egrave;s r&eacute;ception de cette lettre.
         </p>
+
         <p class="western" align="justify">
-            Vous trouverez en attach&eacute; de ce courrier, une photocopie de la facture {% if nb == 0 %}concern&eacute; et {% endif %}
-            {% if nb > 0 %}et des avoirs concern&eacute;s ainsi qu&apos;{% endif %}une copie de la premi&egrave;re lettre de relance qui vous a &eacute;t&eacute; envoy&eacute;e.
-        </p>
-        <p class="western" align="justify">
-            Si vous avez d&eacute;j&agrave; proc&eacute;d&eacute; au r&egrave;glement avant r&eacute;ception de ce
-            courrier, veuillez ne pas tenir compte de cette lettre.
+            Si, dans un d&eacute;lai de quinze jours &agrave; compter de cette date, nous ne vous &ecirc;tes toujours
+            pas acquitt&eacute; de votre obligation, nous saisirons la juridiction comp&eacute;tente afin d&apos;obtenir
+            le paiement des sommes susvis&eacute;es.
         </p>
         <p class="western" align="left">
-            Nous restons &agrave; votre disposition pour tout compl&eacute;ment d&apos;information.
-            <br>
-            Nous vous prions d&apos;agr&eacute;er, Madame, Monsieur, l&apos;expression de nos salutations distingu&eacute;es.
+            Veuillez agr&eacute;er, Madame, Monsieur, l&apos;expression de mes salutations distingu&eacute;es.
         </p>
+    <p class="western" align="left">
+        <br>
+        Pour INGEPREV
+            <br>
+        Le directeur g&eacute;n&eacute;ral
+        <br>
+        {{facture.Prenom_Pilote}} {{facture.Nom_Pilote}}
+    </p>
     </div>
 <div>
-    <table>
-        <td class="left" valign="top">
-
-        </td>
-        <td class="right" valign="top">
-            <p class="western" align="left">
-            <br>
-            <br>
-                Pour INGEPREV
-            <br>
-                {{facture.Prenom_Pilote}} {{facture.Nom_Pilote}}
-         <br>
-         T&eacute;l. : {{facture.Tel_Portable_Pilote_Affiche}}
-          <br>
-         Mail : {{facture.Email_Pilote}}
-        </td>
-    </table>
-</div>
-<div>
-    <p class="western">
+        <p class="western">
         <br>
         {% if nb == 0 %}
         <br>
-       Pi&egrave;ces jointes : copie de la facture n&deg;{{facture.Numero_Facture}} + copie de la lettre de relance n&deg;1
+       Pi&egrave;ces jointes : copie de la facture n&deg;{{facture.Numero_Facture}} + lettre de relance 2 + lettre
+        de relance 3
         <br>
         <br>
         {% endif %}
         {% if nb == 1 %}
-       Pi&egrave;ces jointes : copie de la facture n&deg;{{facture.Numero_Facture}} + copie de l&apos;avoir + copie de la lettre de relance n&deg;1
+       Pi&egrave;ces jointes : copie de la facture n&deg;{{facture.Numero_Facture}} + copie de l&apos;avoir + lettre de relance 2 + lettre
+        de relance 3
         {% endif %}
         {% if nb > 1 %}
-       Pi&egrave;ces jointes : copie de la facture n&deg;{{facture.Numero_Facture}} + copie des avoirs + copie de la lettre de relance n&deg;1
+       Pi&egrave;ces jointes : copie de la facture n&deg;{{facture.Numero_Facture}} + copie des avoirs + lettre de relance 2 + lettre
+        de relance 3
         {% endif %}
         <br>
         <br>

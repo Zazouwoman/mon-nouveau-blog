@@ -98,19 +98,19 @@ def mise_a_jour_relance(facture, num):  #mise à jour des dates de la facture lo
 def affichage_message_relance(messages, request, num):
     if num == 2:
         messages.add_message(request, messages.WARNING,
-                             "Vous devez faire une relance téléphonique. Voici les coordonnées du contact. Validez la relance quand c'est effectué.")
+                             "Vous devez faire une relance par courrier suivi. Voici les documents à imprimer et à envoyer : facture + lettre. Vous avez aussi les coordonnées du contact si besoin. Remplissez le numéro de suivi pour pouvoir ensuite valider la relance.")
     elif num == 3:
         messages.add_message(request, messages.WARNING,
-                             "Vous devez faire une relance par courrier. Voici les courriers à imprimer et à envoyer : facture + lettre. Validez la relance quand c'est effectué ")
+                                 "Vous devez faire une relance par courrier recommandé AR. Remplissez le numéro du RAR, validez pour obtenir la lettre de relance 3 à envoyer avec facture + lettre de relance 2. Vous pourrez ensuite valider la relance quand vous aurez imprimé et envoyé le courrier.")
     elif num == 4:
         messages.add_message(request, messages.WARNING,
-                                 "Vous devez faire une relance par courrier recommandé AR. Remplir le numéro du RAR, valider pour obtenir la lettre. Validez ensuite la relance quand c'est effectué.")
+                                 "Vous devez faire une mise en demeure. Commencez par rentrer le numéro du RAR pour obtenir la lettre de mise en demeure à envoyer avec facture + lettres de relance 2 + 3. Vous pourrez ensuite valider la relance quand vous aurez imprimé et envoyé le courrier.")
     elif num == 5:
         messages.add_message(request, messages.WARNING,
-                                 "Vous devez faire une mise en demeure. Commencez par rentrer le numéro du recommandé pour obtenir la lettre de mise en demeure. Validez ensuite la relance quand c'est effectué.")
+                                 """C'est l'heure de la conciliation. Vous trouverez ci-dessous les différents courriers envoyés ainsi que l'historique. Cliquez sur le bouton "Relance Faite" une fois la procédure de conciliation dûment engagée.""")
     elif num == 6:
         messages.add_message(request, messages.WARNING,
-                                 "C'est l'heure de la mise en contentieux. Vous trouverez ci-dessous les différents courriers envoyés.")
+                                 """C'est l'heure de l'assignation. Vous trouverez ci-dessous les différents courriers envoyés ainsi que l'historique.  Cliquez sur le bouton "Relance Faite" une fois la procédure d'assignation dûment engagée.""")
     elif num >= 7:
         messages.add_message(request, messages.ERRORS,
                              "Nombre maximum de relances atteint.")

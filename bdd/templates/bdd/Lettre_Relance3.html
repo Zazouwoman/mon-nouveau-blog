@@ -37,19 +37,19 @@
  <td class="left" valign="top">
 	 <p class="western" align = "left">
          N&deg; de dossier : {{affaire.Ref_Affaire}}
-         <br/>
+         <br>
      Affaire : {{mission.Nom_Mission}}
-                    </br>
+                    <br>
          Adresse :
-         <br/>
+         <br>
          {{mission.Adresse_Mission}}
-         <br/>{{mission.CP}} {{mission.Ville}}
+         <br>{{mission.CP}} {{mission.Ville}}
                 </p>
 
 
 	 </p>
  </td>
-    {% if not identiques %}
+  {% if not identiques %}
  <td class="right" valign=top >
      <p class="western" align = "left">
          {{facture.Denomination_Client}}
@@ -100,25 +100,25 @@
 </div>
 <div>
 <p class="western" align="left">
+             <br>
+    Objet : 4&egrave;me relance suite au non-paiement d&apos;une facture.
     <br>
-    Objet : Lettre de relance suite au non paiement d&apos;une facture.
+    Courrier RAR n&deg;{{facture.Num_RAR}}
+    <br>
+    <br>
 </p>
 </div>
 <div>
     <p class="western" align="left">
-        <br>
-    <br>
     Madame, Monsieur,
     </p>
     <p class="western" align="justify">
-    Apr&egrave;s v&eacute;rification de votre compte client et sauf erreur de notre part, nous n&apos;avons pas per&ccedil;u
-        le r&egrave;glement de la facture suivante :
+    Nous vous avions demand&eacute; de proc&eacute;der au paiement de la facture n&deg;{{facture.Numero_Facture}} d&apos;un
+        montant de {{facture.Montant_Facture_TTC}} &euro; TTC par courrier, en date du {{facture.Date_Relance3}}.
+        Pour m&eacute;moire, cette facture a d&eacute;j&agrave; d&ucirc; faire l&apos;objet d&apos;une relance par
+        mail le {{facture.Date_Relance1}} puis d&apos;une relance t&eacute;l&eacute;phonique le {{facture.Date_Relance2}}.
     </p>
-        <p class="western" align="justify">
-            Facture n&deg;{{facture.Numero_Facture}} d&apos;un montant de {{facture.Montant_Facture_TTC}} &euro; TTC
-            en date du {{facture.Date_Facture}}, arriv&eacute;e &agrave; &eacute;ch&eacute;ance le {{facture.Date_Echeance1}}.
-        </p>
-        {% if nb == 1 %}
+    {% if nb == 1 %}
         <p class="western" align="justify">
             En tenant compte de l&apos;avoir partiel {% for x in avoir%}n&deg;{{x}}, {% endfor %} d&apos;un montant de {% for x in montant_avoir_lie%}{{x}} &euro; TTC, {% endfor %}
             la somme restant &agrave; r&eacute;gler est de {{facture.Reste_A_Payer_TTC}} &euro; TTC.
@@ -132,19 +132,22 @@
         </p>
         {% endif %}
         <p class="western" align="justify">
-            Pour m&eacute;moire, cette facture a d&eacute;j&agrave; d&ucirc; faire l&apos;objet d&apos;une relance par
-            mail le {{facture.Date_Relance1}} puis d&apos;une relance t&eacute;l&eacute;phonique le {{facture.Date_Relance2}}.
+            Ainsi, sauf erreur de notre part, nous sommes au regret de constater qu&apos;aucun paiement n&apos;a &eacute;t&eacute;
+            effectu&eacute; pour r&eacute;gler {% if nb == 0 %}cette facture.{% endif %} {% if nb > 0 %}le montant restant d&ucirc;.{% endif %} Nous vous demandons de bien vouloir r&eacute;gler
+            cette situation, et de proc&eacute;der au r&egrave;glement de la somme due.
         </p>
         <p class="western" align="justify">
-            Nous vous saurions gr&eacute; de bien vouloir r&eacute;gulariser cette situation rapidement et de nous confirmer
-            la date du r&egrave;glement.
+            Vous trouverez en attach&eacute; de ce courrier, une photocopie de la facture {% if nb == 0 %}concern&eacute; et {% endif %}
+            {% if nb > 0 %}et des avoirs concern&eacute;s ainsi qu&apos;{% endif %}une copie de la premi&egrave;re lettre de relance qui vous a &eacute;t&eacute; envoy&eacute;e.
         </p>
         <p class="western" align="justify">
-            Dans le cas o&ugrave; votre paiement nous parviendrait avant r&eacute;ception de la pr&eacute;sente, nous vous
-            prions de ne pas en tenir compte.
+            Si vous avez d&eacute;j&agrave; proc&eacute;d&eacute; au r&egrave;glement avant r&eacute;ception de ce
+            courrier, veuillez ne pas tenir compte de cette lettre.
         </p>
         <p class="western" align="left">
             Nous restons &agrave; votre disposition pour tout compl&eacute;ment d&apos;information.
+            <br>
+            Nous vous prions d&apos;agr&eacute;er, Madame, Monsieur, l&apos;expression de nos salutations distingu&eacute;es.
         </p>
     </div>
 <div>
@@ -154,34 +157,33 @@
         </td>
         <td class="right" valign="top">
             <p class="western" align="left">
-                <br>
+            <br>
             <br>
                 Pour INGEPREV
-                <br>
+            <br>
                 {{facture.Prenom_Pilote}} {{facture.Nom_Pilote}}
          <br>
          T&eacute;l. : {{facture.Tel_Portable_Pilote_Affiche}}
           <br>
          Mail : {{facture.Email_Pilote}}
-
         </td>
     </table>
 </div>
 <div>
-    <p>
+    <p class="western">
         <br>
         {% if nb == 0 %}
         <br>
-       Pi&egrave;ces jointes : copie de la facture n&deg;{{facture.Numero_Facture}}
+       Pi&egrave;ces jointes : copie de la facture n&deg;{{facture.Numero_Facture}} + copie de la premi&egrave;re lettre de relance
+        <br>
         <br>
         {% endif %}
         {% if nb == 1 %}
-       Pi&egrave;ces jointes : copie de la facture n&deg;{{facture.Numero_Facture}} + copie de l&apos;avoir
+       Pi&egrave;ces jointes : copie de la facture n&deg;{{facture.Numero_Facture}} + copie de l&apos;avoir + copie de la premi&egrave;re lettre de relance
         {% endif %}
         {% if nb > 1 %}
-       Pi&egrave;ces jointes : copie de la facture n&deg;{{facture.Numero_Facture}} + copie des avoirs
+       Pi&egrave;ces jointes : copie de la facture n&deg;{{facture.Numero_Facture}} + copie des avoirs + copie de la premi&egrave;re lettre de relance
         {% endif %}
-        <br>
         <br>
         <br>
     </p>
@@ -189,9 +191,9 @@
 
 <div id = "footer" style = "position:absolute;bottom:0;margin-bottom:0px">
 {{ingeprev.Nom}} - {{ingeprev.Adresse}} {{ingeprev.CP}} {{ingeprev.Ville}} - T&eacute;l : {{ingeprev.Tel_Affiche}}
- <br>
+ </br>
  {{ingeprev.Type_Societe}} au capital de {{ingeprev.Capital}} &euro; - {{ingeprev.SIRET}} RCS PARIS - APE {{ingeprev.Code_APE}}
- <br>
+ </br>
  {{ingeprev.Site_Web}} - {{ingeprev.Facebook}} - {{ingeprev.Twitter}} - {{ingeprev.Linkedin}}
 </div>
 
