@@ -686,12 +686,12 @@ class A_Relancer_Filter(admin.SimpleListFilter):
         """
         return(('Total','Toutes les relances'),
                ('Rel1','1ère relance (Email)'),
-               ('Rel2','2ème relance (Tél)'),
-               ('Rel3','3ème relance (Courrier)'),
-               ('Rel4','4ème relance (RAR)'),
-               ('Rel5', '5ème relance (Mise en Demeure)'),
-               ('Rel6', 'A Mettre en contencieux'),
-               ('Rel7', 'Contencieux transmis'),)
+               ('Rel2','2ème relance (Courrier Suivi)'),
+               ('Rel3','3ème relance (RAR)'),
+               ('Rel4','4ème relance (Mise en Demeure)'),
+               ('Rel5', 'A mettre en conciliation'),
+               ('Rel6', 'A mettre en assignation'),
+               ('Rel7', 'Assignation faite'),)
 
     def queryset(self, request, queryset):
         """
@@ -726,7 +726,7 @@ class A_Envoyer_Filter(admin.SimpleListFilter):
         if self.value() == 'A_Env':
             q_array = []
             for element in queryset:
-                if not element.deja_envoyee == True and element.deja_validee:
+                if (not element.deja_envoyee) and element.deja_validee:
                     q_array.append(element.id)
             return queryset.filter(pk__in=q_array)
 
