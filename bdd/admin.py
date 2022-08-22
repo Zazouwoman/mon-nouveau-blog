@@ -559,7 +559,7 @@ class ASolder_Filter(admin.SimpleListFilter):
 
 #class AffaireAdmin(TotalsumAdmin):
 class AffaireAdmin(admin.ModelAdmin):
-    list_display = ("Nom_Affaire", "ID_Payeur", "Honoraires_Global", 'Reste_A_Regler', 'Solde', 'soldee', "Date_Previsionnelle",)
+    list_display = ("Nom_Affaire", "ID_Payeur", "Honoraires_Global", 'Reste_A_Regler', 'Solde', "Date_Previsionnelle", 'soldee',)
     search_fields = ("Nom_Affaire__startswith",)
     list_filter = (Previsionnel_Filter, ASolder_Filter, 'ID_Pilote', 'Etat')
     radio_fields = {"Type_Affaire":admin.HORIZONTAL,"Etat":admin.HORIZONTAL}
