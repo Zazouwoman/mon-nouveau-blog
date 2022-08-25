@@ -21,6 +21,10 @@ from django.utils.html import strip_tags
 from django.forms.widgets import TextInput
 from datetime import date
 
+from pathlib import Path
+import shutil
+
+
 from xhtml2pdf import pisa
 
 import tempfile
@@ -197,6 +201,10 @@ class InfoEmailAdmin(admin.ModelAdmin):
             mise_a_jour_relance(facture, num)
             email.delete()
             messages.add_message(request, messages.INFO, 'Relance {} enregistrée avec succès !!'.format(num))
+            if 2 <= num <= 4:
+                source = Path(DOSSIER + 'relances/Relance{}-{}.pdf'.format(num,facture.Numero_Facture))
+                destination = Path(DOSSIER + 'facturation_par_dossier/{}/Relance{}-{}.pdf'.format(facture.Num_Affaire(),num,facture.Numero_Facture))
+                shutil.copy(source, destination)
             url = '/admin/bdd/facture/'
             return redirect(url)
 
@@ -223,18 +231,19 @@ class InfoEmailAdmin(admin.ModelAdmin):
         email = obj
         factureid = email.ID_Facture
         facture = Facture.objects.get(pk=factureid)
+        num = facture.Num_Relance
 
         if "Fermer" in request.POST:
-            if facture.Num_Relance < 4:
+            if num < 4:
                 facture.Num_RAR = 'A préciser'
-            elif facture.Num_Relance == 4:
+            elif num == 4:
                 facture.Num_RAR_Demeure = 'A préciser'
-            if facture.Num_Relance == 2:
+            if num == 2:
                 facture.Num_Suivi = 'A préciser'
             facture.save()
-            if facture.Num_Relance == 0 and facture.Facture_Avoir == "FA":
+            if num == 0 and facture.Facture_Avoir == "FA":
                 messages.add_message(request, messages.WARNING, "Votre facture n'a pas été envoyée.")
-            elif facture.Num_Relance == 0 and facture.Facture_Avoir == "AV":
+            elif num and facture.Facture_Avoir == "AV":
                 messages.add_message(request, messages.WARNING, "Votre avoir n'a pas été envoyé. Si vous souhaitez valider son paiement sans l'envoyer il faut le faire manuellement.")
             else:
                 messages.add_message(request, messages.WARNING, "Aucune relance n'a été effectuée. Opération annulée.")
@@ -243,10 +252,15 @@ class InfoEmailAdmin(admin.ModelAdmin):
             return redirect(url)
 
         if "Relancer" in request.POST:
-            num = facture.Num_Relance
             mise_a_jour_relance(facture, num)
             email.delete()
             messages.add_message(request, messages.INFO, 'Relance {} sur la facture n°{} enregistrée avec succès !!'.format(num,facture.Numero_Facture))
+            if 2 <= num <= 4:
+                source = Path(DOSSIER + 'relances/Relance{}-{}.pdf'.format(num, facture.Numero_Facture))
+                destination = Path(
+                    DOSSIER + 'facturation_par_dossier/{}/Relance{}-{}.pdf'.format(facture.Num_Affaire(), num,
+                                                                                   facture.Numero_Facture))
+                shutil.copy(source, destination)
             url = '/admin/bdd/facture/'
             return redirect(url)
 
@@ -270,9 +284,9 @@ class InfoEmailAdmin(admin.ModelAdmin):
                 messages.add_message(request, messages.WARNING,
                                      """Le numéro de RAR a été mis à jour. La dernière lettre relance est maintenant à jour. Vous pouvez maintenant imprimer le tout et cliquer sur le bouton "Relance Faite" pour valider la relance quand c'est envoyé.""")
 
-            if facture.Num_Relance == 3:
+            if num == 3:
                 facture.Num_RAR = obj.RAR
-            elif facture.Num_Relance == 4:
+            elif num == 4:
                 facture.Num_RAR_Demeure = obj.RAR
             facture.save()
 
@@ -303,7 +317,7 @@ class InfoEmailAdmin(admin.ModelAdmin):
             else:
                 data['FA'] = False
 
-            if facture.Num_Relance == 3:
+            if num == 3:
                 if "Mettre_a_jour_RAR" in request.POST:
                     attachment = Attachment.objects.filter(message_id = email.id).filter(nom = "Lettre de Relance 3")
                     attachment.delete()
@@ -314,7 +328,7 @@ class InfoEmailAdmin(admin.ModelAdmin):
                 with chemin.open(mode='rb') as f:
                      Attachment.objects.create(file=File(f, name=chemin.name), message=email, nom = "Lettre de Relance 3")
 
-            if facture.Num_Relance == 4:
+            if num == 4:
                 if "Mettre_a_jour_RAR" in request.POST:
                     attachment = Attachment.objects.filter(message_id = email.id).filter(nom = "Lettre de Relance 4")
                     attachment.delete()
@@ -349,6 +363,7 @@ class InfoEmailAdmin(admin.ModelAdmin):
 
                 #email.content_subtype = "html"
                 email.send()
+
             except BadHeaderError:
                 return HttpResponse("Erreur, l'email n'a pas été envoyé.")
 
@@ -1092,6 +1107,11 @@ class FactureAdmin(admin.ModelAdmin):
                     source_html = 'bdd/Visualisation_Facture2.html'
                     fichier = DOSSIER + 'factures/{}.pdf'.format(facture.Numero_Facture)
                     creer_html_to_pdf(source_html, fichier, data)
+                    #Création du dossier de rangement associé à l'affaire + copie de la facture dedans
+                    path = Path(DOSSIER + 'facturation_par_dossier/{}'.format(facture.Num_Affaire()))
+                    path.mkdir(parents=True, exist_ok=True)
+                    fichier2 = DOSSIER + 'facturation_par_dossier/{}/{}.pdf'.format(facture.Num_Affaire(),facture.Numero_Facture)
+                    creer_html_to_pdf(source_html, fichier2, data)
 
                     # Création de l'email d'envoi de la favture prérempli
                     offre = Offre_Mission.objects.get(pk = affaire.ID_Mission_id)
