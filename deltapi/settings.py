@@ -32,7 +32,7 @@ SECRET_KEY = config('SECRET_KEY')
 #DEBUG = True
 DEBUG = config('DEBUG', cast = bool)
 
-ALLOWED_HOSTS = ['127.0.0.1', '.pythonanywhere.com','deltapi.ingeprev.com']
+ALLOWED_HOSTS = ['127.0.0.1', '.pythonanywhere.com','deltapi.ingeprev.com',"localhost"]
 #ALLOWED_HOSTS = env.list('ALLOWED_HOST')
 #ALLOWED_HOST = config('ALLOWED_HOST', cast = list)
 
@@ -51,6 +51,7 @@ INSTALLED_APPS = [
     'authentification',
     'totalsum',
     'django_cleanup',
+	"processes"
 ]
 
 X_FRAME_OPTIONS = "SAMEORIGIN"

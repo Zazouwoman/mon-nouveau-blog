@@ -803,5 +803,3 @@ class Attachment(models.Model):
         if os.path.isfile(self.file.path):
             os.remove(self.file.path)
         super(Attachment, self).delete(*args,**kwargs)
-
-
