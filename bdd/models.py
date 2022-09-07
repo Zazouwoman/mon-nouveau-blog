@@ -25,6 +25,7 @@ from django.contrib import messages
 
 from decimal import Decimal
 from .fonctions import *
+from django.core.exceptions import ValidationError
 
 def formater_tel(tel_int):
     tel_str = str(tel_int)
@@ -34,6 +35,11 @@ def formater_tel(tel_int):
 def formater_IBAN(iban):
     iban_str = str(iban)
     numeros = [iban_str[x:x+4] for x in range(0,len(iban_str),4)]
+    return ' '.join(numeros)
+
+def formater_SIRET(SIRET):
+    siret_str = str(SIRET)
+    numeros = [siret_str[:3] , siret_str[3:6], siret_str[6:9], siret_str[9:]]
     return ' '.join(numeros)
 
 def date_derniere_facture():
@@ -91,6 +97,7 @@ FactureType = [('FA','Facture'),('AV','Avoir')]
 EtatFacture = [("BR","Brouillon"),("VA","Validée"),('ENV',"Envoyée")]
 EtatPaiement = [("ATT","En Attente"),("PAYE","Payée")]
 TVA = [('20','20'),('10','10'),('5','5'),('0','0')]
+DelaisPaiement=[('30','30'),('60','60')]
 
 class Ingeprev(models.Model):
     Nom = models.CharField(max_length=50, blank=True, verbose_name = 'Nom de la societe')
@@ -101,10 +108,10 @@ class Ingeprev(models.Model):
     CP = models.CharField(validators=[CP_regex], max_length=5, verbose_name='Code postal', blank=True)
     Ville = models.CharField(max_length=150, blank=True)
     Type_Societe = models.CharField(max_length=150, blank=True, verbose_name = 'Statut juridique')
-    Code_Banque = models.IntegerField(blank=True, null = True, verbose_name = 'Code Banque')
-    Code_Guichet = models.IntegerField(blank=True, null = True, verbose_name='Code Guichet')
+    Code_Banque = models.CharField(max_length= 6,blank=True, null = True, verbose_name = 'Code Banque')
+    Code_Guichet = models.CharField(max_length = 6, blank=True, null = True, verbose_name='Code Guichet')
     Code_BIC = models.CharField(max_length=20, blank=True, verbose_name='Code BIC')
-    Num_Compte = models.IntegerField(null=True, blank = True, verbose_name='Numéro de Compte')
+    Num_Compte = models.CharField(max_length=20,null=True, blank = True, verbose_name='Numéro de Compte')
     Cle = models.CharField(max_length=10, blank=True, verbose_name = 'Clé')
     Nom_Banque = models.CharField(max_length=100, blank=True, verbose_name = 'Nom de la Banque')
     Tel_Banque = models.CharField(validators=[tel_regex], max_length=16, verbose_name='Numéro de Téléphone de la banque',
@@ -139,6 +146,9 @@ class Ingeprev(models.Model):
 
     def IBAN_Affiche(self):
         return formater_IBAN(self.IBAN)
+
+    def SIRET_Affiche(self):
+        return formater_SIRET(self.SIRET)
 
 class Pilote(models.Model):
     Civilite = models.CharField(blank=True, choices=CiviliteType.choices, max_length=3)
@@ -244,8 +254,8 @@ class Envoi_Facture(models.Model):
                                         blank=True)
     Email_Contact = models.EmailField(max_length=70, blank=True, verbose_name = 'Email')
     Mode_Paiement = models.CharField(default = "VI", choices = ModePaiementType, max_length = 20, verbose_name = "Mode de Paiement")
-    Delais_Paiement = models.IntegerField(default = 30, verbose_name = "Délais de Paiement (en jours)")
-    Fin_Mois = models.CharField(choices = OuiOuNonType.choices , max_length = 3, default = "Non", verbose_name = "Fin de Mois")
+    Delais_Paiement = models.CharField(choices = DelaisPaiement, max_length=3,default = '30', verbose_name = "Délais de Paiement (en jours)")
+    Fin_Mois = models.CharField(choices = OuiOuNonType.choices , max_length = 3, default = "Oui", verbose_name = "Fin de Mois")
     Modalites_Paiement = models.TextField(blank = True, verbose_name = "Modalités particulières de Paiement")
 
     def get_absolute_url(self):
@@ -256,6 +266,7 @@ class Envoi_Facture(models.Model):
 
     class Meta:
         ordering = ['Denomination_Sociale', 'Nom_Contact']
+
 
 class Offre_Mission(models.Model):
     Type_Dossier = models.CharField(default = "OM",max_length = 3)
@@ -317,6 +328,7 @@ class Affaire(models.Model):
     ID_Client_Cache = models.ForeignKey(Client, on_delete=models.SET_NULL, related_name='%(class)s_ID_Client_Cache', blank=True,verbose_name="Client Caché", null=True)
     ID_Payeur = models.ForeignKey(Client,on_delete=models.SET_NULL, related_name='%(class)s_ID_Payeur', blank = True, verbose_name = "Payeur", null = True)
     ID_Envoi_Facture = models.ForeignKey(Envoi_Facture,on_delete=models.SET_NULL, blank = True, verbose_name = "Adresse Envoi Facture", null = True)
+    Ref_Client = models.CharField(max_length=50,blank = True, verbose_name="Référence Client à rappeler")
     Honoraires_Global = models.DecimalField(max_digits=12, decimal_places=2, verbose_name = 'Honoraire Global H.T.', default = 0)
     Date_Creation = models.DateField(default=date.today, verbose_name = "Date de création")
     Date_Previsionnelle = models.DateField(blank = True, null = True, default = None, verbose_name = "Date prévisionnelle de facturation")
@@ -431,6 +443,7 @@ class Facture(models.Model):
     ID_Payeur = models.ForeignKey(Client,on_delete=models.SET_NULL, null = True,verbose_name = "Payeur")
     ID_Envoi_Facture = models.ForeignKey(Envoi_Facture, on_delete=models.CASCADE,
                                          verbose_name="Adresse d'envoi de la facture", null = True)
+    Ref_Client = models.CharField(max_length=50,blank = True, verbose_name="Référence Client à rappeler")
     ID_Pilote = models.ForeignKey(Pilote, on_delete=models.SET_NULL, null = True, verbose_name = "Pilote")
 
     Descriptif = models.TextField()
@@ -596,6 +609,7 @@ class Facture(models.Model):
             self.Nom_Affaire = affaire.Nom_Affaire
             self.ID_Envoi_Facture = affaire.ID_Envoi_Facture
             self.ID_Pilote = affaire.ID_Pilote
+            self.Ref_Client=affaire.Ref_Client
             self.Numero_Facture = 'FA0001'
             self.save()
         if not self.deja_validee or not self.deja_envoyee:
@@ -607,6 +621,7 @@ class Facture(models.Model):
         affaire = Affaire.objects.get(pk=self.ID_Affaire_id)   #Mise à jour de l'affaire en cas de modifs lors de la facture
         affaire.ID_Envoi_Facture = self.ID_Envoi_Facture
         affaire.ID_Pilote = self.ID_Pilote
+        affaire.Ref_Client = self.Ref_Client
         affaire.save()
         if self.Facture_Avoir == "AV" and self.deja_envoyee:
             self.deja_payee=True
@@ -661,8 +676,9 @@ class Facture(models.Model):
         elif self.Fin_Mois == "Oui":
             echeance1 = self.Date_Facture + timedelta(days=self.Delais_Paiement)
             premier = date(echeance1.year, echeance1.month, 1)
-            dernier = premier + relativedelta(months=1, days=-1)
-            echeance = dernier
+            dernier = premier + relativedelta(months=1, days=-1)  #date 30 jours fin du mois suivant
+            date2 = self.Date_Facture + timedelta(45)   #date 45 jours après date facture
+            echeance = min(dernier,date2)
         return echeance
 
     def Date_Relance(self):

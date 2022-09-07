@@ -59,6 +59,8 @@ class EnvoiOffreAdmin(admin.ModelAdmin):
         return super().get_model_perms(request, *args, **kwargs)
 
 class EnvoiFactureAdmin(admin.ModelAdmin):
+    form = EnvoiFactureForm
+
     def get_model_perms(self, request, *args, **kwargs):
         if not request.user.is_superuser:
             return {}
@@ -644,10 +646,11 @@ class AffaireAdmin(admin.ModelAdmin):
             idenvoifacture = affaire.ID_Envoi_Facture
             idpilote = affaire.ID_Pilote
             numfacture = 'FA0001'
+            refclient = affaire.Ref_Client
             facture = Facture.objects.create(ID_Affaire_id=idaffaire,
                                              ID_Payeur = idpayeur, Nom_Affaire = nomaffaire,
                                              ID_Envoi_Facture = idenvoifacture, ID_Pilote = idpilote,
-                                             Numero_Facture = numfacture)
+                                             Numero_Facture = numfacture,Ref_Client = refclient)
 
             id = facture.pk
             url = '/admin/bdd/facture/{}/change'.format(id)
@@ -960,6 +963,10 @@ class FactureAdmin(admin.ModelAdmin):
                         data['identiques'] = True
                     else:
                         data['identiques'] = False
+                    if adresses_completes_identiques(facture):
+                        data['completes_identiques'] = True
+                    else:
+                        data['completes_identiques'] = False
 
                     # Création de l'email prérempli
                     message = message_relance(facture)
@@ -1011,6 +1018,10 @@ class FactureAdmin(admin.ModelAdmin):
                                 data2['identiques'] = True
                             else:
                                 data2['identiques'] = False
+                            if adresses_completes_identiques(avoir):
+                                data2['completes_identiques'] = True
+                            else:
+                                data2['completes_identiques'] = False
                             source_html = 'bdd/Visualisation_Facture2.html'
                             fichier = DOSSIER + 'factures/{}.pdf'.format(avoir.Numero_Facture)
                             creer_html_to_pdf(source_html, fichier, data2)
@@ -1103,6 +1114,14 @@ class FactureAdmin(admin.ModelAdmin):
                     else:
                         data['FA'] = False
                     data['datefactureliee'] = facture.Date_Facture_Liee()
+                    if adresses_identiques(facture):
+                        data['identiques'] = True
+                    else:
+                        data['identiques'] = False
+                    if adresses_completes_identiques(facture):
+                        data['completes_identiques'] = True
+                    else:
+                        data['completes_identiques'] = False
 
                     source_html = 'bdd/Visualisation_Facture2.html'
                     fichier = DOSSIER + 'factures/{}.pdf'.format(facture.Numero_Facture)
@@ -1149,6 +1168,7 @@ class FactureAdmin(admin.ModelAdmin):
                     pass
             return redirect(".")
 
+        '''
         if "Apercu_HTML_Facture" in request.POST and request.method == "POST":  #Aperçu du fichier html, rien n'est enregistré
             if not obj.deja_validee:
                 try:
@@ -1172,6 +1192,7 @@ class FactureAdmin(admin.ModelAdmin):
             else:
                 context['FA'] = False
             return render(request, 'bdd/Visualisation_Facture2.html', context)
+        '''
 
         if ("Generer_PDF" in request.POST or "Telecharger_PDF" in request.POST or "Apercu_PDF_Facture" in request.POST) and request.method == 'POST':
             if not obj.deja_validee:
@@ -1195,6 +1216,14 @@ class FactureAdmin(admin.ModelAdmin):
             else:
                 data['FA'] = False
             data['datefactureliee'] = facture.Date_Facture_Liee()
+            if adresses_identiques(facture):
+                data['identiques'] = True
+            else:
+                data['identiques'] = False
+            if adresses_completes_identiques(facture):
+                data['completes_identiques'] = True
+            else:
+                data['completes_identiques'] = False
 
             if "Generer_PDF" in request.POST:  #Crée un fichier .pdf et l'enregistre dans le dossier media (pas celui de MEDIA_ROOT)
                 source_html = 'bdd/Visualisation_Facture2.html'
@@ -1261,6 +1290,14 @@ class FactureAdmin(admin.ModelAdmin):
             else:
                 data['FA'] = False
             data['datefactureliee'] = facture.Date_Facture_Liee()
+            if adresses_identiques(facture):
+                data['identiques'] = True
+            else:
+                data['identiques'] = False
+            if adresses_completes_identiques(facture):
+                data['completes_identiques'] = True
+            else:
+                data['completes_identiques'] = False
 
             source_html = 'bdd/Visualisation_Facture2.html'
             fichier = DOSSIER + 'factures/{}.pdf'.format(facture.Numero_Facture)

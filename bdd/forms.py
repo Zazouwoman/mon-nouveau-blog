@@ -188,7 +188,7 @@ class FactureForm(forms.ModelForm):
 class FactureFormModif(forms.ModelForm):
     class Meta:
         model = Facture
-        fields = ['Numero_Facture','ID_Affaire','Nom_Affaire','ID_Payeur','ID_Envoi_Facture','ID_Pilote',
+        fields = ['Numero_Facture','ID_Affaire','Nom_Affaire','ID_Payeur','ID_Envoi_Facture','Ref_Client','ID_Pilote',
                   'Descriptif','Montant_Facture_HT','Taux_TVA','Date_Facture','Facture_Liee']
         localized_fields = ('Montant_Facture_HT',)
 
@@ -241,11 +241,22 @@ class EnvoiFactureForm(forms.ModelForm):
         model = Envoi_Facture
         fields = '__all__'
 
+    '''
     def __init__(self, *args, **kwargs):
         super(EnvoiFactureForm, self).__init__(*args, **kwargs)
         fields = self.fields
         for x in fields:
             self.fields[x].widget.attrs['readonly'] = True
+    '''
+
+    def clean(self):
+        cleaned_data = super().clean()
+        delais = cleaned_data.get("Delais_Paiement")
+        fin = cleaned_data.get("Fin_Mois")
+        if not (delais == '30' or (delais == '60' and fin == 'Non')):
+            raise ValidationError('Options possibles pour les délais de paiement : 30 jours, 30 jours fin de mois, 60 jours')
+            #self.add_error('Delais_Paiement',msg)
+            #self.add_error('Fin_Mois',msg)
 
 
 
