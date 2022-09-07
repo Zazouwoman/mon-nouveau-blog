@@ -102,7 +102,7 @@ DelaisPaiement=[('30','30'),('60','60')]
 class Ingeprev(models.Model):
     Nom = models.CharField(max_length=50, blank=True, verbose_name = 'Nom de la societe')
     logo = models.ImageField(upload_to='images/',null=True,blank=True)
-    SIRET = models.CharField(max_length=50, blank=True, verbose_name="N° de SIRET")
+    SIRET = models.CharField(max_length=50, blank=True, verbose_name="N° de SIRET (saisir sans espace)")
     Adresse = models.CharField(max_length=500, blank=True)
     Complement_Adresse = models.CharField(max_length=500, blank=True, verbose_name = "Complément d'Adresse")
     CP = models.CharField(validators=[CP_regex], max_length=5, verbose_name='Code postal', blank=True)
