@@ -406,14 +406,55 @@ class Offre_MissionAdmin(admin.ModelAdmin):
     list_filter = ('Etat','ID_Pilote',)
     form = Offre_MissionForm
     change_form_template = 'bdd/Offre_Mission.html'
+    totalsum_list = ('Honoraires_Proposes',)
+    localized_fields = ('Honoraires_Proposes',)
     formfield_overrides = {models.DecimalField: {
             'widget': forms.TextInput(attrs={'style': 'text-align:right;', }),
         },
     }
     list_per_page = 12
 
+    unit_of_measure = ""
+    totalsum_decimal_places = 2
+    change_list_template = 'bdd/Liste_Offres.html'
+
     class  Meta:
         model = Offre_Mission
+
+    def changelist_view(self, request, extra_context=None):
+        response = super(Offre_MissionAdmin, self).changelist_view(request, extra_context)
+        if not hasattr(response, "context_data") or "cl" not in response.context_data:
+            return response
+        filtered_query_set = response.context_data["cl"].queryset
+        extra_context = extra_context or {}
+        extra_context["totals"] = {}
+        extra_context["unit_of_measure"] = self.unit_of_measure
+
+        for elem in self.totalsum_list:
+            try:
+                self.model._meta.get_field(elem)  # Checking if elem is a field
+                total = filtered_query_set.aggregate(totalsum_field=Sum(elem))["totalsum_field"]
+                if total is not None:
+                    extra_context["totals"][
+                        label_for_field(elem, self.model, self)] = round(total, self.totalsum_decimal_places)
+            except FieldDoesNotExist:  # maybe it's a property
+                if hasattr(self.model, elem):
+                    total = 0
+                    for f in filtered_query_set:
+                        try:
+                            total += getattr(f, elem, 0)
+                        except TypeError:
+                            # This allows calculating totals of columns
+                            # that are generated from functions in the model
+                            # by simply calling the function reference that
+                            # getattr returns
+                            total += getattr(f, elem, 0)()
+                    extra_context["totals"][
+                        label_for_field(elem, self.model, self)
+                    ] = round(total, self.totalsum_decimal_places)
+        response.context_data.update(extra_context)
+        return response
+
 
     def delete_model(self, request, obj):
         obj.custom_delete()
