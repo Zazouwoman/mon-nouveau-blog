@@ -401,7 +401,7 @@ class Offre_MissionAdminForm(forms.ModelForm):
         self.fields['Ref_Mission'].widget.attrs['readonly'] = True
 
 class Offre_MissionAdmin(admin.ModelAdmin):
-    list_display = ("Nom_Mission", "ID_Payeur", "Client", "Adresse", "CP", "Ville","ID_Pilote",'Date_Proposition','Etat')
+    list_display = ("Nom_Mission", "Honoraires_Proposes", "Client", "Adresse", "CP", "Ville","ID_Pilote",'Date_Proposition','Etat')
     search_fields = ("Nom_Mission__startswith",)
     list_filter = ('Etat','ID_Pilote',)
     form = Offre_MissionForm
