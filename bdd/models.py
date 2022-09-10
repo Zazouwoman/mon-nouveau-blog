@@ -295,6 +295,10 @@ class Offre_Mission(models.Model):
         ID = self.ID_Envoi_Offre_id
         envoi_offre = Envoi_Offre.objects.get(id=ID)
         client = envoi_offre.Denomination_Sociale
+        if client == "":
+            idpayeur = self.ID_Payeur_id
+            payeur = Client.objects.get(id=id)
+            client = payeur.Denomination_Sociale
         return client
 
     def get_absolute_url(self):
