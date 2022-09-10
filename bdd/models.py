@@ -171,7 +171,7 @@ class Client(models.Model):
     Type_Dossier = models.CharField(default = "C",max_length = 3)
     Indice_Dossier = models.IntegerField(default = 0,blank=True)
     Numero_Client = models.CharField(default = "C0001",max_length = 50, verbose_name = "Numéro de Client")
-    Denomination_Sociale = models.CharField(max_length = 50, verbose_name = "Dénomination sociale")
+    Denomination_Sociale = models.CharField(max_length = 150, verbose_name = "Dénomination sociale")
     SIRET = models.CharField(max_length = 50,blank=True, verbose_name = "N° de SIRET")
     Adresse = models.CharField(max_length = 500,blank=True)
     CP = models.CharField(validators=[CP_regex], max_length=5, verbose_name='Code postal',blank=True)
@@ -243,7 +243,7 @@ class Envoi_Offre(models.Model):
         ordering = ['Denomination_Sociale', 'Nom_Contact']
 
 class Envoi_Facture(models.Model):
-    Denomination_Sociale = models.CharField(max_length=50, verbose_name = "Dénomination sociale")
+    Denomination_Sociale = models.CharField(max_length=150, verbose_name = "Dénomination sociale")
     Adresse = models.CharField(max_length=500, blank = True)
     CP = models.CharField(validators=[CP_regex], max_length=5, verbose_name='Code postal', blank = True)
     Ville = models.CharField(max_length=150, blank = True)
