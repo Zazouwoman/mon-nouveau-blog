@@ -292,14 +292,20 @@ class Offre_Mission(models.Model):
             self.delete()
 
     def Client(self):
-        ID = self.ID_Envoi_Offre_id
-        if ID != None:
-            envoi_offre = Envoi_Offre.objects.get(id=ID)
-            client = envoi_offre.Denomination_Sociale
+        client = None
+        IDCC = self.ID_Client_Cache_id
+        if IDCC != None:
+            client_cache = Client.objects.get(id=IDCC)
+            client = client_cache.Denomination_Sociale
         else:
-            idpayeur = self.ID_Payeur_id
-            payeur = Client.objects.get(id=idpayeur)
-            client = payeur.Denomination_Sociale
+            ID = self.ID_Envoi_Offre_id
+            if ID != None:
+                envoi_offre = Envoi_Offre.objects.get(id=ID)
+                client = envoi_offre.Denomination_Sociale
+            else:
+                idpayeur = self.ID_Payeur_id
+                payeur = Client.objects.get(id=idpayeur)
+                client = payeur.Denomination_Sociale
         return client
 
     def get_absolute_url(self):
