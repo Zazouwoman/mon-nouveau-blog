@@ -293,9 +293,10 @@ class Offre_Mission(models.Model):
 
     def Client(self):
         ID = self.ID_Envoi_Offre_id
-        envoi_offre = Envoi_Offre.objects.get(id=ID)
-        client = envoi_offre.Denomination_Sociale
-        if client == "":
+        if ID != None:
+            envoi_offre = Envoi_Offre.objects.get(id=ID)
+            client = envoi_offre.Denomination_Sociale
+        else:
             idpayeur = self.ID_Payeur_id
             payeur = Client.objects.get(id=idpayeur)
             client = payeur.Denomination_Sociale
@@ -361,7 +362,6 @@ class Affaire(models.Model):
 
     def Adresse(self):
         mission = Offre_Mission.objects.get(pk=self.ID_Mission_id)
-        print(mission, mission.Adresse)
         adresse = mission.Adresse
         return adresse
 
