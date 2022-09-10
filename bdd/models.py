@@ -297,7 +297,7 @@ class Offre_Mission(models.Model):
         client = envoi_offre.Denomination_Sociale
         if client == "":
             idpayeur = self.ID_Payeur_id
-            payeur = Client.objects.get(id=id)
+            payeur = Client.objects.get(id=idpayeur)
             client = payeur.Denomination_Sociale
         return client
 
