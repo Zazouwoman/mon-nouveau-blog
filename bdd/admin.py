@@ -157,7 +157,7 @@ class InfoEmailAdmin(admin.ModelAdmin):
         return form
 
     def change_view(self,request, object_id, extra_context = None):
-        messages.add_message(request, messages.WARNING,(settings.MEDIA_ROOT))
+        #messages.add_message(request, messages.WARNING,(settings.MEDIA_ROOT))
         email = InfoEmail.objects.get(pk = object_id)
         factureid = email.ID_Facture
         facture = Facture.objects.get(pk=factureid)
