@@ -91,10 +91,8 @@ class AttachmentInline(admin.TabularInline):
     '''Version fichiers liés non modifiables (mise dans AttachmentInline2: 
     on peut rajouter un seul fichier joint, on peut supprimer un ou plusieurs des fichiers préjoints
     Intérêt : quand on clique sur les fichiers qui sont déjà présents ils s'ouvrent dans une nouvelle fenêtre, sinon c'est dans la même fenêtre.
-    Je mets la version fichiers non modifiables pour voir
-    '''
     fields = ['nom','file_link',]
-    readonly_fields = ['nom','file_link',]
+    readonly_fields = ['nom','file_link',]'''
 
     def get_model_perms(self, request, *args, **kwargs):
         if not request.user.is_superuser:
@@ -159,6 +157,7 @@ class InfoEmailAdmin(admin.ModelAdmin):
         return form
 
     def change_view(self,request, object_id, extra_context = None):
+        messages.add_message(request, messages.WARNING,(settings.MEDIA_ROOT))
         email = InfoEmail.objects.get(pk = object_id)
         factureid = email.ID_Facture
         facture = Facture.objects.get(pk=factureid)
@@ -173,7 +172,6 @@ class InfoEmailAdmin(admin.ModelAdmin):
             extra_context['Suivi'] = False
         else:
             extra_context['Suivi'] = True
-        print(suivi, extra_context['Suivi'])
 
         if facture.Num_Relance != 4:
             RAR = facture.Num_RAR

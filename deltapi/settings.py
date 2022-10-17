@@ -175,6 +175,7 @@ PROJECT_ROOT = os.path.dirname(os.path.abspath(__file__)) #gets directory settin
 #MEDIA_URL = '/media/'
 MEDIA_URL = config('MEDIA_URL')
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media/')
+#MEDIA_ROOT = config('MEDIA_ROOT')
 #MEDIA_ROOT = os.path.join(BASE_DIR, MEDIA_URL)
 
 #BASE_DIR = os.path.dirname(os.path.dirname(__file__))
