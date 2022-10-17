@@ -15,7 +15,7 @@
 		p.cjk { font-family: "Calibry"; font-size: 12pt; so-language: fr-FR }
 		p.ctl { font-family: "Calibry"; font-size: 10pt }
 		a:link { color: #0000ff; text-decoration: underline }
-		div {margin-bottom: 15px}
+		div {margin-bottom: 10px}
 	</style>
 </head>
 <body lang="fr-FR" link="#0000ff" vlink="#800000" dir="ltr">
@@ -48,9 +48,6 @@
       <font color="#006cc0">Date de {% if FA %}la facture{% endif %} {%if not FA %}l&apos;avoir{% endif %}&nbsp;: </font>{{facture.Date_Facture}}
          <br/>
          <font color="#006cc0">Date d&apos;&eacute;ch&eacute;ance&nbsp;: </font>{{Date_Echeance}}
-      <br/>
-       <font color="#006cc0">Vos références : </font>{{facture.Ref_Client}}
-         <br/>
 	 </p>
  </td>
  <td class="right" valign=top >
@@ -64,10 +61,12 @@
          <span style='color:#006cc0'>T&eacute;l. :</span> {{facture.Tel_Portable_Pilote_Affiche}}
           <br/>
          <span style='color:#006cc0'>Mail : </span> {{facture.Email_Pilote}}
-         <br/>
      </p>
  </td>
 </table>
+ <p class="western" align="left" valign = top>
+<font color="#006cc0">Vos références : </font>{{facture.Ref_Client}}
+</p>
 </div>
 
 <div>

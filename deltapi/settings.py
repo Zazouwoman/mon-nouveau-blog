@@ -172,7 +172,8 @@ PROJECT_ROOT = os.path.dirname(os.path.abspath(__file__)) #gets directory settin
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/4.0/howto/static-files/
 
-MEDIA_URL = '/media/'
+#MEDIA_URL = '/media/'
+MEDIA_URL = config('MEDIA_URL')
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media/')
 #MEDIA_ROOT = os.path.join(BASE_DIR, MEDIA_URL)
 

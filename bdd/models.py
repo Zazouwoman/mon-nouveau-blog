@@ -339,7 +339,7 @@ class Affaire(models.Model):
     ID_Client_Cache = models.ForeignKey(Client, on_delete=models.SET_NULL, related_name='%(class)s_ID_Client_Cache', blank=True,verbose_name="Client Caché", null=True)
     ID_Payeur = models.ForeignKey(Client,on_delete=models.SET_NULL, related_name='%(class)s_ID_Payeur', blank = True, verbose_name = "Payeur", null = True)
     ID_Envoi_Facture = models.ForeignKey(Envoi_Facture,on_delete=models.SET_NULL, blank = True, verbose_name = "Adresse Envoi Facture", null = True)
-    Ref_Client = models.CharField(max_length=50,blank = True, verbose_name="Référence Client à rappeler")
+    Ref_Client = models.CharField(max_length=150,blank = True, verbose_name="Référence Client à rappeler")
     Honoraires_Global = models.DecimalField(max_digits=12, decimal_places=2, verbose_name = 'Honoraire Global H.T.', default = 0)
     Date_Creation = models.DateField(default=date.today, verbose_name = "Date de création")
     Date_Previsionnelle = models.DateField(blank = True, null = True, default = None, verbose_name = "Date prévisionnelle de facturation")
@@ -453,7 +453,7 @@ class Facture(models.Model):
     ID_Payeur = models.ForeignKey(Client,on_delete=models.SET_NULL, null = True,verbose_name = "Payeur")
     ID_Envoi_Facture = models.ForeignKey(Envoi_Facture, on_delete=models.CASCADE,
                                          verbose_name="Adresse d'envoi de la facture", null = True)
-    Ref_Client = models.CharField(max_length=50,blank = True, verbose_name="Référence Client à rappeler")
+    Ref_Client = models.CharField(max_length=150,blank = True, verbose_name="Référence Client à rappeler")
     ID_Pilote = models.ForeignKey(Pilote, on_delete=models.SET_NULL, null = True, verbose_name = "Pilote")
 
     Descriptif = models.TextField()
