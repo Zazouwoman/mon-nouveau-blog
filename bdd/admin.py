@@ -34,12 +34,15 @@ from .fonctions import *
 from .models import *
 from .forms import *
 from decimal import Decimal
+import tempfile
 # Register your models here.
 
 #DOSSIER = 'media/'
 # en mettant media ils sont enregistrés dans F:\media, en mettant '/media/' ils sont enregistrés
 # sur le serveur....
-DOSSIER = settings.MEDIA_ROOT #Nom du dossier dans lequel sont enregistrés les factures, lettres de relance
+DOSSIER = settings.MEDIA_ROOT #Nom du dossier public dans lequel sont enregistrés les factures, lettres de relance
+DOSSIER_PRIVE = settings.MEDIA_ROOT_PRIVE #Nom du dossier privé dans lequel sont enregistrés les factures, lettres de relance ...
+DOSSIER_TEMP = tempfile.TemporaryDirectory().name
 
 admin.site.site_header = "UMSRA Admin"
 
@@ -1270,7 +1273,7 @@ class FactureAdmin(admin.ModelAdmin):
                 source_html = 'bdd/Visualisation_Facture2.html'
                 template = get_template(source_html)
                 html = template.render(data)
-                fichier = DOSSIER + 'factures/{}.pdf'.format(facture.Numero_Facture)
+                fichier = DOSSIER_TEMP + 'factures/{}.pdf'.format(facture.Numero_Facture)
                 write_to_file = open(fichier, "w+b")
                 pisa.CreatePDF(html, dest=write_to_file, link_callback=fetch_resources)
                 write_to_file.close()
@@ -1279,7 +1282,7 @@ class FactureAdmin(admin.ModelAdmin):
             if "Apercu_PDF_Facture" in request.POST:  #ouvre la fenètre de téléchargement de chrome - permet de visualiser la facture avant validation
                 source_html = 'bdd/Visualisation_Facture2.html'
                 filename = '{}.pdf'.format(facture.Numero_Facture)
-                fichier = DOSSIER + 'temp/FA0001.pdf'#.format(facture.Numero_Facture)
+                fichier = DOSSIER_TEMP + 'FA0001.pdf'#.format(facture.Numero_Facture)
                 template = get_template(source_html)
                 html = template.render(data)
                 write_to_file = open(fichier, "w+b")
@@ -1299,7 +1302,7 @@ class FactureAdmin(admin.ModelAdmin):
                 #non utilisé
                 source_html = 'bdd/Visualisation_Facture2.html'
                 filename = '{}.pdf'.format(facture.Numero_Facture)
-                fichier = DOSSIER + '{}.pdf'.format(facture.Numero_Facture)
+                fichier = DOSSIER_TEMP + '{}.pdf'.format(facture.Numero_Facture)
                 template = get_template(source_html)
                 html = template.render(data)
                 write_to_file = open(fichier, "w+b")

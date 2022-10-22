@@ -28,8 +28,6 @@ chemin = Path(DOSSIER + 'factures/{}.pdf'.format(facture.Numero_Facture))
 with chemin.open(mode='rb') as f:
     BDD.Attachment.objects.create(file=File(f, name=chemin.name), message=obj, nom = 'Facture')
 
-
-
 Subject = obj.Subject
 From = obj.From
 Message = obj.Message
