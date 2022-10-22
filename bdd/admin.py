@@ -92,7 +92,7 @@ class AttachmentInline(admin.TabularInline):
     on peut rajouter un seul fichier joint, on peut supprimer un ou plusieurs des fichiers préjoints
     Intérêt : quand on clique sur les fichiers qui sont déjà présents ils s'ouvrent dans une nouvelle fenêtre, sinon c'est dans la même fenêtre.
     fields = ['nom','file_link',]
-    readonly_fields = ['nom','file_link',]'''
+    readonly_fields = ['nom','file_link',].'''
 
     def get_model_perms(self, request, *args, **kwargs):
         if not request.user.is_superuser:
@@ -803,7 +803,7 @@ class FactureAdmin(admin.ModelAdmin):
     localized_fields = ('Honoraire_Affaire', 'Reste_Affaire','Montant_Facture_HT','Date_Prev_Affaire',)
 
     change_form_template = 'bdd/Modification_Facture.html'
-    change_list_template = 'admin/change_list2.html'
+    #change_list_template = 'admin/change_list2.html'
     form = FactureFormModif
 
     totalsum_list = ('Montant_Facture_HT','Reste_A_Payer')

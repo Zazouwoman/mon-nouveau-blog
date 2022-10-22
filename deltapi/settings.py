@@ -180,8 +180,10 @@ MEDIA_ROOT = os.path.join(BASE_DIR, config('MEDIA_ROOT'))
 #MEDIA_ROOT = os.path.join(BASE_DIR, MEDIA_URL)
 
 #BASE_DIR = os.path.dirname(os.path.dirname(__file__))
-STATIC_URL = '/static/'
-STATIC_ROOT = os.path.join(BASE_DIR, 'static')
+#STATIC_URL = '/static/'
+STATIC_URL = config('STATIC_URL')
+#STATIC_ROOT = os.path.join(BASE_DIR, 'static')
+STATIC_ROOT = os.path.join(BASE_DIR, config('STATIC_ROOT')
 STATICFILES_STORAGE = "django.contrib.staticfiles.storage.StaticFilesStorage"
 
 #STATICFILES_DIRS = (
