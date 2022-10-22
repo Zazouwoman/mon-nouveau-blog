@@ -185,6 +185,7 @@ STATIC_URL = config('STATIC_URL')
 #STATIC_ROOT = os.path.join(BASE_DIR, 'static')
 STATIC_ROOT = os.path.join(BASE_DIR, config('STATIC_ROOT'))
 STATICFILES_STORAGE = "django.contrib.staticfiles.storage.StaticFilesStorage"
+#STATICFILES_DIR = config('STATICFILES_DIR')
 
 #STATICFILES_DIRS = (
 #    os.path.join(BASE_DIR, "staticfiles"),)

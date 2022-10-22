@@ -33,7 +33,7 @@ with chemin.open(mode='rb') as f:
 Subject = obj.Subject
 From = obj.From
 Message = obj.Message
-To = "benoit.grosheny@gmail.com"
+To = "gaudy.claire@gmail.com"
 
 if True:
     attachments = []  # start with an empty list
