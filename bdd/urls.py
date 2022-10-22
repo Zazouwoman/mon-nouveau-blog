@@ -13,7 +13,7 @@ urlpatterns = [
     path('home/', views.home, name='home'),
     path('success/', views.successView, name='success'),
     path('application/pdf', views.InfoEmailView.as_view()),
-] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+] #+ static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 
 if settings.DEBUG:
         urlpatterns += static(settings.MEDIA_URL,
