@@ -207,8 +207,8 @@ class InfoEmailAdmin(admin.ModelAdmin):
             email.delete()
             messages.add_message(request, messages.INFO, 'Relance {} enregistrée avec succès !!'.format(num))
             if 2 <= num <= 4:
-                source = Path(DOSSIER + 'relances/Relance{}-{}.pdf'.format(num,facture.Numero_Facture))
-                destination = Path(DOSSIER + 'facturation_par_dossier/{}/Relance{}-{}.pdf'.format(facture.Num_Affaire(),num,facture.Numero_Facture))
+                source = Path(DOSSIER_PRIVE + 'relances/Relance{}-{}.pdf'.format(num,facture.Numero_Facture))
+                destination = Path(DOSSIER_PRIVE + 'facturation_par_dossier/{}/Relance{}-{}.pdf'.format(facture.Num_Affaire(),num,facture.Numero_Facture))
                 shutil.copy(source, destination)
             url = '/admin/bdd/facture/'
             return redirect(url)
@@ -327,9 +327,11 @@ class InfoEmailAdmin(admin.ModelAdmin):
                     attachment = Attachment.objects.filter(message_id = email.id).filter(nom = "Lettre de Relance 3")
                     attachment.delete()
                 source_html = 'bdd/Lettre_Relance3.html'
-                fichier = DOSSIER + 'relances/Relance3-{}.pdf'.format(facture.Numero_Facture)
+                fichier = DOSSIER_PRIVE + 'relances/Relance3-{}.pdf'.format(facture.Numero_Facture)
                 creer_html_to_pdf(source_html, fichier, data)
-                chemin = Path(fichier)
+                fichier = DOSSIER_TEMP + 'Relance3-{}.pdf'.format(facture.Numero_Facture)
+                creer_html_to_pdf(source_html, fichier, data)
+                chemin = Path(DOSSIER_TEMP + 'Relance3-{}.pdf'.format(facture.Numero_Facture))
                 with chemin.open(mode='rb') as f:
                      Attachment.objects.create(file=File(f, name=chemin.name), message=email, nom = "Lettre de Relance 3")
 
@@ -338,9 +340,11 @@ class InfoEmailAdmin(admin.ModelAdmin):
                     attachment = Attachment.objects.filter(message_id = email.id).filter(nom = "Lettre de Relance 4")
                     attachment.delete()
                 source_html = 'bdd/Lettre_Relance4.html'
-                fichier = DOSSIER + 'relances/Relance4-{}.pdf'.format(facture.Numero_Facture)
+                fichier = DOSSIER_PRIVE + 'relances/Relance4-{}.pdf'.format(facture.Numero_Facture)
                 creer_html_to_pdf(source_html, fichier, data)
-                chemin = Path(fichier)
+                fichier = DOSSIER_TEMP + 'Relance4-{}.pdf'.format(facture.Numero_Facture)
+                creer_html_to_pdf(source_html, fichier, data)
+                chemin = Path(DOSSIER_TEMP + 'Relance4-{}.pdf'.format(facture.Numero_Facture))
                 with chemin.open(mode='rb') as f:
                      Attachment.objects.create(file=File(f, name=chemin.name), message=email, nom = "Lettre de Relance 4")
             return redirect('.')
@@ -1020,7 +1024,7 @@ class FactureAdmin(admin.ModelAdmin):
                     From = settings.DEFAULT_FROM_EMAIL
 
                     source_html = 'bdd/Visualisation_Facture2.html'
-                    fichier = DOSSIER + 'factures/{}.pdf'.format(facture.Numero_Facture)
+                    fichier = DOSSIER_TEMP + 'factures{}.pdf'.format(facture.Numero_Facture)
                     creer_html_to_pdf(source_html, fichier, data)
 
                     if facture.Num_Relance <= 3:
@@ -1034,7 +1038,7 @@ class FactureAdmin(admin.ModelAdmin):
                                                      ID_Facture=idfacture, Type_Action=typeaction)
 
                     #Récupération de la facture pdf
-                    chemin = Path(DOSSIER + 'factures/{}.pdf'.format(facture.Numero_Facture))
+                    chemin = Path(DOSSIER_TEMP + 'factures{}.pdf'.format(facture.Numero_Facture))
                     with chemin.open(mode='rb') as f:
                         Attachment.objects.create(file=File(f, name=chemin.name), message=email, nom = 'Facture')
 
@@ -1067,34 +1071,40 @@ class FactureAdmin(admin.ModelAdmin):
                             else:
                                 data2['completes_identiques'] = False
                             source_html = 'bdd/Visualisation_Facture2.html'
-                            fichier = DOSSIER + 'factures/{}.pdf'.format(avoir.Numero_Facture)
+                            fichier = DOSSIER_TEMP + 'factures{}.pdf'.format(avoir.Numero_Facture)
                             creer_html_to_pdf(source_html, fichier, data2)
-                            chemin = Path(DOSSIER + 'factures/{}.pdf'.format(x))
+                            chemin = Path(DOSSIER_TEMP + 'factures{}.pdf'.format(x))
                             with chemin.open(mode='rb') as f:
                                 Attachment.objects.create(file=File(f, name=chemin.name), message=email, nom='Avoir')
 
                     #Création des lettres de relance
                     if facture.Num_Relance >= 2:
                         source_html = 'bdd/Lettre_Relance2.html'
-                        fichier = DOSSIER + 'relances/Relance2-{}.pdf'.format(facture.Numero_Facture)
+                        fichier = DOSSIER_PRIVE + 'relances/Relance2-{}.pdf'.format(facture.Numero_Facture)
                         creer_html_to_pdf(source_html, fichier, data)
-                        chemin = Path(DOSSIER + 'relances/Relance2-{}.pdf'.format(facture.Numero_Facture))
+                        fichier = DOSSIER_TEMP + 'Relance2-{}.pdf'.format(facture.Numero_Facture)
+                        creer_html_to_pdf(source_html, fichier, data)
+                        chemin = Path(DOSSIER_TEMP + 'Relance2-{}.pdf'.format(facture.Numero_Facture))
                         with chemin.open(mode='rb') as f:
                             Attachment.objects.create(file=File(f, name=chemin.name), message=email, nom = 'Lettre de Relance 2')
                     if facture.Num_Relance == 4:
                         for k in range(3,facture.Num_Relance):
                             source_html = 'bdd/Lettre_Relance{}.html'.format(k)
-                            fichier = DOSSIER + 'relances/Relance{}-{}.pdf'.format(k,facture.Numero_Facture)
+                            fichier = DOSSIER_PRIVE + 'relances/Relance{}-{}.pdf'.format(k,facture.Numero_Facture)
                             creer_html_to_pdf(source_html, fichier, data)
-                            chemin = Path(DOSSIER + 'relances/Relance{}-{}.pdf'.format(k,facture.Numero_Facture))
+                            fichier = DOSSIER_TEMP + 'Relance{}-{}.pdf'.format(k, facture.Numero_Facture)
+                            creer_html_to_pdf(source_html, fichier, data)
+                            chemin = Path(DOSSIER_TEMP + 'Relance{}-{}.pdf'.format(k,facture.Numero_Facture))
                             with chemin.open(mode='rb') as f:
                                 Attachment.objects.create(file=File(f, name=chemin.name), message=email, nom = 'Lettre de Relance {}'.format(k))
                     elif facture.Num_Relance == 5 or facture.Num_Relance == 6:
                         for k in range(3,5):
                             source_html = 'bdd/Lettre_Relance{}.html'.format(k)
-                            fichier = DOSSIER + 'relances/Relance{}-{}.pdf'.format(k,facture.Numero_Facture)
+                            fichier = DOSSIER_PRIVE + 'relances/Relance{}-{}.pdf'.format(k,facture.Numero_Facture)
                             creer_html_to_pdf(source_html, fichier, data)
-                            chemin = Path(DOSSIER + 'relances/Relance{}-{}.pdf'.format(k,facture.Numero_Facture))
+                            fichier = DOSSIER_TEMP + 'Relance{}-{}.pdf'.format(k, facture.Numero_Facture)
+                            creer_html_to_pdf(source_html, fichier, data)
+                            chemin = Path(DOSSIER_TEMP + 'Relance{}-{}.pdf'.format(k,facture.Numero_Facture))
                             with chemin.open(mode='rb') as f:
                                 Attachment.objects.create(file=File(f, name=chemin.name), message=email, nom = 'Lettre de Relance {}'.format(k))
 
@@ -1168,12 +1178,14 @@ class FactureAdmin(admin.ModelAdmin):
                         data['completes_identiques'] = False
 
                     source_html = 'bdd/Visualisation_Facture2.html'
-                    fichier = DOSSIER + 'factures/{}.pdf'.format(facture.Numero_Facture)
+                    fichier = DOSSIER_PRIVE + 'factures/{}.pdf'.format(facture.Numero_Facture)
+                    creer_html_to_pdf(source_html, fichier, data)
+                    fichier = DOSSIER_TEMP + 'factures{}.pdf'.format(facture.Numero_Facture)
                     creer_html_to_pdf(source_html, fichier, data)
                     #Création du dossier de rangement associé à l'affaire + copie de la facture dedans
-                    path = Path(DOSSIER + 'facturation_par_dossier/{}'.format(facture.Num_Affaire()))
+                    path = Path(DOSSIER_PRIVE + 'facturation_par_dossier/{}'.format(facture.Num_Affaire()))
                     path.mkdir(parents=True, exist_ok=True)
-                    fichier2 = DOSSIER + 'facturation_par_dossier/{}/{}.pdf'.format(facture.Num_Affaire(),facture.Numero_Facture)
+                    fichier2 = DOSSIER_PRIVE + 'facturation_par_dossier/{}/{}.pdf'.format(facture.Num_Affaire(),facture.Numero_Facture)
                     creer_html_to_pdf(source_html, fichier2, data)
 
                     # Création de l'email d'envoi de la favture prérempli
@@ -1191,7 +1203,7 @@ class FactureAdmin(admin.ModelAdmin):
                                                      ID_Facture=idfacture, Type_Action=typeaction, RAR = RAR)
                     email.save()
 
-                    chemin = Path(DOSSIER + 'factures/{}.pdf'.format(facture.Numero_Facture))
+                    chemin = Path(DOSSIER_TEMP + 'factures{}.pdf'.format(facture.Numero_Facture))
                     with chemin.open(mode='rb') as f:
                         Attachment.objects.create(file=File(f, name=chemin.name), message=email, nom = 'Facture')
 
@@ -1321,6 +1333,7 @@ class FactureAdmin(admin.ModelAdmin):
             facture = get_object_or_404(Facture, pk=obj.pk)
             affaire = Affaire.objects.get(pk=obj.ID_Affaire_id)
             offre = Offre_Mission.objects.get(pk=affaire.ID_Mission_id)
+            ingeprev = Ingeprev.objects.get(Nom='INGEPREV')
 
             #Création du pdf dans media
             data = {}
@@ -1329,6 +1342,7 @@ class FactureAdmin(admin.ModelAdmin):
             data['affaire'] = affaire
             data['Date_Echeance'] = facture.Date_Echeance1()
             data['Montant_TTC'] = facture.Montant_Facture_TTC()
+            data['ingeprev'] = ingeprev
             if facture.Facture_Avoir == "FA":
                 data['FA'] = True
             else:
@@ -1344,7 +1358,7 @@ class FactureAdmin(admin.ModelAdmin):
                 data['completes_identiques'] = False
 
             source_html = 'bdd/Visualisation_Facture2.html'
-            fichier = DOSSIER + 'factures/{}.pdf'.format(facture.Numero_Facture)
+            fichier = DOSSIER_TEMP + 'factures{}.pdf'.format(facture.Numero_Facture)
             creer_html_to_pdf(source_html,fichier, data)
 
             #Création de l'email prérempli
@@ -1365,7 +1379,7 @@ class FactureAdmin(admin.ModelAdmin):
                                              Subject = sujet, ID_Facture = idfacture, Type_Action = typeaction, RAR=RAR)
             email.save()
 
-            chemin = Path(DOSSIER + '/factures/{}.pdf'.format(facture.Numero_Facture))
+            chemin = Path(DOSSIER_TEMP + 'factures{}.pdf'.format(facture.Numero_Facture))
             with chemin.open(mode = 'rb') as f:
                 Attachment.objects.create(file=File(f, name = chemin.name), message=email, nom = "Facture")
 
