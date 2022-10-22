@@ -16,9 +16,15 @@ Including another URLconf
 
 from django.urls import path, include
 import authentification.views
+from django.conf import settings
+from django.conf.urls.static import static
 
 urlpatterns = [
     path('', authentification.views.login_page, name='login'),
     path('', include('authentification.urls')),
     path('', include('bdd.urls')),
 ]
+if settings.DEBUG:
+    print("DEBUG ON=> adding media url",settings.MEDIA_URL,"=>",settings.MEDIA_ROOT)
+    urlpatterns += static(settings.MEDIA_URL,
+        document_root=settings.MEDIA_ROOT)
