@@ -1044,7 +1044,7 @@ class FactureAdmin(admin.ModelAdmin):
                     with chemin.open(mode='rb') as f:
                         Attachment.objects.create(file=File(f, name=chemin.name), message=email, nom = 'Facture')
                         messages.add_message(request, messages.ERROR,
-                                     "ATTACH n° {}".format(chemin.name))
+                                     "ATTACH n° {}".format(chemin))
 
                     #Récupération des avoirs liés pdf éventuels
                     nb = facture.Nb_Avoir()
