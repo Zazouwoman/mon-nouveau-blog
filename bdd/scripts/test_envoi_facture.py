@@ -52,7 +52,7 @@ else:
     data['completes_identiques'] = False
 
 source_html = 'bdd/Visualisation_Facture2.html'
-fichier = DOSSIER_TEMP + 'factures{}.pdf'.format(facture.Numero_Facture)
+fichier = DOSSIER_PRIVE + 'factures/{}.pdf'.format(facture.Numero_Facture)
 creer_html_to_pdf(source_html,fichier, data)
 print('Fichier créé {}'.format(fichier))
 
@@ -60,7 +60,7 @@ obj = BDD.InfoEmail.objects.create(From = From, To=facture.Email_Facture, Messag
                                  Subject=sujet, RAR = RAR, Suivi = Suivi,
                                  ID_Facture=idfacture, Type_Action=typeaction)
 
-chemin = Path(DOSSIER_TEMP + 'factures{}.pdf'.format(facture.Numero_Facture))
+chemin = Path(DOSSIER_PRIVE + 'factures/{}.pdf'.format(facture.Numero_Facture))
 with chemin.open(mode='rb') as f:
     BDD.Attachment.objects.create(file=File(f, name=chemin.name), message=obj, nom = 'Facture')
 
