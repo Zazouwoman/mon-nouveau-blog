@@ -96,9 +96,9 @@ class AttachmentInline(admin.TabularInline):
     fields = ['nom','file']
     '''Version fichiers liés non modifiables (mise dans AttachmentInline2: 
     on peut rajouter un seul fichier joint, on peut supprimer un ou plusieurs des fichiers préjoints
-    Intérêt : quand on clique sur les fichiers qui sont déjà présents ils s'ouvrent dans une nouvelle fenêtre, sinon c'est dans la même fenêtre.
+    Intérêt : quand on clique sur les fichiers qui sont déjà présents ils s'ouvrent dans une nouvelle fenêtre, sinon c'est dans la même fenêtre.'''
     fields = ['nom','file_link',]
-    readonly_fields = ['nom','file_link',].'''
+    readonly_fields = ['nom','file_link',]
 
     def get_model_perms(self, request, *args, **kwargs):
         if not request.user.is_superuser:
