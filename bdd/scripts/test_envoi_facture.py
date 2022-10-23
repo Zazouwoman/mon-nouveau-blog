@@ -53,7 +53,7 @@ else:
 source_html = 'bdd/Visualisation_Facture2.html'
 fichier = DOSSIER_TEMP + 'factures{}.pdf'.format(facture.Numero_Facture)
 creer_html_to_pdf(source_html,fichier, data)
-print('Fichier créé {}'.format(chemin.name))
+print('Fichier créé {}'.format(fichier))
 
 obj = BDD.InfoEmail.objects.create(From = From, To=facture.Email_Facture, Message=message,
                                  Subject=sujet, RAR = RAR, Suivi = Suivi,
