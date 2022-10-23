@@ -42,6 +42,7 @@ import tempfile
 # sur le serveur....
 DOSSIER = settings.MEDIA_ROOT #Nom du dossier public dans lequel sont enregistrés les factures, lettres de relance
 DOSSIER_PRIVE = settings.MEDIA_ROOT_PRIVE #Nom du dossier privé dans lequel sont enregistrés les factures, lettres de relance ...
+#DOSSIER_TEMP = tempfile.TemporaryDirectory(prefix="facture-").name
 DOSSIER_TEMP = tempfile.TemporaryDirectory().name
 
 admin.site.site_header = "UMSRA Admin"
