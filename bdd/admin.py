@@ -43,8 +43,8 @@ import tempfile
 DOSSIER = settings.MEDIA_ROOT #Nom du dossier public dans lequel sont enregistrés les factures, lettres de relance
 DOSSIER_PRIVE = settings.MEDIA_ROOT_PRIVE #Nom du dossier privé dans lequel sont enregistrés les factures, lettres de relance ...
 #DOSSIER_TEMP = tempfile.TemporaryDirectory(prefix="facture-").name
-#DOSSIER_TEMP = tempfile.TemporaryDirectory().name
-DOSSIER_TEMP = DOSSIER + tempfile.TemporaryDirectory().name
+DOSSIER_TEMP = tempfile.TemporaryDirectory().name
+#DOSSIER_TEMP = DOSSIER + tempfile.TemporaryDirectory().name
 
 admin.site.site_header = "UMSRA Admin"
 
@@ -115,6 +115,10 @@ class AttachmentInline2(admin.TabularInline):
     '''Version fichiers liés non modifiables : 
     on peut rajouter un seul fichier joint, on peut supprimer un ou plusieurs des fichiers préjoints
     Intérêt : quand on clique sur les fichiers qui sont déjà présents ils s'ouvrent dans une nouvelle fenêtre, sinon c'est dans la même fenêtre.
+    fields = ['nom','file_link',]
+    readonly_fields = ['nom','file_link',]
+    Version fichiers liés modifiables : 
+    fields = ['nom','file']
     '''
     fields = ['nom','file_link',]
     readonly_fields = ['nom','file_link',]

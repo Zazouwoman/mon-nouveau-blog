@@ -22,4 +22,3 @@ def successView(request):
 
 def home(request):
     return render(request, 'bdd/home.html')
-
