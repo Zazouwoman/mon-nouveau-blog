@@ -777,6 +777,7 @@ class Facture(models.Model):
             self.Facture_Avoir = 'AV'
         self.save()
 
+
 class InfoEmail(models.Model):
     From = models.EmailField(max_length=70, verbose_name = 'De')
     To = models.EmailField(max_length=70, verbose_name = 'A')

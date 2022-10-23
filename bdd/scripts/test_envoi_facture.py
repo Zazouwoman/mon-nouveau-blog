@@ -14,7 +14,7 @@ facture = BDD.Facture.objects.latest("id")
 print(facture)
 DOSSIER = settings.MEDIA_ROOT
 #DOSSIER_TEMP = tempfile.TemporaryDirectory().name
-DOSSIER_TEMP = DOSSIER + tempfile.TemporaryDirectory().name
+#DOSSIER_TEMP = DOSSIER + tempfile.TemporaryDirectory().name
 DOSSIER_PRIVE = settings.MEDIA_ROOT_PRIVE
 
 From = settings.DEFAULT_FROM_EMAIL

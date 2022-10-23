@@ -22,3 +22,9 @@ def successView(request):
 
 def home(request):
     return render(request, 'bdd/home.html')
+
+'''
+def InfoEmailView(request,pk):
+
+    return render(request, 'Visualisation_Facture2.html', context = data)
+'''
