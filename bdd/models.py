@@ -807,7 +807,8 @@ class InfoEmail(models.Model):
 class Attachment(models.Model):
     message = models.ForeignKey(InfoEmail, verbose_name=_('InfoEmail'), on_delete=models.CASCADE)
     nom = models.CharField(max_length =70, blank = True)
-    file = models.FileField(_('Attachment'), upload_to='attachments')
+    #file = models.FileField(_('Attachment'), upload_to='attachments')
+    file = models.FileField(_('Attachment'), upload_to=''))
 
     def selflink(self):
         if self.id:
