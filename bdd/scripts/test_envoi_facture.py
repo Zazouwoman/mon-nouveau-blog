@@ -3,6 +3,7 @@ django.setup()
 
 from django.conf import settings
 import bdd.models as BDD
+from bdd.fonctions import *
 from django.core.mail import EmailMessage
 from django.core.files import File
 from pathlib import Path
@@ -22,6 +23,36 @@ RAR = None
 Suivi = None
 idfacture = None
 typeaction = ""
+
+affaire = BDD.Affaire.objects.get(pk=facture.ID_Affaire_id)
+offre = BDD.Offre_Mission.objects.get(pk=affaire.ID_Mission_id)
+ingeprev = BDD.Ingeprev.objects.get(Nom='INGEPREV')
+
+#Création du pdf dans media
+data = {}
+data['facture'] = facture
+data['Ref_Affaire'] = affaire.Ref_Affaire
+data['affaire'] = affaire
+data['Date_Echeance'] = facture.Date_Echeance1()
+data['Montant_TTC'] = facture.Montant_Facture_TTC()
+data['ingeprev'] = ingeprev
+if facture.Facture_Avoir == "FA":
+    data['FA'] = True
+else:
+    data['FA'] = False
+data['datefactureliee'] = facture.Date_Facture_Liee()
+if adresses_identiques(facture):
+    data['identiques'] = True
+else:
+    data['identiques'] = False
+if adresses_completes_identiques(facture):
+    data['completes_identiques'] = True
+else:
+    data['completes_identiques'] = False
+
+source_html = 'bdd/Visualisation_Facture2.html'
+fichier = DOSSIER_TEMP + 'factures{}.pdf'.format(facture.Numero_Facture)
+creer_html_to_pdf(source_html,fichier, data)
 
 obj = BDD.InfoEmail.objects.create(From = From, To=facture.Email_Facture, Message=message,
                                  Subject=sujet, RAR = RAR, Suivi = Suivi,
