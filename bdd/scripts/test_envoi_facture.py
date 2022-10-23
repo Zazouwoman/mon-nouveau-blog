@@ -13,7 +13,7 @@ facture = BDD.Facture.objects.latest("id")
 print(facture)
 DOSSIER = settings.MEDIA_ROOT
 #DOSSIER_TEMP = tempfile.TemporaryDirectory().name
-DOSSIER_TEMP = DOSSIER + 'tmp/tmp'+ tempfile.TemporaryDirectory().name
+DOSSIER_TEMP = DOSSIER + tempfile.TemporaryDirectory().name
 
 From = settings.DEFAULT_FROM_EMAIL
 message = "Facture de test"
