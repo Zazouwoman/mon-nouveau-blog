@@ -1302,6 +1302,7 @@ class FactureAdmin(admin.ModelAdmin):
                 source_html = 'bdd/Visualisation_Facture2.html'
                 template = get_template(source_html)
                 html = template.render(data)
+
                 fichier = DOSSIER_TEMP + 'factures{}.pdf'.format(facture.Numero_Facture)
                 write_to_file = open(fichier, "w+b")
                 pisa.CreatePDF(html, dest=write_to_file, link_callback=fetch_resources)
@@ -1311,7 +1312,7 @@ class FactureAdmin(admin.ModelAdmin):
             if "Apercu_PDF_Facture" in request.POST:  #ouvre la fenètre de téléchargement de chrome - permet de visualiser la facture avant validation
                 source_html = 'bdd/Visualisation_Facture2.html'
                 filename = '{}.pdf'.format(facture.Numero_Facture)
-                fichier = DOSSIER_TEMP + 'FA0001.pdf'#.format(facture.Numero_Facture)
+                fichier = DOSSIER + 'tmp/FA0001.pdf'#.format(facture.Numero_Facture)
                 template = get_template(source_html)
                 html = template.render(data)
                 write_to_file = open(fichier, "w+b")
