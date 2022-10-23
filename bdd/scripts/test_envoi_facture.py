@@ -61,6 +61,7 @@ obj = BDD.InfoEmail.objects.create(From = From, To=facture.Email_Facture, Messag
 chemin = Path(DOSSIER_TEMP + 'facture{}.pdf'.format(facture.Numero_Facture))
 with chemin.open(mode='rb') as f:
     BDD.Attachment.objects.create(file=File(f, name=chemin.name), message=obj, nom = 'Facture')
+    print('Fichier créé {}'.format(chemin.name))
 
 Subject = obj.Subject
 From = obj.From
