@@ -6,7 +6,7 @@ from django.views.generic.edit import FormView, CreateView
 from django.http import HttpResponse
 from django.views.generic import View
 from .forms import InfoEmailForm
-from .models import InfoEmail,Facture
+from .models import InfoEmail,Facture,Attachment
 import os.path
 
 # Create your views here.
@@ -27,7 +27,7 @@ def home(request):
 @login_required
 def facture_pdf(request,id=None):
     facture = Facture.objects.get(id=id)
-    nom_fichier = "%s.pdf"%facture.Numero_Facture
+    nom_fichier = "%s.pdf"%facture.Numero_Facture  #C'est le nom que l'on veut que le fichier ait
     fichier = facture.Fonction_Nom_Fichier_Facture()
 	
     if not(os.path.exists(fichier)):
@@ -36,6 +36,25 @@ def facture_pdf(request,id=None):
     response = HttpResponse(content_type='application/pdf')
     response['Content-Disposition'] = 'inline; filename=%s'%nom_fichier
     with open(fichier,"rb") as f:
+        response.write(f.read())
+    return response
+
+
+@login_required
+def attachment_pdf(request, id=None):
+    attachment = Attachment.objects.get(id=id)
+    nom_fichier = attachment.Nom_Fichier_Joint()
+    print(nom_fichier)
+    fichier = attachment.Chemin_Fichier()
+
+    if not (os.path.exists(fichier)):
+        print('on est ici')
+        return render(request, "bdd/no_fichier.html", {"facture": fichier})
+
+    print('on est là')
+    response = HttpResponse(content_type='application/pdf')
+    response['Content-Disposition'] = 'inline; filename=%s' % nom_fichier
+    with open(fichier, "rb") as f:
         response.write(f.read())
     return response
 

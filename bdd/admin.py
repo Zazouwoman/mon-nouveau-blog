@@ -79,6 +79,9 @@ class AttachmentForm(forms.ModelForm):
         fields = ['file']
 
 class AttachmentAdmin(admin.ModelAdmin):
+    model = Attachment
+    list_display = ('file', 'pdf', 'message', 'file_link',)
+
     def get_model_perms(self, request, *args, **kwargs):
         if not request.user.is_superuser:
             return {}
@@ -94,12 +97,28 @@ class CompteurIndiceAdmin(admin.ModelAdmin):
 class AttachmentInline(admin.TabularInline):
     model = Attachment
     extra = 0
-    fields = ['nom','file']
+    #fields = ['nom','file']
     '''Version fichiers liés non modifiables (mise dans AttachmentInline2: 
     on peut rajouter un seul fichier joint, on peut supprimer un ou plusieurs des fichiers préjoints
     Intérêt : quand on clique sur les fichiers qui sont déjà présents ils s'ouvrent dans une nouvelle fenêtre, sinon c'est dans la même fenêtre.'''
-    fields = ['nom','file_link',]
-    readonly_fields = ['nom','file_link',]
+    #fields = ['nom','pdf',]
+    #readonly_fields = ['nom', 'pdf', ]
+    #fields = ['nom', 'file_link', ]
+    #readonly_fields = ['nom', 'file_link', ]
+    fields = ['Num_Facture','nom','pdf']
+    readonly_fields = ['nom', 'pdf', 'Num_Facture']
+
+    '''
+    def pdf(self,obj):
+        if obj.id == None:
+            return None
+        else:
+            fichier = obj.file
+            return mark_safe("<a href='{}' target='_blank'>{}</a>".format(reverse('attachment_pdf', args=[obj.id]),fichier.name))
+            return mark_safe("<a href='%s' target='_blank'>PDF</a>"%reverse('attachment_pdf', args=[obj.id]))
+
+    pdf.allow_tags = True
+    '''
 
     def get_model_perms(self, request, *args, **kwargs):
         if not request.user.is_superuser:
@@ -137,7 +156,7 @@ class InfoEmailAdmin(admin.ModelAdmin):
     form = InfoEmailForm
     change_form_template = 'bdd/Creation_Email.html'
     inlines = [AttachmentInline,]  #Cas où il y a effectivement un email
-    other_set_inlines = [AttachmentInline2,]  #Cas des relances où il n'y a pas de mail
+    #other_set_inlines = [AttachmentInline2,]  #Cas des relances où il n'y a pas de mail
 
     def get_model_perms(self, request, *args, **kwargs):
         if not request.user.is_superuser:
@@ -809,7 +828,7 @@ class A_Envoyer_Filter(admin.SimpleListFilter):
 
 class FactureAdmin(admin.ModelAdmin):
     #list_display = ('Numero_Facture','Etat','Date_Dernier_Rappel','Date_Envoi','Date_Relance1','Date_Relance2', 'Date_Relance3', 'Date_Relance4', 'Date_Relance5', 'Num_Relance','deja_validee','deja_envoyee','deja_payee','Nom_Affaire', 'Montant_Facture_HT', 'ID_Payeur','Date_Echeance1', 'Date_Relance', 'Date_Dernier_Rappel')
-    list_display = ('Numero_Facture','pdf', 'Etat', 'deja_validee', 'deja_envoyee', 'deja_payee', 'Nom_Affaire',
+    list_display = ('Numero_Facture', 'pdf', 'Etat', 'deja_validee', 'deja_envoyee', 'deja_payee', 'Nom_Affaire',
                     'Montant_Facture_HT', 'Reste_A_Payer','ID_Payeur', 'Date_Echeance1', 'Num_Relance', 'Date_Dernier_Rappel')
     seach_fiels = ('Nom_Affaire__Startswith')
     list_filter = (A_Relancer_Filter,A_Envoyer_Filter,'Etat_Paiement','Etat','Nom_Affaire',)
@@ -829,10 +848,13 @@ class FactureAdmin(admin.ModelAdmin):
     unit_of_measure = ""
     totalsum_decimal_places = 2
     change_list_template = 'bdd/Liste_Affaires.html'
+
+    '''
     def pdf(self,obj):
         return mark_safe("<a href='%s'>PDF</a>"%reverse('facture_pdf',args=[obj.id]))
     pdf.allow_tags = True
 	#obj.Fonction_Nom_Fichier_Facture()
+	'''
 
     def changelist_view(self, request, extra_context=None):
         response = super(FactureAdmin, self).changelist_view(request, extra_context)
@@ -1202,8 +1224,15 @@ class FactureAdmin(admin.ModelAdmin):
                     source_html = 'bdd/Visualisation_Facture2.html'
                     fichier = DOSSIER_PRIVE + 'factures/{}.pdf'.format(facture.Numero_Facture)
                     creer_html_to_pdf(source_html, fichier, data)
+                    '''
                     fichier = DOSSIER_TEMP + 'factures{}.pdf'.format(facture.Numero_Facture)
                     creer_html_to_pdf(source_html, fichier, data)
+                    '''
+                    facture.Nom_Fichier_Facture = fichier
+                    facture.Fichier_Facture_cree = True
+                    facture.Date_Creation_Fichier_Facture = timezone.now()
+                    facture.save()
+                    print(facture.Date_Creation_Fichier_Facture)
                     #Création du dossier de rangement associé à l'affaire + copie de la facture dedans
                     path = Path(DOSSIER_PRIVE + 'facturation_par_dossier/{}'.format(facture.Num_Affaire()))
                     path.mkdir(parents=True, exist_ok=True)

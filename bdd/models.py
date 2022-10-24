@@ -19,6 +19,7 @@ from django.utils.html import format_html
 
 from django.forms.utils import flatatt
 
+from django.utils.safestring import mark_safe
 from datetime import date, timedelta
 from dateutil.relativedelta import relativedelta
 from django.contrib import messages
@@ -521,16 +522,23 @@ class Facture(models.Model):
     Email_Pilote = models.EmailField(max_length=70, blank=True)
 
     Nom_Fichier_Facture = models.CharField(max_length=300,blank=True,verbose_name="Nom du fichier Facture")
-    Fichier_Facture_cree = models.BooleanField(default=False,verbose_name="Facture_pdf_créée")
+    Fichier_Facture_cree = models.BooleanField(default=False, verbose_name="Facture_pdf_créée")
+    Date_Creation_Fichier_Facture = models.DateTimeField(null=True, blank=True, verbose_name="Date de création du fichier facture pdf")
     Nom_Fichier_Relance2 = models.CharField(max_length=300, blank=True, verbose_name="Nom du fichier Relance2")
     Fichier_Relance2_cree = models.BooleanField(default=False, verbose_name="Relance2_pdf_créée")
+    Date_Creation_Fichier_Relance2 = models.DateTimeField(null=True, blank=True, verbose_name="Date de création du fichier relance2 pdf")
     Nom_Fichier_Relance3 = models.CharField(max_length=300, blank=True, verbose_name="Nom du fichier Relance3")
     Fichier_Relance3_cree = models.BooleanField(default=False, verbose_name="Relance3_pdf_créée")
+    Date_Creation_Fichier_Relance3 = models.DateTimeField(null=True, blank=True, verbose_name="Date de création du fichier relance3 pdf")
     Nom_Fichier_Relance4 = models.CharField(max_length=300, blank=True, verbose_name="Nom du fichier Relance4")
     Fichier_Relance4_cree = models.BooleanField(default=False, verbose_name="Relance4_pdf_créée")
+    Date_Creation_Fichier_Relance4 = models.DateTimeField(null=True, blank=True, verbose_name="Date de création du fichier relance4 pdf")
 
     class Meta:
         verbose_name_plural = "3. Factures"
+
+    def pdf(self):
+        return mark_safe("<a href='%s' target='_blank'>PDF</a>"%reverse('facture_pdf',args=[self.id]))
 
     def Fonction_Nom_Fichier_Facture(self):
         chemin = Path(DOSSIER_PRIVE + 'factures/{}.pdf'.format(self.Numero_Facture))
@@ -831,16 +839,65 @@ class Attachment(models.Model):
     nom = models.CharField(max_length =70, blank = True)
     file = models.FileField(_('Attachment'), upload_to='tmp')
 
+    def Num_Facture(self):
+        mail = InfoEmail.objects.get(pk=self.message_id)
+        idfacture = mail.ID_Facture
+        facture = Facture.objects.get(pk=idfacture)
+        numfacture = facture.Numero_Facture
+        return numfacture
+
+    def Nom_Fichier_Joint(self):
+        mail = InfoEmail.objects.get(pk=self.message_id)
+        idfacture = mail.ID_Facture
+        facture = Facture.objects.get(pk=idfacture)
+        numfacture = facture.Numero_Facture
+        if self.nom !='Facture':
+            return self.nom+'-'+str(numfacture)
+        else:
+            return str(numfacture)
+
+    Nom_Fichier_Joint.short_description = 'Nom du Fichier'
+
+    '''
+    def Nom_Afficher(self):
+        mail = InfoEmail.objects.get(pk=self.message_id)
+        idfacture = mail.ID_Facture
+        facture = Facture.objects.get(pk=idfacture)
+        numfacture = facture.Numero_Facture
+        if self.nom !=Facture:
+            return self.nom+str(numfacture)
+        else:
+            return str(numfacture)
+    '''
+
+    def Chemin_Fichier(self):
+        chemin = Path(DOSSIER + self.file.name)
+        return chemin
+
     def selflink(self):
         if self.id:
             return "<a href='/link/to/volume/%s' target='_blank'>Edit</a>" % str(self.id)
         else:
             return "Not present"
 
+    '''Ancien file_link'''
     def file_link(self):
         fichier = self.file
         return format_html(
             '<a{} target = "_blank">{}</a>', flatatt({'href': fichier.url}), fichier.name)
+
+    def pdf(self):
+        if self.id == None:
+            return None
+        else:
+            return mark_safe(
+                "<a href='{}' target='_blank'>PDF</a>".format(reverse('attachment_pdf', args=[self.id])))
+            #nom_fichier = self.Nom_Fichier_Joint()
+            #return mark_safe("<a href='{}' target='_blank'>{}</a>".format(reverse('attachment_pdf', args=[self.id]),nom_fichier))
+
+
+    pdf.allow_tags = True
+    pdf.short_description = 'Lien pdf'
 
     file_link.allow_tags = True
     file_link.short_description = 'Lien de Téléchargement'
