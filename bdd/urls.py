@@ -13,9 +13,9 @@ urlpatterns = [
     path('home/', views.home, name='home'),
     path('success/', views.successView, name='success'),
     path('application/pdf', views.InfoEmailView.as_view()),
+	path('pdf/facture/<int:id>/',views.facture_pdf,name="facture_pdf")
 ] #+ static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 
 if settings.DEBUG:
         urlpatterns += static(settings.MEDIA_URL,
                               document_root=settings.MEDIA_ROOT)
-        #urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)

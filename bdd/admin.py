@@ -5,7 +5,7 @@ from pathlib import Path
 from django.core.files import File
 from django.http import FileResponse
 
-
+from django.utils.safestring import mark_safe
 from django.template.loader import get_template
 from dateutil.relativedelta import relativedelta
 
@@ -24,6 +24,7 @@ from datetime import date
 
 from pathlib import Path
 import shutil
+from django.urls import reverse
 
 
 from xhtml2pdf import pisa
@@ -808,7 +809,7 @@ class A_Envoyer_Filter(admin.SimpleListFilter):
 
 class FactureAdmin(admin.ModelAdmin):
     #list_display = ('Numero_Facture','Etat','Date_Dernier_Rappel','Date_Envoi','Date_Relance1','Date_Relance2', 'Date_Relance3', 'Date_Relance4', 'Date_Relance5', 'Num_Relance','deja_validee','deja_envoyee','deja_payee','Nom_Affaire', 'Montant_Facture_HT', 'ID_Payeur','Date_Echeance1', 'Date_Relance', 'Date_Dernier_Rappel')
-    list_display = ('Numero_Facture', 'Etat', 'deja_validee', 'deja_envoyee', 'deja_payee', 'Nom_Affaire',
+    list_display = ('Numero_Facture','pdf', 'Etat', 'deja_validee', 'deja_envoyee', 'deja_payee', 'Nom_Affaire',
                     'Montant_Facture_HT', 'Reste_A_Payer','ID_Payeur', 'Date_Echeance1', 'Num_Relance', 'Date_Dernier_Rappel')
     seach_fiels = ('Nom_Affaire__Startswith')
     list_filter = (A_Relancer_Filter,A_Envoyer_Filter,'Etat_Paiement','Etat','Nom_Affaire',)
@@ -828,6 +829,10 @@ class FactureAdmin(admin.ModelAdmin):
     unit_of_measure = ""
     totalsum_decimal_places = 2
     change_list_template = 'bdd/Liste_Affaires.html'
+    def pdf(self,obj):
+        return mark_safe("<a href='%s'>PDF</a>"%reverse('facture_pdf',args=[obj.id]))
+    pdf.allow_tags = True
+	#obj.Fonction_Nom_Fichier_Facture()
 
     def changelist_view(self, request, extra_context=None):
         response = super(FactureAdmin, self).changelist_view(request, extra_context)
