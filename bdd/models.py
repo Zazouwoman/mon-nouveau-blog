@@ -26,6 +26,14 @@ from django.contrib import messages
 from decimal import Decimal
 from .fonctions import *
 from django.core.exceptions import ValidationError
+from pathlib import Path
+import tempfile
+
+DOSSIER = settings.MEDIA_ROOT #Nom du dossier public dans lequel sont enregistrés les factures, lettres de relance
+DOSSIER_PRIVE = settings.MEDIA_ROOT_PRIVE #Nom du dossier privé dans lequel sont enregistrés les factures, lettres de relance ...
+#DOSSIER_TEMP = tempfile.TemporaryDirectory(prefix="facture-").name
+#DOSSIER_TEMP = tempfile.TemporaryDirectory().name
+DOSSIER_TEMP = DOSSIER + tempfile.TemporaryDirectory().name
 
 def formater_tel(tel_int):
     tel_str = str(tel_int)
@@ -512,8 +520,21 @@ class Facture(models.Model):
                                     blank=True)
     Email_Pilote = models.EmailField(max_length=70, blank=True)
 
+    Nom_Fichier_Facture = models.CharField(max_length=300,blank=True,verbose_name="Nom du fichier Facture")
+    Fichier_Facture_cree = models.BooleanField(default=False,verbose_name="Facture_pdf_créée")
+    Nom_Fichier_Relance2 = models.CharField(max_length=300, blank=True, verbose_name="Nom du fichier Relance2")
+    Fichier_Relance2_cree = models.BooleanField(default=False, verbose_name="Relance2_pdf_créée")
+    Nom_Fichier_Relance3 = models.CharField(max_length=300, blank=True, verbose_name="Nom du fichier Relance3")
+    Fichier_Relance3_cree = models.BooleanField(default=False, verbose_name="Relance3_pdf_créée")
+    Nom_Fichier_Relance4 = models.CharField(max_length=300, blank=True, verbose_name="Nom du fichier Relance4")
+    Fichier_Relance4_cree = models.BooleanField(default=False, verbose_name="Relance4_pdf_créée")
+
     class Meta:
         verbose_name_plural = "3. Factures"
+
+    def Fonction_Nom_Fichier_Facture(self):
+        chemin = Path(DOSSIER_PRIVE + 'factures/{}.pdf'.format(self.Numero_Facture))
+        return chemin
 
     def Tel_Portable_Pilote_Affiche(self):
         return formater_tel(self.Tel_Portable_Pilote)
