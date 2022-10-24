@@ -9,6 +9,153 @@ from django.shortcuts import redirect
 from .models import *
 import os
 
+def creer_pdf_facture(facture,affaire,offre,ingeprev,dossier):
+    """Crée le fichier pdf de la facture dans le dossier PRIVE
+    Donnée nécessaire : obj,dossier"""
+
+    #Création du pdf dans DOSSIER_PRIVE
+    data = {}
+    data['facture'] = facture
+    data['Ref_Affaire'] = affaire.Ref_Affaire
+    data['affaire'] = affaire
+    data['Date_Echeance'] = facture.Date_Echeance1()
+    data['Montant_TTC'] = facture.Montant_Facture_TTC()
+    data['ingeprev'] = ingeprev
+    data['mission'] = offre
+    if facture.Facture_Avoir == "FA":
+        data['FA'] = True
+    else:
+        data['FA'] = False
+    data['datefactureliee'] = facture.Date_Facture_Liee()
+    if adresses_identiques(facture):
+        data['identiques'] = True
+    else:
+        data['identiques'] = False
+    if adresses_completes_identiques(facture):
+        data['completes_identiques'] = True
+    else:
+        data['completes_identiques'] = False
+
+    source_html = 'bdd/Visualisation_Facture2.html'
+    fichier = dossier + 'factures/{}.pdf'.format(facture.Numero_Facture)
+    creer_html_to_pdf(source_html,fichier, data)
+
+    facture.Nom_Fichier_Facture = fichier
+    facture.Date_Creation_Fichier_Facture = timezone.now()
+    facture.Fichier_Facture_cree = True
+    facture.save()
+
+def creer_pdf_relance2(facture,affaire,offre,ingeprev,dossier):
+    """Crée le fichier pdf de la facture dans le dossier PRIVE
+    Donnée nécessaire : obj,dossier"""
+
+    data = {}
+    data['facture'] = facture
+    data['Ref_Affaire'] = affaire.Ref_Affaire
+    data['affaire'] = affaire
+    data['Date_Echeance'] = facture.Date_Echeance1()
+    data['Montant_TTC'] = facture.Montant_Facture_TTC()
+    data['ingeprev'] = ingeprev
+    data['mission'] = offre
+    data['date'] = date.today()
+    data['nb'] = facture.Nb_Avoir()
+    data['avoir'] = facture.Avoirs_Lies()
+    data['montant_avoir_lie'] = facture.Montants_Avoirs_Lies_TTC()
+    data['solde'] = facture.Solde_Pour_Avoir_Eventuel()
+    if facture.Facture_Avoir == "FA":
+        data['FA'] = True
+    else:
+        data['FA'] = False
+    if adresses_identiques(facture):
+        data['identiques'] = True
+    else:
+        data['identiques'] = False
+    if adresses_completes_identiques(facture):
+        data['completes_identiques'] = True
+    else:
+        data['completes_identiques'] = False
+    source_html = 'bdd/Lettre_Relance2.html'
+    fichier = dossier + 'relances/Relance2-{}.pdf'.format(facture.Numero_Facture)
+    creer_html_to_pdf(source_html, fichier, data)
+    facture.Nom_Fichier_Relance2 = fichier
+    facture.Date_Creation_Fichier_Relance2 = timezone.now()
+    facture.Fichier_Relance2_cree = True
+    facture.save()
+
+def creer_pdf_relance3(facture,affaire,offre,ingeprev,dossier):
+    """Crée le fichier pdf de la facture dans le dossier PRIVE
+    Donnée nécessaire : obj,dossier"""
+
+    data = {}
+    data['facture'] = facture
+    data['Ref_Affaire'] = affaire.Ref_Affaire
+    data['affaire'] = affaire
+    data['Date_Echeance'] = facture.Date_Echeance1()
+    data['Montant_TTC'] = facture.Montant_Facture_TTC()
+    data['ingeprev'] = ingeprev
+    data['mission'] = offre
+    data['date'] = date.today()
+    data['nb'] = facture.Nb_Avoir()
+    data['avoir'] = facture.Avoirs_Lies()
+    data['montant_avoir_lie'] = facture.Montants_Avoirs_Lies_TTC()
+    data['solde'] = facture.Solde_Pour_Avoir_Eventuel()
+    if facture.Facture_Avoir == "FA":
+        data['FA'] = True
+    else:
+        data['FA'] = False
+    if adresses_identiques(facture):
+        data['identiques'] = True
+    else:
+        data['identiques'] = False
+    if adresses_completes_identiques(facture):
+        data['completes_identiques'] = True
+    else:
+        data['completes_identiques'] = False
+    source_html = 'bdd/Lettre_Relance3.html'
+    fichier = dossier + 'relances/Relance3-{}.pdf'.format(facture.Numero_Facture)
+    creer_html_to_pdf(source_html, fichier, data)
+    facture.Nom_Fichier_Relance3 = fichier
+    facture.Date_Creation_Fichier_Relance3 = timezone.now()
+    facture.Fichier_Relance3_cree = True
+    facture.save()
+
+def creer_pdf_relance4(facture,affaire,offre,ingeprev,dossier):
+    """Crée le fichier pdf de la facture dans le dossier PRIVE
+    Donnée nécessaire : obj,dossier"""
+
+    data = {}
+    data['facture'] = facture
+    data['Ref_Affaire'] = affaire.Ref_Affaire
+    data['affaire'] = affaire
+    data['Date_Echeance'] = facture.Date_Echeance1()
+    data['Montant_TTC'] = facture.Montant_Facture_TTC()
+    data['ingeprev'] = ingeprev
+    data['mission'] = offre
+    data['date'] = date.today()
+    data['nb'] = facture.Nb_Avoir()
+    data['avoir'] = facture.Avoirs_Lies()
+    data['montant_avoir_lie'] = facture.Montants_Avoirs_Lies_TTC()
+    data['solde'] = facture.Solde_Pour_Avoir_Eventuel()
+    if facture.Facture_Avoir == "FA":
+        data['FA'] = True
+    else:
+        data['FA'] = False
+    if adresses_identiques(facture):
+        data['identiques'] = True
+    else:
+        data['identiques'] = False
+    if adresses_completes_identiques(facture):
+        data['completes_identiques'] = True
+    else:
+        data['completes_identiques'] = False
+    source_html = 'bdd/Lettre_Relance4.html'
+    fichier = dossier + 'relances/Relance4-{}.pdf'.format(facture.Numero_Facture)
+    creer_html_to_pdf(source_html, fichier, data)
+    facture.Nom_Fichier_Relance4 = fichier
+    facture.Date_Creation_Fichier_Relance4 = timezone.now()
+    facture.Fichier_Relance4_cree = True
+    facture.save()
+
 def adresses_identiques(facture):
     L1 = [facture.Denomination_Client, facture.Adresse_Client, facture.CP_Client, facture.Ville_Client]
     L2 = [facture.Denomination_Facture, facture.Adresse_Facture, facture.CP_Facture, facture.Ville_Facture]
@@ -17,7 +164,6 @@ def adresses_identiques(facture):
 def adresses_completes_identiques(facture):
     L1 = [facture.Denomination_Client, facture.Adresse_Client, facture.CP_Client, facture.Ville_Client, facture.Civilite_Client, facture.Nom_Client, facture.Email_Client]
     L2 = [facture.Denomination_Facture, facture.Adresse_Facture, facture.CP_Facture, facture.Ville_Facture, facture.Civilite_Facture, facture.Nom_Facture, facture.Email_Facture
-
           ]
     return L1 == L2
 

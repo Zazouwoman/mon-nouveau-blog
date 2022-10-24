@@ -538,7 +538,12 @@ class Facture(models.Model):
         verbose_name_plural = "3. Factures"
 
     def pdf(self):
-        return mark_safe("<a href='%s' target='_blank'>PDF</a>"%reverse('facture_pdf',args=[self.id]))
+        if not self.deja_validee:
+            return None
+        elif not self.Fichier_Facture_cree:
+            return None
+        else:
+            return mark_safe("<a href='%s' target='_blank'>PDF</a>"%reverse('facture_pdf',args=[self.id]))
 
     def Fonction_Nom_Fichier_Facture(self):
         chemin = Path(DOSSIER_PRIVE + 'factures/{}.pdf'.format(self.Numero_Facture))
