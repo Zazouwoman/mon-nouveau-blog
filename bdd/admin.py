@@ -1273,7 +1273,7 @@ class FactureAdmin(admin.ModelAdmin):
         '''
 
         if ("Generer_PDF" in request.POST or "Telecharger_PDF" in request.POST or "Apercu_PDF_Facture" in request.POST) and request.method == 'POST':
-            print(obj.Fonction_Nom_Fichier_Facture())
+            #print(obj.Fonction_Nom_Fichier_Facture())
             if not obj.deja_validee:
                 try:
                     obj.Remplissage_Facture()
