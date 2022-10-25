@@ -17,8 +17,8 @@ def lien_backup(request,id=None):
     nom_fichier = backup.fichier  #C'est le nom que l'on veut que le fichier ait
     fichier = backup.Fonction_Nom_Fichier()
 	
-    if not(os.path.exists(fichier)):
-         return render(request,"bdd/facture/facture_no_fichier.html",{ "facture":backup })
+    #if not(os.path.exists(fichier)):
+    #     return render(request,"bdd/no_fichier.html",{ "facture":backup })
 		
     response = HttpResponse(content_type='application/gzip')
     response['Content-Disposition'] = 'inline; filename=%s'%nom_fichier
