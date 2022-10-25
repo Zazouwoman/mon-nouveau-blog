@@ -19,10 +19,13 @@ class LogBackup(Log):
 	size = models.IntegerField(null=True,blank=True)
 
 	def Fonction_Nom_Fichier(self):
-		return DOSSIER_BACKUP + self.fichier
+		return self.fichier
 
 	def lien(self):
-		return mark_safe("<a href='%s' target='_blank'>PDF</a>" % reverse('lien_backup', args=[self.id]))
+		if self.id == None:
+			return None
+		else:
+			return mark_safe("<a href='{}' target='_blank'>{}</a>".format(reverse('lien_backup', args=[self.id]),self.fichier))
 	
 	
 	
