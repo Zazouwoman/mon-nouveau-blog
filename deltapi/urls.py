@@ -23,6 +23,7 @@ urlpatterns = [
     path('', authentification.views.login_page, name='login'),
     path('', include('authentification.urls')),
     path('', include('bdd.urls')),
+    path('', include('processes.urls')),
 ]
 if settings.DEBUG:
     print("DEBUG ON=> adding media url",settings.MEDIA_URL,"=>",settings.MEDIA_ROOT)
