@@ -1082,7 +1082,7 @@ class FactureAdmin(admin.ModelAdmin):
 
                     #Création des lettres de relance
                     if facture.Num_Relance >= 2:
-                        if not facture.Fichier_Relance2_cree:
+                        if not facture.Fichier_Relance2_cree or facture.Num_Relance == 2:
                             creer_pdf_relance2(facture,affaire,mission,ingeprev,DOSSIER_PRIVE)
 
                         chemin = Path(DOSSIER_PRIVE + 'relances/Relance2-{}.pdf'.format(facture.Numero_Facture))
@@ -1091,7 +1091,7 @@ class FactureAdmin(admin.ModelAdmin):
 
                     if facture.Num_Relance == 4:
                         for k in range(3,facture.Num_Relance):
-                            if not facture.Fichier_Relance3_cree:
+                            if not facture.Fichier_Relance3_cree or facture.Num_Relance == 3:
                                 creer_pdf_relance3(facture, affaire, mission, ingeprev, DOSSIER_PRIVE)
                             chemin = Path(DOSSIER_PRIVE + 'relances/Relance{}-{}.pdf'.format(k,facture.Numero_Facture))
                             with chemin.open(mode='rb') as f:
@@ -1298,7 +1298,7 @@ class FactureAdmin(admin.ModelAdmin):
             if "Apercu_PDF_Facture" in request.POST:  #ouvre la fenètre de téléchargement de chrome - permet de visualiser la facture avant validation
                 source_html = 'bdd/Visualisation_Facture2.html'
                 filename = '{}.pdf'.format(facture.Numero_Facture)
-                fichier = DOSSIER + 'tmp/FA0001.pdf'#.format(facture.Numero_Facture)
+                fichier = DOSSIER_PRIVE + 'tmp/FA0001.pdf'#.format(facture.Numero_Facture)
                 template = get_template(source_html)
                 html = template.render(data)
                 write_to_file = open(fichier, "w+b")

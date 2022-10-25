@@ -157,13 +157,13 @@ def creer_pdf_relance4(facture,affaire,offre,ingeprev,dossier):
     facture.save()
 
 def adresses_identiques(facture):
-    L1 = [facture.Denomination_Client, facture.Adresse_Client, facture.CP_Client, facture.Ville_Client]
-    L2 = [facture.Denomination_Facture, facture.Adresse_Facture, facture.CP_Facture, facture.Ville_Facture]
+    L1 = [facture.Denomination_Client, facture.Adresse_Client, facture.Complement_Adresse_Client, facture.CP_Client, facture.Ville_Client]
+    L2 = [facture.Denomination_Facture, facture.Adresse_Facture, facture.Complement_Adresse_Facture, facture.CP_Facture, facture.Ville_Facture]
     return L1 == L2
 
 def adresses_completes_identiques(facture):
-    L1 = [facture.Denomination_Client, facture.Adresse_Client, facture.CP_Client, facture.Ville_Client, facture.Civilite_Client, facture.Nom_Client, facture.Email_Client]
-    L2 = [facture.Denomination_Facture, facture.Adresse_Facture, facture.CP_Facture, facture.Ville_Facture, facture.Civilite_Facture, facture.Nom_Facture, facture.Email_Facture
+    L1 = [facture.Denomination_Client, facture.Adresse_Client, facture.Complement_Adresse_Client, facture.CP_Client, facture.Ville_Client, facture.Civilite_Client, facture.Nom_Client, facture.Email_Client]
+    L2 = [facture.Denomination_Facture, facture.Adresse_Facture, facture.Complement_Adresse_Facture, facture.CP_Facture, facture.Ville_Facture, facture.Civilite_Facture, facture.Nom_Facture, facture.Email_Facture
           ]
     return L1 == L2
 
