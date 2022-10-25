@@ -257,6 +257,9 @@ class InfoEmailAdmin(admin.ModelAdmin):
                 messages.add_message(request, messages.WARNING, "Votre facture n'a pas été envoyée.")
             elif facture.Num_Relance == 0 and facture.Facture_Avoir == "AV":
                 messages.add_message(request, messages.WARNING, "Votre avoir n'a pas été envoyé. Si vous souhaitez valider son paiement sans l'envoyer il faut le faire manuellement.")
+            elif email.Type_Action == 'Test_Email' or email.Type_Action == 'Renvoi_Facture':
+                messages.add_message(request, messages.WARNING,
+                                     "Vous avez annulé l'envoi du mail. Il a été supprimé et aucune relance n'a été enregistrée.")
             else:
                 messages.add_message(request, messages.WARNING, "Votre dernière opération n'a pas été validée. La relance n'a donc pas été enregistrée.")
             email.delete()
@@ -282,6 +285,9 @@ class InfoEmailAdmin(admin.ModelAdmin):
                 messages.add_message(request, messages.WARNING, "Votre facture n'a pas été envoyée.")
             elif num and facture.Facture_Avoir == "AV":
                 messages.add_message(request, messages.WARNING, "Votre avoir n'a pas été envoyé. Si vous souhaitez valider son paiement sans l'envoyer il faut le faire manuellement.")
+            elif email.Type_Action == 'Test_Email' or email.Type_Action == 'Renvoi_Facture':
+                messages.add_message(request, messages.WARNING,
+                                     "Vous avez annulé l'envoi du mail. Il a été supprimé et aucune relance n'a été enregistrée.")
             else:
                 messages.add_message(request, messages.WARNING, "Aucune relance n'a été effectuée. Opération annulée.")
             email.delete()
