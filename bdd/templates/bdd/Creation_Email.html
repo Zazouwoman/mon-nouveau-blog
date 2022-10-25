@@ -55,7 +55,7 @@ Liste des avoirs li&eacute;s : {% for x in facture.Avoirs_Lies %}{{x}} ; {% endf
 {% block submit_buttons_bottom %}
 </br>
 
-{% if relance == 0 or relance == 1 %}
+{% if relance == 0 or relance == 1 and not test and not renvoi %}
 <form action="" method="post" enctype="multipart/form-data">
     {% csrf_token %}
     {{ form.as_p }}
