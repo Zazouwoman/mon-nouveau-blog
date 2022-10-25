@@ -313,58 +313,17 @@ class InfoEmailAdmin(admin.ModelAdmin):
             mission = Offre_Mission.objects.get(pk=affaire.ID_Mission_id)
             ingeprev = Ingeprev.objects.get(Nom='INGEPREV')
 
-            # Création du pdf dans media
-            data = {}
-            data['facture'] = facture
-            data['Ref_Affaire'] = affaire.Ref_Affaire
-            data['affaire'] = affaire
-            data['Date_Echeance'] = facture.Date_Echeance1()
-            data['Montant_TTC'] = facture.Montant_Facture_TTC()
-            data['ingeprev'] = ingeprev
-            data['mission'] = mission
-            data['date'] = date.today()
-            data['nb'] = facture.Nb_Avoir()
-            data['avoir'] = facture.Avoirs_Lies()
-            data['montant_avoir_lie'] = facture.Montants_Avoirs_Lies_TTC()
-            data['solde'] = facture.Solde_Pour_Avoir_Eventuel()
-            if adresses_identiques(facture):
-                data['identiques'] = True
-            else:
-                data['identiques'] = False
-            if facture.Facture_Avoir == 'FA':
-                data['FA'] = True
-            else:
-                data['FA'] = False
-
-            if num == 3:
+            if num == 3 or num == 4:
                 if "Mettre_a_jour_RAR" in request.POST:
-                    attachment = Attachment.objects.filter(message_id = email.id).filter(nom = "Lettre de Relance 3")
+                    attachment = Attachment.objects.filter(message_id = email.id).filter(nom = "Lettre de Relance {}".format(num))
                     attachment.delete()
-                source_html = 'bdd/Lettre_Relance3.html'
-                fichier = DOSSIER_PRIVE + 'relances/Relance3-{}.pdf'.format(facture.Numero_Facture)
-                creer_html_to_pdf(source_html, fichier, data)
-                facture.Nom_Fichier_Relance3 = fichier
-                facture.Date_Creation_Fichier_Relance3 = timezone.now()
-                facture.Fichier_Relance3_cree = True
-                facture.save()
-                chemin = Path(DOSSIER_PRIVE + 'relances/Relance3-{}.pdf'.format(facture.Numero_Facture))
-                with chemin.open(mode='rb') as f:
-                     Attachment.objects.create(file=File(f, name=chemin.name), message=email, nom = "Lettre de Relance 3")
 
-            if num == 4:
-                if "Mettre_a_jour_RAR" in request.POST:
-                    attachment = Attachment.objects.filter(message_id = email.id).filter(nom = "Lettre de Relance 4")
-                    attachment.delete()
-                source_html = 'bdd/Lettre_Relance4.html'
-                fichier = DOSSIER_PRIVE + 'relances/Relance4-{}.pdf'.format(facture.Numero_Facture)
-                creer_html_to_pdf(source_html, fichier, data)
-                facture.Nom_Fichier_Relance4 = fichier
-                facture.Date_Creation_Fichier_Relance4 = timezone.now()
-                facture.Fichier_Relance4_cree = True
-                facture.save()
-                chemin = Path(DOSSIER_PRIVE + 'relances/Relance4-{}.pdf'.format(facture.Numero_Facture))
+                creer_pdf_relance(3, facture, affaire, mission, ingeprev, DOSSIER_PRIVE)
+                chemin = Path(DOSSIER_PRIVE + 'relances/Relance{}-{}.pdf'.format(num, facture.Numero_Facture))
                 with chemin.open(mode='rb') as f:
-                     Attachment.objects.create(file=File(f, name=chemin.name), message=email, nom = "Lettre de Relance 4")
+                    Attachment.objects.create(file=File(f, name=chemin.name), message=email,
+                                              nom='Lettre de Relance {}'.format(num))
+
             return redirect('.')
 
         if "Envoyer" in request.POST:
@@ -1047,33 +1006,7 @@ class FactureAdmin(admin.ModelAdmin):
                         for k in range(len(L)):
                             x = L[k]
                             avoir = Facture.objects.get(Numero_Facture = x)
-                            '''
-                            data2 = {}
-                            data2['facture'] = avoir
-                            data2['Ref_Affaire'] = affaire.Ref_Affaire
-                            data2['affaire'] = affaire
-                            data2['Date_Echeance'] = avoir.Date_Echeance1()
-                            data2['Montant_TTC'] = avoir.Montant_Facture_TTC()
-                            data2['ingeprev'] = ingeprev
-                            data2['mission'] = mission
-                            data2['date'] = date.today()
-                            if avoir.Facture_Avoir == "FA":
-                                data2['FA'] = True
-                            else:
-                                data2['FA'] = False
-                            if adresses_identiques(avoir):
-                                data2['identiques'] = True
-                            else:
-                                data2['identiques'] = False
-                            if adresses_completes_identiques(avoir):
-                                data2['completes_identiques'] = True
-                            else:
-                                data2['completes_identiques'] = False
-                            source_html = 'bdd/Visualisation_Facture2.html'
-                            fichier = DOSSIER_PRIVE + 'factures/{}.pdf'.format(avoir.Numero_Facture)
-                            creer_html_to_pdf(source_html, fichier, data2)'''
-
-                            if not obj.Fichier_Facture_cree:
+                            if not avoir.Fichier_Facture_cree:
                                 creer_pdf_facture(avoir, affaire, mission, ingeprev, DOSSIER_PRIVE)
 
                             chemin = Path(DOSSIER_PRIVE + 'factures/{}.pdf'.format(x))
@@ -1082,8 +1015,8 @@ class FactureAdmin(admin.ModelAdmin):
 
                     #Création des lettres de relance
                     if facture.Num_Relance >= 2:
-                        if not facture.Fichier_Relance2_cree or facture.Num_Relance == 2:
-                            creer_pdf_relance2(facture,affaire,mission,ingeprev,DOSSIER_PRIVE)
+                        if (not facture.Fichier_Relance2_cree) or facture.Num_Relance == 2:
+                            creer_pdf_relance(2,facture,affaire,mission,ingeprev,DOSSIER_PRIVE)
 
                         chemin = Path(DOSSIER_PRIVE + 'relances/Relance2-{}.pdf'.format(facture.Numero_Facture))
                         with chemin.open(mode='rb') as f:
@@ -1091,17 +1024,17 @@ class FactureAdmin(admin.ModelAdmin):
 
                     if facture.Num_Relance == 4:
                         for k in range(3,facture.Num_Relance):
-                            if not facture.Fichier_Relance3_cree or facture.Num_Relance == 3:
-                                creer_pdf_relance3(facture, affaire, mission, ingeprev, DOSSIER_PRIVE)
+                            if not facture.Fichier_Relance3_cree:
+                                creer_pdf_relance(3,facture, affaire, mission, ingeprev, DOSSIER_PRIVE)
                             chemin = Path(DOSSIER_PRIVE + 'relances/Relance{}-{}.pdf'.format(k,facture.Numero_Facture))
                             with chemin.open(mode='rb') as f:
                                 Attachment.objects.create(file=File(f, name=chemin.name), message=email, nom = 'Lettre de Relance {}'.format(k))
 
                     elif facture.Num_Relance == 5 or facture.Num_Relance == 6:
                         if not facture.Fichier_Relance3_cree:
-                            creer_pdf_relance3(facture, affaire, mission, ingeprev, DOSSIER_PRIVE)
+                            creer_pdf_relance(3,facture, affaire, mission, ingeprev, DOSSIER_PRIVE)
                         if not facture.Fichier_Relance4_cree:
-                            creer_pdf_relance4(facture, affaire, mission, ingeprev, DOSSIER_PRIVE)
+                            creer_pdf_relance(4,facture, affaire, mission, ingeprev, DOSSIER_PRIVE)
                         for k in range(3,5):
                             chemin = Path(DOSSIER_PRIVE + 'relances/Relance{}-{}.pdf'.format(k,facture.Numero_Facture))
                             with chemin.open(mode='rb') as f:
@@ -1151,43 +1084,19 @@ class FactureAdmin(admin.ModelAdmin):
 
                     facture = get_object_or_404(Facture, pk=obj.pk)
                     affaire = Affaire.objects.get(pk=obj.ID_Affaire_id)
-                    ingeprev = Ingeprev.objects.get(Nom = 'INGEPREV')
+                    offre = Offre_Mission.objects.get(pk=affaire.ID_Mission_id)
+                    ingeprev = Ingeprev.objects.get(Nom='INGEPREV')
 
-                    # Création du pdf de la facture dans media
-                    #data['FA'] contiendra True si c'est une facture, False si c'est un avoir
-                    data = {}
-                    data['facture'] = facture
-                    data['Ref_Affaire'] = affaire.Ref_Affaire
-                    data['affaire'] = affaire
-                    data['Date_Echeance'] = facture.Date_Echeance1()
-                    data['Montant_TTC'] = facture.Montant_Facture_TTC()
-                    data['ingeprev'] = ingeprev
-                    if facture.Facture_Avoir == "FA":
-                        data['FA'] = True
-                    else:
-                        data['FA'] = False
-                    data['datefactureliee'] = facture.Date_Facture_Liee()
-                    if adresses_identiques(facture):
-                        data['identiques'] = True
-                    else:
-                        data['identiques'] = False
-                    if adresses_completes_identiques(facture):
-                        data['completes_identiques'] = True
-                    else:
-                        data['completes_identiques'] = False
+                    #Créer le pdf de la facture
+                    creer_pdf_facture(facture, affaire, offre, ingeprev, DOSSIER_PRIVE)
 
-                    source_html = 'bdd/Visualisation_Facture2.html'
-                    fichier = DOSSIER_PRIVE + 'factures/{}.pdf'.format(facture.Numero_Facture)
-                    creer_html_to_pdf(source_html, fichier, data)
-                    facture.Nom_Fichier_Facture = fichier
-                    facture.Fichier_Facture_cree = True
-                    facture.Date_Creation_Fichier_Facture = timezone.now()
-                    facture.save()
-                    #Création du dossier de rangement associé à l'affaire + copie de la facture dedans
+                    #Créer la copie dans facturation par dossier
                     path = Path(DOSSIER_PRIVE + 'facturation_par_dossier/{}'.format(facture.Num_Affaire()))
                     path.mkdir(parents=True, exist_ok=True)
-                    fichier2 = DOSSIER_PRIVE + 'facturation_par_dossier/{}/{}.pdf'.format(facture.Num_Affaire(),facture.Numero_Facture)
-                    creer_html_to_pdf(source_html, fichier2, data)
+                    source = Path(DOSSIER_PRIVE + 'factures/{}.pdf'.format(facture.Numero_Facture))
+                    destination = Path(DOSSIER_PRIVE + 'facturation_par_dossier/{}/{}.pdf'.format(facture.Num_Affaire(),
+                                                                                             facture.Numero_Facture))
+                    shutil.copy(source, destination)
 
                     # Création de l'email d'envoi de la facture prérempli
                     offre = Offre_Mission.objects.get(pk = affaire.ID_Mission_id)
@@ -1225,32 +1134,6 @@ class FactureAdmin(admin.ModelAdmin):
                     pass
             return redirect(".")
 
-        '''
-        if "Apercu_HTML_Facture" in request.POST and request.method == "POST":  #Aperçu du fichier html, rien n'est enregistré
-            if not obj.deja_validee:
-                try:
-                    obj.Remplissage_Facture()
-                    obj.save()
-                except(ValueError, TypeError):
-                    pass
-            facture = get_object_or_404(Facture, pk = obj.pk)
-            affaire = Affaire.objects.get(pk = obj.ID_Affaire_id)
-            ingeprev = Ingeprev.objects.get(Nom='INGEPREV')
-
-            context = {}
-            context['facture'] = facture
-            context['Ref_Affaire'] = affaire.Ref_Affaire
-            context['affaire'] = affaire
-            context['Date_Echeance'] = facture.Date_Echeance1()
-            context['Montant_TTC'] = facture.Montant_Facture_TTC()
-            context['ingeprev'] = ingeprev
-            if facture.Facture_Avoir == "FA":
-                context['FA'] = True
-            else:
-                context['FA'] = False
-            return render(request, 'bdd/Visualisation_Facture2.html', context)
-        '''
-
         if ("Generer_PDF" in request.POST or "Telecharger_PDF" in request.POST or "Apercu_PDF_Facture" in request.POST) and request.method == 'POST':
             #print(obj.Fonction_Nom_Fichier_Facture())
             if not obj.deja_validee:
@@ -1283,6 +1166,14 @@ class FactureAdmin(admin.ModelAdmin):
                 data['completes_identiques'] = True
             else:
                 data['completes_identiques'] = False
+            if facture.Complement_Adresse_Facture == '':
+                data['complementfacture'] = False
+            else:
+                data['complementfacture'] = True
+            if facture.Complement_Adresse_Client == '':
+                data['complementclient'] = False
+            else:
+                data['complementclient'] = True
 
             if "Generer_PDF" in request.POST:  #Crée un fichier .pdf et l'enregistre dans le dossier media (pas celui de MEDIA_ROOT)
                 source_html = 'bdd/Visualisation_Facture2.html'

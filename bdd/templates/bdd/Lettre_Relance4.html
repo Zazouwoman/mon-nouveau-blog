@@ -37,21 +37,32 @@
  <td class="left" valign="top">
 	 <p class="western" align = "left">
          N&deg; de dossier : {{affaire.Ref_Affaire}}
-         <br>
+         <br/>
      Affaire : {{mission.Nom_Mission}}
-                    <br>
+                    </br>
          Adresse :
-         <br>
+         <br/>
          {{mission.Adresse}}
-         <br>{{mission.CP}} {{mission.Ville}}
- </td>
+         {% if complementmission %}
+   <br/>
+   {{mission.Complement_Adresse}}
+   {% endif %}
+         <br/>{{mission.CP}} {{mission.Ville}}
+                </p>
 
- {% if not identiques %}
+
+	 </p>
+ </td>
+    {% if not identiques %}
  <td class="right" valign=top >
      <p class="western" align = "left">
          {{facture.Denomination_Client}}
    <br/>
    {{facture.Adresse_Client}}
+         {% if complementclient %}
+   <br/>
+   {{facture.Complement_Adresse_Client}}
+   {% endif %}
    <br/>
    {{facture.CP_Client}} {{facture.Ville_Client}}
          </p>
@@ -61,6 +72,10 @@
     {{facture.Denomination_Facture}}
    <br>
    {{facture.Adresse_Facture}}
+          {% if complementfacture %}
+   <br/>
+   {{facture.Complement_Adresse_Facture}}
+   {% endif %}
    <br>
    {{facture.CP_Facture}} {{facture.Ville_Facture}}
    <br>
@@ -79,6 +94,10 @@
     {{facture.Denomination_Facture}}
    <br>
    {{facture.Adresse_Facture}}
+         {% if complementfacture %}
+   <br/>
+   {{facture.Complement_Adresse_Facture}}
+   {% endif %}
    <br>
    {{facture.CP_Facture}} {{facture.Ville_Facture}}
    <br>
@@ -173,7 +192,9 @@
         de relance 3
         {% endif %}
         <br>
+        {% if not complementclient or not complementfacture %}
         <br>
+        {% endif %}
     </p>
 </div>
 

@@ -93,6 +93,10 @@
       {{facture.Denomination_Client}}
    <br/>
    {{facture.Adresse_Client}}
+   {% if complementclient %}
+   <br/>
+   {{facture.Complement_Adresse_Client}}
+   {% endif %}
    <br/>
    {{facture.CP_Client}} {{facture.Ville_Client}}
    <br/>
@@ -113,6 +117,10 @@
    {{facture.Denomination_Facture}}
    <br/>
    {{facture.Adresse_Facture}}
+   {% if complementfacture %}
+   <br/>
+   {{facture.Complement_Adresse_Facture}}
+   {% endif %}
    <br/>
    {{facture.CP_Facture}} {{facture.Ville_Facture}}
    <br/>
