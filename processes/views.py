@@ -6,7 +6,7 @@ from django.views.generic.edit import FormView, CreateView
 from django.http import HttpResponse
 from django.views.generic import View
 
-from .processes import LogBackup
+from .models import LogBackup
 import os.path
 
 # Create your views here.
