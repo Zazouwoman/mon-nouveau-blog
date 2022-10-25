@@ -981,7 +981,7 @@ class FactureAdmin(admin.ModelAdmin):
                     message = message_relance(facture)
                     typeaction = 'Relance{}'.format(facture.Num_Relance)
                     idfacture = facture.id
-                    sujet = 'Relance {} Facture Ingeprev'.format(facture.Num_Relance)
+                    sujet = 'Relance {} Facture INGEPREV'.format(facture.Num_Relance)
                     From = settings.DEFAULT_FROM_EMAIL
 
                     if facture.Num_Relance <= 3:
@@ -1104,9 +1104,9 @@ class FactureAdmin(admin.ModelAdmin):
                     typeaction = 'Envoi_Facture'
                     idfacture = facture.id
                     if facture.Facture_Avoir == 'FA':
-                        sujet = 'Facture Ingéprev'
+                        sujet = 'Facture INGEPREV'
                     else:
-                        sujet = 'Avoir Ingéprev'
+                        sujet = 'Avoir INGEPREV'
                     RAR = facture.Num_RAR
                     From = settings.DEFAULT_FROM_EMAIL
                     email = InfoEmail.objects.create(From = From, To=facture.Email_Facture, Message=message, Subject=sujet,
@@ -1144,6 +1144,7 @@ class FactureAdmin(admin.ModelAdmin):
 
             facture = get_object_or_404(Facture, pk=obj.pk)
             affaire = Affaire.objects.get(pk=obj.ID_Affaire_id)
+            offre = Offre_Mission.objects.get(pk=affaire.ID_Mission_id)
             ingeprev = Ingeprev.objects.get(Nom='INGEPREV')
 
             data = {}
@@ -1175,17 +1176,6 @@ class FactureAdmin(admin.ModelAdmin):
             else:
                 data['complementclient'] = True
 
-            if "Generer_PDF" in request.POST:  #Crée un fichier .pdf et l'enregistre dans le dossier media (pas celui de MEDIA_ROOT)
-                source_html = 'bdd/Visualisation_Facture2.html'
-                template = get_template(source_html)
-                html = template.render(data)
-
-                fichier = DOSSIER_TEMP + 'factures{}.pdf'.format(facture.Numero_Facture)
-                write_to_file = open(fichier, "w+b")
-                pisa.CreatePDF(html, dest=write_to_file, link_callback=fetch_resources)
-                write_to_file.close()
-                return redirect('.')
-
             if "Apercu_PDF_Facture" in request.POST:  #ouvre la fenètre de téléchargement de chrome - permet de visualiser la facture avant validation
                 source_html = 'bdd/Visualisation_Facture2.html'
                 filename = '{}.pdf'.format(facture.Numero_Facture)
@@ -1205,20 +1195,6 @@ class FactureAdmin(admin.ModelAdmin):
                 #return HttpResponse(pdf, 'application/pdf')
                 #En rajoutant formtarget="_blank" dans le bouton je force l'ouverture dans un nouvel onglet
 
-            if "Telecharger_PDF" in request.POST:  #ouvre la fenètre de téléchargement de chrome - permet de visualiser la facture avant validation
-                #non utilisé
-                source_html = 'bdd/Visualisation_Facture2.html'
-                filename = '{}.pdf'.format(facture.Numero_Facture)
-                fichier = DOSSIER_TEMP + '{}.pdf'.format(facture.Numero_Facture)
-                template = get_template(source_html)
-                html = template.render(data)
-                write_to_file = open(fichier, "w+b")
-                pisa.CreatePDF(html, dest=write_to_file, link_callback=fetch_resources)
-                write_to_file.seek(0)
-                #pdf = write_to_file.read()
-                write_to_file.close()
-                return FileResponse(open(fichier, 'rb'), as_attachment=True, filename=filename,
-                                    content_type='application/pdf')  # ouvre le fichier dans adobe et le télécharge directement
 
         if "Envoyer_Mail" in request.POST:  #Ouvre la fenêtre d'envoi du mail
             if obj.deja_envoyee:
@@ -1239,9 +1215,9 @@ class FactureAdmin(admin.ModelAdmin):
             typeaction = 'Envoi_Facture'
             idfacture = facture.id
             if facture.Facture_Avoir == "FA":
-                sujet = 'Facture Ingéprev'
+                sujet = 'Facture INGEPREV'
             else:
-                sujet = 'Avoir Ingéprev'
+                sujet = 'Avoir INGEPREV'
             From = settings.DEFAULT_FROM_EMAIL
             if facture.Num_Relance < 5:
                 RAR = facture.Num_RAR
@@ -1276,6 +1252,32 @@ admin.site.register(Ingeprev,IngeprevAdmin)
 #admin.site.disable_action('delete_selected')
 
 '''
+            if "Telecharger_PDF" in request.POST:  #ouvre la fenètre de téléchargement de chrome - permet de visualiser la facture avant validation
+                #non utilisé
+                source_html = 'bdd/Visualisation_Facture2.html'
+                filename = '{}.pdf'.format(facture.Numero_Facture)
+                fichier = DOSSIER_TEMP + '{}.pdf'.format(facture.Numero_Facture)
+                template = get_template(source_html)
+                html = template.render(data)
+                write_to_file = open(fichier, "w+b")
+                pisa.CreatePDF(html, dest=write_to_file, link_callback=fetch_resources)
+                write_to_file.seek(0)
+                #pdf = write_to_file.read()
+                write_to_file.close()
+                return FileResponse(open(fichier, 'rb'), as_attachment=True, filename=filename,
+                                    content_type='application/pdf')  # ouvre le fichier dans adobe et le télécharge directement
+                                    
+            if "Generer_PDF" in request.POST:  #Crée un fichier .pdf et l'enregistre dans le dossier media (pas celui de MEDIA_ROOT)
+                source_html = 'bdd/Visualisation_Facture2.html'
+                template = get_template(source_html)
+                html = template.render(data)
+
+                fichier = DOSSIER_TEMP + 'factures{}.pdf'.format(facture.Numero_Facture)
+                write_to_file = open(fichier, "w+b")
+                pisa.CreatePDF(html, dest=write_to_file, link_callback=fetch_resources)
+                write_to_file.close()
+                return redirect('.')
+
             if "Apercu_PDF_Nouvelle_Fenetre" in request.POST:  #Ouvre le pdf dans une fenêtre Adobe
                 source_html = 'bdd/Visualisation_Facture2.html'
                 template = get_template(source_html)
