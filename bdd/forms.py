@@ -8,10 +8,11 @@ class InfoEmailForm(forms.ModelForm):
     class Meta:
         model = InfoEmail
         #fields = '__all__'
-        fields = ['From','To','Subject','Message']
+        fields = ['From','To','Copie1','Copie2','Copie3','Subject','Message']
 
     def __init__(self, *args, **kwargs):
         super(InfoEmailForm, self).__init__(*args, **kwargs)
+        self.fields['From'].widget.attrs['readonly'] = True
 
     Pieces_Jointes = MultiFileField(label = 'Pièces jointes', min_num=0, max_num=5, max_file_size=1024 * 1024 * 5)
 

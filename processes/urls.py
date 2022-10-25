@@ -9,7 +9,6 @@ from . import views
 #This will import our view that we have already created
 
 urlpatterns = [
-    path('admin/', admin.site.urls),
 	path('lien/backup/<int:id>/',views.lien_backup,name="lien_backup"),
 ] #+ static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 

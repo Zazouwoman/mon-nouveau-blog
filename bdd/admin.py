@@ -359,8 +359,14 @@ class InfoEmailAdmin(admin.ModelAdmin):
             try:
                 attachments = []  # start with an empty list
                 attach_files = Attachment.objects.filter(message_id = obj.pk)
+                copie = ['compta@ingeprev.com']
+                listcopie = [obj.Copie1,obj.Copie2,obj.Copie3]
+                for x in listcopie:
+                    if x != None:
+                        copie.append(x)
+                print(copie)
 
-                email = EmailMessage(Subject, Message, From, [To], ['compta@ingeprev.com'], attachments = attachments)
+                email = EmailMessage(Subject, Message, From, [To], cc=copie, attachments = attachments)
 
                 for attach in attach_files:
                     f = settings.MEDIA_ROOT + attach.file.name

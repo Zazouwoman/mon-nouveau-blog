@@ -831,6 +831,9 @@ class Facture(models.Model):
 class InfoEmail(models.Model):
     From = models.EmailField(max_length=70, verbose_name = 'De')
     To = models.EmailField(max_length=70, verbose_name = 'A')
+    Copie1 = models.EmailField(max_length=70, verbose_name = 'Copie à',null=True,blank=True)
+    Copie2 = models.EmailField(max_length=70, verbose_name='Copie à',null=True,blank=True)
+    Copie3 = models.EmailField(max_length=70, verbose_name='Copie à',null=True,blank=True)
     Subject = models.CharField(max_length = 100, verbose_name = 'Sujet', default = 'Facture Ingeprev')
     Message = models.TextField()
     File = models.FileField(blank = True)
