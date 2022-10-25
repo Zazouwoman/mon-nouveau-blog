@@ -105,8 +105,18 @@ class AttachmentInline(admin.TabularInline):
     #readonly_fields = ['nom', 'pdf', ]
     #fields = ['nom', 'file_link', ]
     #readonly_fields = ['nom', 'file_link', ]
-    fields = ['Num_Facture','nom','pdf']
-    readonly_fields = ['nom', 'pdf', 'Num_Facture']
+    fields = ['Num_Facture', 'nom', 'pdf']
+    readonly_fields = ['Num_Facture','nom','pdf']
+
+    def pdf(self,obj):
+        if obj.id == None:
+            return None
+        else:
+            return mark_safe(
+                "<a href='{}' target='_blank'>PDF</a>".format(reverse('attachment_pdf', args=[obj.id])))
+
+    pdf.allow_tags = True
+
 
     def get_model_perms(self, request, *args, **kwargs):
         if not request.user.is_superuser:
@@ -199,6 +209,14 @@ class InfoEmailAdmin(admin.ModelAdmin):
             extra_context['RAR'] = False
         else:
             extra_context['RAR'] = True
+        if email.Type_Action == 'Test_Email':
+            extra_context['test'] = True
+        else:
+            extra_context['test'] = False
+        if email.Type_Action == 'Renvoi_Facture':
+            extra_context['renvoi'] = True
+        else:
+            extra_context['renvoi'] = False
 
         envoi_facture_form = EnvoiFactureForm(instance = envoifacture)
         #extra_context['facture_form'] = facture_form
@@ -353,12 +371,18 @@ class InfoEmailAdmin(admin.ModelAdmin):
             except BadHeaderError:
                 return HttpResponse("Erreur, l'email n'a pas été envoyé.")
 
-            facture = Facture.objects.get(pk = obj.ID_Facture)
-            num = facture.Num_Relance
-            mise_a_jour_relance(facture, num)
-            facture.save()
+            if obj.Type_Action != 'Test_Email' and obj.Type_Action != 'Renvoi_Facture':
+                facture = Facture.objects.get(pk = obj.ID_Facture)
+                num = facture.Num_Relance
+                mise_a_jour_relance(facture, num)
+                facture.save()
+                messages.add_message(request, messages.INFO, 'Votre email a été envoyé avec succès !!')
+            elif obj.Type_Action =='Test_Email':
+                messages.add_message(request, messages.WARNING, "Email de test envoyé avec succès. Le numéro de relance n'a pas été modifié.")
+            elif obj.Type_Action =='Renvoi_Facture':
+                messages.add_message(request, messages.INFO, "Email Supplémentaire envoyé avec succès !! Conformément à la procédure, pas de modification du numéro de relance.")
+
             obj.delete()
-            messages.add_message(request, messages.INFO, 'Votre email a été envoyé avec succès !!')
             url = '/admin/bdd/facture/'
             return redirect(url)
 
@@ -1234,6 +1258,79 @@ class FactureAdmin(admin.ModelAdmin):
             id = email.pk
             url = '/admin/bdd/infoemail/{}/change'.format(id)
             return redirect(url, pk=email.pk)
+
+        if "Test_Email" in request.POST:  # Ouvre la fenêtre d'envoi du mail
+            facture = get_object_or_404(Facture, pk=obj.pk)
+            affaire = Affaire.objects.get(pk=obj.ID_Affaire_id)
+            offre = Offre_Mission.objects.get(pk=affaire.ID_Mission_id)
+            ingeprev = Ingeprev.objects.get(Nom='INGEPREV')
+
+            # En cas de problème, il faut créer le pdf de la facture
+            if not obj.Fichier_Facture_cree:
+                creer_pdf_facture(facture, affaire, offre, ingeprev, DOSSIER_PRIVE)
+
+            # Création de l'email prérempli
+            message = 'Email de Test'
+            #message_facture(facture, offre)
+            typeaction = 'Test_Email'
+            idfacture = facture.id
+            if facture.Facture_Avoir == "FA":
+                sujet = 'Test Envoi Facture INGEPREV'
+            else:
+                sujet = 'Test Envoi Avoir INGEPREV'
+            From = settings.DEFAULT_FROM_EMAIL
+            To = "gaudy.claire@gmail.com"
+            if facture.Num_Relance < 5:
+                RAR = facture.Num_RAR
+            else:
+                RAR = facture.Num_RAR_Demeure
+            email = InfoEmail.objects.create(From=From, To=To, Message=message,
+                                             Subject=sujet, ID_Facture=idfacture, Type_Action=typeaction, RAR=RAR)
+            email.save()
+
+            chemin = Path(DOSSIER_PRIVE + 'factures/{}.pdf'.format(facture.Numero_Facture))
+            with chemin.open(mode='rb') as f:
+                Attachment.objects.create(file=File(f, name=chemin.name), message=email, nom="Facture")
+
+            id = email.pk
+            url = '/admin/bdd/infoemail/{}/change'.format(id)
+            return redirect(url, pk=email.pk)
+
+        if "Renvoi_Facture" in request.POST:  # Ouvre la fenêtre d'envoi du mail
+            facture = get_object_or_404(Facture, pk=obj.pk)
+            affaire = Affaire.objects.get(pk=obj.ID_Affaire_id)
+            offre = Offre_Mission.objects.get(pk=affaire.ID_Mission_id)
+            ingeprev = Ingeprev.objects.get(Nom='INGEPREV')
+
+            # En cas de problème, il faut créer le pdf de la facture
+            if not obj.Fichier_Facture_cree:
+                creer_pdf_facture(facture, affaire, offre, ingeprev, DOSSIER_PRIVE)
+
+            # Création de l'email prérempli
+            message = message_facture_renvoi(facture, offre)
+            typeaction = 'Renvoi_Facture'
+            idfacture = facture.id
+            if facture.Facture_Avoir == "FA":
+                sujet = 'Renvoi Facture INGEPREV'
+            else:
+                sujet = 'Renvoi Avoir INGEPREV'
+            From = settings.DEFAULT_FROM_EMAIL
+            if facture.Num_Relance < 5:
+                RAR = facture.Num_RAR
+            else:
+                RAR = facture.Num_RAR_Demeure
+            email = InfoEmail.objects.create(From=From, To=facture.Email_Facture, Message=message,
+                                             Subject=sujet, ID_Facture=idfacture, Type_Action=typeaction, RAR=RAR)
+            email.save()
+
+            chemin = Path(DOSSIER_PRIVE + 'factures/{}.pdf'.format(facture.Numero_Facture))
+            with chemin.open(mode='rb') as f:
+                Attachment.objects.create(file=File(f, name=chemin.name), message=email, nom="Facture")
+
+            id = email.pk
+            url = '/admin/bdd/infoemail/{}/change'.format(id)
+            return redirect(url, pk=email.pk)
+
 
         return super().response_change(request, obj)
 

@@ -185,6 +185,24 @@ def message_facture(facture, offre):
     message = civ + '\n\nNous vous prions de trouver ci-joint votre {} n° {} pour la mission de conseil en sécurité incendie sur le site du {} {} {}. \n\nBien cordialement, \n\nPour INGEPREV \n{}'.format(type,facture.Numero_Facture, offre.Adresse, offre.CP, offre.Ville, pilote)
     return message
 
+def message_facture_renvoi(facture, offre):
+    civ = facture.Civilite_Facture
+    if civ == 'M.':
+        civ = 'Monsieur {},'.format(facture.Nom_Facture)
+    elif civ == 'Mme':
+        civ = 'Madame {},'.format(facture.Nom_Facture)
+    else:
+        civ = 'Madame, monsieur,'
+
+    if facture.Facture_Avoir =='FA':
+        type = 'facture'
+    else:
+        type = 'avoir'
+
+    pilote = '{} {}'.format(facture.Prenom_Pilote, facture.Nom_Pilote)
+    message = civ + '\n\nFaisant suite à votre demande, nous vous prions de trouver ci-joint une nouvelle copie de la {} n° {} pour la mission de conseil en sécurité incendie sur le site du {} {} {}. \n\nBien cordialement, \n\nPour INGEPREV \n{}'.format(type,facture.Numero_Facture, offre.Adresse, offre.CP, offre.Ville, pilote)
+    return message
+
 def mise_a_jour_relance(facture, num):  #mise à jour des dates de la facture lors de relance ou envoi facture
     facture.Num_Relance = num + 1
     if num == 0:

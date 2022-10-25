@@ -53,6 +53,14 @@
     <input type="button" value="Fermer Sans Enregistrer" onclick="history.go(-1)">
 </div>
 {% endif %}
+
+{% if relance > 0 %}
+<div class="submit-row" action="">
+    <input type="submit" value="Email de Test" name = "Test_Email"/>
+    <input type="submit" value="Renvoi de la Facture" name = "Renvoi_Facture"/>
+</div>
+{% endif %}
+
 {% endblock %}
 
 {% block submit_buttons_bottom %}

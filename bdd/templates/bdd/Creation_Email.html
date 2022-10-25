@@ -64,7 +64,25 @@ Liste des avoirs li&eacute;s : {% for x in facture.Avoirs_Lies %}{{x}} ; {% endf
 </form>
 {% endif %}
 
-{% if relance == 2 and not Suivi %}
+{% if test %}
+<form action="" method="post" enctype="multipart/form-data">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <input type="submit" value="Envoyer Mail de Test" name = "Envoyer" />
+    <input type="submit" value="Fermer sans envoyer" name = "Fermer"/>
+</form>
+{% endif %}
+
+{% if renvoi  %}
+<form action="" method="post" enctype="multipart/form-data">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <input type="submit" value="Envoyer Mail" name = "Envoyer" />
+    <input type="submit" value="Fermer sans envoyer" name = "Fermer"/>
+</form>
+{% endif %}
+
+{% if relance == 2 and not Suivi and not test %}
 <div class="submit-row" action="">
     {% csrf_token %}
     <input type="submit" value="Valider Suivi" name="Valider_Suivi"/>
@@ -72,7 +90,7 @@ Liste des avoirs li&eacute;s : {% for x in facture.Avoirs_Lies %}{{x}} ; {% endf
 </div>
 {% endif %}
 
-{% if relance == 3 and not RAR %}
+{% if relance == 3 and not RAR and not test %}
 <div class="submit-row" action="">
     {% csrf_token %}
     <input type="submit" value="Valider RAR" name="Valider_RAR"/>
@@ -80,7 +98,7 @@ Liste des avoirs li&eacute;s : {% for x in facture.Avoirs_Lies %}{{x}} ; {% endf
 </div>
 {% endif %}
 
-{% if relance == 4 and not RAR %}
+{% if relance == 4 and not RAR and not test %}
 <div class="submit-row" action="">
     {% csrf_token %}
     <input type="submit" value="Valider RAR" name="Valider_RAR"/>
@@ -88,7 +106,7 @@ Liste des avoirs li&eacute;s : {% for x in facture.Avoirs_Lies %}{{x}} ; {% endf
 </div>
 {% endif %}
 
-{% if relance == 2 and Suivi %}
+{% if relance == 2 and Suivi and not test %}
 <div class="submit-row" action="">
     {% csrf_token %}
     <input type="submit" value="Mettre à jour Suivi" name="Mettre_a_jour_Suivi"/>
@@ -97,7 +115,7 @@ Liste des avoirs li&eacute;s : {% for x in facture.Avoirs_Lies %}{{x}} ; {% endf
 </div>
 {% endif %}
 
-{% if relance == 3 and RAR %}
+{% if relance == 3 and RAR and not test %}
 <div class="submit-row" action="">
     {% csrf_token %}
     <input type="submit" value="Mettre à jour RAR" name="Mettre_a_jour_RAR"/>
@@ -106,7 +124,7 @@ Liste des avoirs li&eacute;s : {% for x in facture.Avoirs_Lies %}{{x}} ; {% endf
 </div>
 {% endif %}
 
-{% if relance == 4 and RAR %}
+{% if relance == 4 and RAR and not test %}
 <div class="submit-row" action="">
     {% csrf_token %}
     <input type="submit" value="Mettre à jour RAR" name="Mettre_a_jour_RAR"/>
@@ -114,11 +132,12 @@ Liste des avoirs li&eacute;s : {% for x in facture.Avoirs_Lies %}{{x}} ; {% endf
     <input type="submit" value="Fermer sans valider" name = "Fermer"/>
 </div>
 {% endif %}
-{% if relance == 5 or relance == 6 %}
+{% if relance == 5 or relance == 6 and not test %}
 <div class="submit-row" action="">
     {% csrf_token %}
     <input type="submit" value="Relance faite" name="Relancer" onclick="return confirm('ATTENTION ! Si vous confirmez avoir fait la relance cela sera enregistré et le logiciel passera à la relance suivante.');" />
     <input type="submit" value="Fermer sans valider" name = "Fermer"/>
 </div>
 {% endif %}
+
 {% endblock %}
