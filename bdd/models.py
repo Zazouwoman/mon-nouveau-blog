@@ -74,6 +74,7 @@ def creer_Envoi_Facture(ID_Client):
     client = Client.objects.get(pk=ID_Client)
     denomination = client.Denomination_Sociale
     adresse = client.Adresse
+    complement_adresse = client.Complement_Adresse
     cp = client.CP
     ville = client.Ville
     civ = client.Civilite
@@ -81,13 +82,16 @@ def creer_Envoi_Facture(ID_Client):
     prenom = client.Prenom_Representant
     tel = client.Tel_Representant
     email = client.Email_Representant
-    qs = Envoi_Facture.objects.filter(Denomination_Sociale=denomination, Adresse=adresse, CP=cp, Ville=ville, Civilite=civ,
+    qs = Envoi_Facture.objects.filter(Denomination_Sociale=denomination, Adresse=adresse,
+                                      Complement_Adresse=complement_adresse,CP=cp, Ville=ville, Civilite=civ,
                                   Nom_Contact=nom, Prenom_Contact=prenom, Tel_Contact=tel, Email_Contact=email,
                                    Mode_Paiement = "VI", Delais_Paiement = 30, Fin_Mois = "Non", Modalites_Paiement = ""   )
     if qs.count() >= 1:
         envoi_facture = qs[0]
     else:
-        envoi_facture = Envoi_Facture.objects.create(Denomination_Sociale=denomination, Adresse=adresse, CP=cp, Ville=ville, Civilite=civ,
+        envoi_facture = Envoi_Facture.objects.create(Denomination_Sociale=denomination, Adresse=adresse,
+                                                     Complement_Adresse=complement_adresse,
+                                                     CP=cp, Ville=ville, Civilite=civ,
                                   Nom_Contact=nom, Prenom_Contact=prenom, Tel_Contact=tel, Email_Contact=email, )
     return envoi_facture
 
@@ -183,6 +187,7 @@ class Client(models.Model):
     Denomination_Sociale = models.CharField(max_length = 150, verbose_name = "Dénomination sociale")
     SIRET = models.CharField(max_length = 50,blank=True, verbose_name = "N° de SIRET")
     Adresse = models.CharField(max_length = 500,blank=True)
+    Complement_Adresse = models.CharField(max_length=500, blank=True)
     CP = models.CharField(validators=[CP_regex], max_length=5, verbose_name='Code postal',blank=True)
     Ville = models.CharField(max_length = 150,blank=True)
     Civilite = models.CharField(blank = True,choices = CiviliteType.choices,max_length = 3)
@@ -233,6 +238,7 @@ class Compteur_Indice(models.Model):
 class Envoi_Offre(models.Model):
     Denomination_Sociale = models.CharField(max_length=50, verbose_name = "Dénomination Sociale")
     Adresse = models.CharField(max_length=500, blank=True)
+    Complement_Adresse = models.CharField(max_length=500, blank=True)
     CP = models.CharField(validators=[CP_regex], max_length=5, verbose_name='Code postal', blank=True)
     Ville = models.CharField(max_length=150, blank=True)
     Civilite = models.CharField(blank=True, choices=CiviliteType.choices, max_length=3)
@@ -254,6 +260,7 @@ class Envoi_Offre(models.Model):
 class Envoi_Facture(models.Model):
     Denomination_Sociale = models.CharField(max_length=150, verbose_name = "Dénomination sociale")
     Adresse = models.CharField(max_length=500, blank = True)
+    Complement_Adresse = models.CharField(max_length=500, blank=True)
     CP = models.CharField(validators=[CP_regex], max_length=5, verbose_name='Code postal', blank = True)
     Ville = models.CharField(max_length=150, blank = True)
     Civilite = models.CharField(blank=True, choices=CiviliteType.choices, max_length=3)
@@ -283,6 +290,7 @@ class Offre_Mission(models.Model):
     Ref_Mission = models.CharField(default = "OM0001",max_length = 50, verbose_name = "Réf. Mission")
     Nom_Mission = models.CharField(max_length = 100, verbose_name = "Nom de la mission")
     Adresse = models.CharField(max_length=500, blank=True)
+    Complement_Adresse = models.CharField(max_length=500, blank=True)
     CP = models.CharField(validators=[CP_regex], max_length=5, verbose_name='Code postal', blank=True)
     Ville = models.CharField(max_length=150, blank=True)
     ID_Payeur = models.ForeignKey(Client,on_delete=models.SET_NULL, related_name='%(class)s_ID_Payeur', blank = True, verbose_name = "Payeur", null = True)
@@ -498,6 +506,7 @@ class Facture(models.Model):
 
     Denomination_Client = models.CharField(max_length=50, verbose_name="Dénomination sociale Client")
     Adresse_Client = models.CharField(max_length=500, blank=True)
+    Complement_Adresse_Client = models.CharField(max_length=500, blank=True)
     CP_Client = models.CharField(validators=[CP_regex], max_length=5, verbose_name='Code postal', blank=True)
     Ville_Client = models.CharField(max_length=150, blank=True)
     Civilite_Client = models.CharField(blank=True, choices=CiviliteType.choices, max_length=3, verbose_name = "Civilité")
@@ -507,6 +516,7 @@ class Facture(models.Model):
 
     Denomination_Facture = models.CharField(max_length=50, verbose_name="Dénomination sociale Facture")
     Adresse_Facture = models.CharField(max_length=500)
+    Complement_Adresse_Facture = models.CharField(max_length=500, blank=True)
     CP_Facture = models.CharField(validators=[CP_regex], max_length=5, verbose_name='Code postal')
     Ville_Facture = models.CharField(max_length=150)
     Civilite_Facture = models.CharField(blank=True, choices=CiviliteType.choices, max_length=3)
@@ -728,11 +738,13 @@ class Facture(models.Model):
     def Date_Relance(self):
         dateecheance1 = self.Date_Echeance1()
         relance = self.Num_Relance
-        daterelance = dateecheance1 + timedelta(days = 30*relance)
+        daterelance = dateecheance1 + timedelta(days = 30*(relance-1))
         if relance == 5:
             daterelance = dateecheance1 + timedelta(days=100)
         elif relance == 6:
             daterelance = dateecheance1 + timedelta(days=220)
+        elif relance == 0:
+            daterelance = 'Facture non envoyée'
         return daterelance
 
     Reste_Affaire.short_description = "Montant de l'affaire qu'il reste à facturer"
@@ -742,6 +754,7 @@ class Facture(models.Model):
         payeur = Client.objects.get(pk=self.ID_Payeur_id)
         self.Denomination_Client = payeur.Denomination_Sociale
         self.Adresse_Client = payeur.Adresse
+        self.Complement_Adresse_Client = payeur.Complement_Adresse
         self.CP_Client = payeur.CP
         self.Ville_Client = payeur.Ville
         self.Civilite_Client = payeur.Civilite
@@ -757,6 +770,7 @@ class Facture(models.Model):
         facture = Envoi_Facture.objects.get(pk=self.ID_Envoi_Facture_id)
         self.Denomination_Facture = facture.Denomination_Sociale
         self.Adresse_Facture = facture.Adresse
+        self.Complement_Adresse_Facture = facture.Complement_Adresse
         self.CP_Facture = facture.CP
         self.Ville_Facture = facture.Ville
         self.Civilite_Facture = facture.Civilite
@@ -783,6 +797,7 @@ class Facture(models.Model):
         payeur = Client.objects.get(pk=self.ID_Payeur_id)
         self.Denomination_Client = payeur.Denomination_Sociale
         self.Adresse_Client = payeur.Adresse
+        self.Complement_Adresse_Client = payeur.Complement_Adresse
         self.CP_Client = payeur.CP
         self.Ville = payeur.Ville
         self.Civilite_Client = payeur.Civilite
@@ -798,6 +813,7 @@ class Facture(models.Model):
         facture = Envoi_Facture.objects.get(pk=self.ID_Envoi_Facture_id)
         self.Denomination_Facture = facture.Denomination_Sociale
         self.Adresse_Facture = facture.Adresse
+        self.Complement_Adresse_Facture = facture.Complement_Adresse
         self.CP_Facture = facture.CP
         self.Ville_Facture = facture.Ville
         self.Civilite_Facture = facture.Civilite
