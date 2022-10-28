@@ -51,7 +51,7 @@ INSTALLED_APPS = [
     'authentification',
     'totalsum',
     'django_cleanup',
-	"processes"
+	"processes",
 ]
 
 X_FRAME_OPTIONS = "SAMEORIGIN"

@@ -13,6 +13,9 @@
         <input type="submit" value="Classer Sans Suite" name="Sans_Suite"
                onclick="return confirm('Confirmez-vous le classement sans suite de l&rsquo;offre de mission ?');" />
     {% endif %}
+    {% if change and not attente %}
+    <input type="submit" value="Retour vers l'Affaire" name="Retour_Affaire">
+    {% endif %}
     <input type="button" value="Fermer Sans Enregistrer" onclick="history.go(-1)">
 </div>
 {% endblock %}

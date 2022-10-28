@@ -12,3 +12,5 @@ PyPDF3
 django-admin-interface
 mysqlclient
 psycopg2-binary
+django-import-export
+django-tabular-export

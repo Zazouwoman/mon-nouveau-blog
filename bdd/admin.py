@@ -4,6 +4,7 @@ from __future__ import unicode_literals
 from pathlib import Path
 from django.core.files import File
 from django.http import FileResponse
+from django.http import HttpResponse, HttpResponseRedirect
 
 from django.utils.safestring import mark_safe
 from django.template.loader import get_template
@@ -26,6 +27,10 @@ from pathlib import Path
 import shutil
 from django.urls import reverse
 
+#from import_export.admin import ExportActionMixin
+from tabular_export.admin import export_to_csv_action, export_to_excel_action, export_to_excel_response
+#J'ai mis dans script l'admin et le core corrigés de tabular_export (erreur form_text et urlquote)
+import csv
 
 from xhtml2pdf import pisa
 
@@ -38,6 +43,8 @@ from decimal import Decimal
 import tempfile
 # Register your models here.
 
+#SECURE_CROSS_ORIGIN_OPENER_POLICY = None
+
 #DOSSIER = 'media/'
 # en mettant media ils sont enregistrés dans F:\media, en mettant '/media/' ils sont enregistrés
 # sur le serveur....
@@ -48,6 +55,9 @@ DOSSIER_PRIVE = settings.MEDIA_ROOT_PRIVE #Nom du dossier privé dans lequel son
 DOSSIER_TEMP = DOSSIER + tempfile.TemporaryDirectory().name
 
 admin.site.site_header = "UMSRA Admin"
+
+#def export_previsionnel_csv(request):
+
 
 #Définition des permissions pour l'affichage ou non dans le menu admin - Choisir entre personne ne voit ou bien seulement les superuse voient
 class IngeprevAdmin(admin.ModelAdmin):
@@ -364,7 +374,6 @@ class InfoEmailAdmin(admin.ModelAdmin):
                 for x in listcopie:
                     if x != None:
                         copie.append(x)
-                print(copie)
 
                 email = EmailMessage(Subject, Message, From, [To], cc=copie, attachments = attachments)
 
@@ -489,12 +498,10 @@ class Offre_MissionAdmin(admin.ModelAdmin):
         messages.add_message(request, messages.WARNING, "Seules les offres non acceptées ont été supprimées.")
 
     def get_form(self, request, obj=None, **kwargs):
-
         if not obj:
             form = Offre_MissionAdminForm
         else:
             form = Offre_MissionForm
-
         return super().get_form(request,**kwargs)
 
     def get_readonly_fields(self, request, obj = None):
@@ -511,7 +518,6 @@ class Offre_MissionAdmin(admin.ModelAdmin):
             extra_context['accepte'] = True
         else:
             extra_context['accepte'] = False
-        print('ici1')
         return super().change_view(request, object_id, extra_context=extra_context)
 
     def response_change(self, request, obj):
@@ -559,6 +565,14 @@ class Offre_MissionAdmin(admin.ModelAdmin):
                 id = affaire.pk
                 url = '/admin/bdd/affaire/{}/change'.format(id)
                 return redirect(url, pk=id)
+
+        if "Retour_Affaire" in request.POST:
+            obj.save()
+            affaire = Affaire.objects.get(ID_Mission_id = obj.id)
+            idaffaire = affaire.pk
+            url = '/admin/bdd/affaire/{}/change'.format(idaffaire)
+            return redirect(url)
+
         return super().response_change(request, obj)
 
 
@@ -637,11 +651,12 @@ class ASolder_Filter(admin.SimpleListFilter):
 
 #class AffaireAdmin(TotalsumAdmin):
 class AffaireAdmin(admin.ModelAdmin):
-    list_display = ("Nom_Affaire", "ID_Payeur", "Honoraires_Global", 'Reste_A_Regler', 'Solde', "Date_Previsionnelle", 'soldee',)
+    list_display = ("Nom_Affaire", "ID_Payeur", "Honoraires_Global", 'Reste_A_Regler', 'Solde', "Premiere_Date_Previsionnelle", 'soldee',)
     search_fields = ("Nom_Affaire__startswith",)
     list_filter = (Previsionnel_Filter, ASolder_Filter, 'ID_Pilote', 'Etat')
     radio_fields = {"Type_Affaire":admin.HORIZONTAL,"Etat":admin.HORIZONTAL}
-    list_editable = ('Date_Previsionnelle','soldee',)
+    #list_editable = ('Date_Previsionnelle','soldee',)
+    list_editable = ('soldee',)
     totalsum_list = ('Honoraires_Global','Reste_A_Regler','Solde',)
     localized_fields = ('Honoraires_Global','Reste_A_Regler',)
     list_per_page = 9
@@ -658,6 +673,12 @@ class AffaireAdmin(admin.ModelAdmin):
 
     class Meta:
         model = Affaire
+
+    def get_actions(self, request):
+        actions = super().get_actions(request)
+        if 'delete_selected' in actions:
+            del actions['delete_selected']
+        return actions
 
     def save_model(self, request,obj,form,change):
         if obj.ID_Envoi_Facture == None and obj.ID_Payeur != None:
@@ -680,12 +701,16 @@ class AffaireAdmin(admin.ModelAdmin):
     def get_readonly_fields(self, request, obj = None):
         if not obj:
             return []
+        elif not obj.previsionnelcree:
+            return ('Descriptif','Affiche_Reste_A_Regler','Adresse','CP','Ville',)
         else:
-            return ('Affiche_Reste_A_Regler','Adresse','CP','Ville',)
+            return ('Descriptif','Premiere_Date_Previsionnelle','Affiche_Reste_A_Regler','Adresse','CP','Ville',)
 
     def get_form(self, request, obj=None, **kwargs):
         if not obj:
             return CreationAffaireForm
+        elif obj.previsionnelcree:
+            return AffaireForm2
         return super().get_form(request, obj, **kwargs)
 
     def get_changelist_form(self, request, **kwargs):
@@ -708,14 +733,40 @@ class AffaireAdmin(admin.ModelAdmin):
             idpilote = affaire.ID_Pilote
             numfacture = 'FA0001'
             refclient = affaire.Ref_Client
+            if not obj.previsionnelcree:
+                obj.creer_previsionnel()
+                obj.save()
+            idprev = obj.id_previsionnel()
             facture = Facture.objects.create(ID_Affaire_id=idaffaire,
                                              ID_Payeur = idpayeur, Nom_Affaire = nomaffaire,
                                              ID_Envoi_Facture = idenvoifacture, ID_Pilote = idpilote,
-                                             Numero_Facture = numfacture,Ref_Client = refclient)
-
+                                             Numero_Facture = numfacture,Ref_Client = refclient,
+                                             ID_Prev_id = idprev)
             id = facture.pk
             url = '/admin/bdd/facture/{}/change'.format(id)
             return redirect(url, pk=id)
+
+        if "Retour_Offre" in request.POST:
+            obj.save()
+            url = '/admin/bdd/offre_mission/{}/change'.format(obj.ID_Mission_id)
+            return redirect(url)
+
+        if "Creer_Previsionnel" in request.POST:
+            try:
+                obj.creer_previsionnel()
+                return redirect('.')
+            except:
+                return redirect('.')
+
+        if "Afficher_Previsionnel" in request.POST:
+            if not obj.previsionnelcree:
+                obj.creer_previsionnel()
+                obj.previsionnelcree = True
+                obj.save()
+            idprev = obj.id_previsionnel()
+            url = '/admin/bdd/previsionnel/{}/change'.format(idprev)
+            return redirect(url)
+
         return super().response_change(request, obj)
 
     def changelist_view(self, request, extra_context=None):
@@ -728,6 +779,7 @@ class AffaireAdmin(admin.ModelAdmin):
         extra_context["unit_of_measure"] = self.unit_of_measure
 
         for elem in self.totalsum_list:
+
             try:
                 self.model._meta.get_field(elem)  # Checking if elem is a field
                 total = filtered_query_set.aggregate(totalsum_field=Sum(elem))["totalsum_field"]
@@ -752,6 +804,216 @@ class AffaireAdmin(admin.ModelAdmin):
 
         response.context_data.update(extra_context)
         return response
+
+class PrevisionnelAdmin(admin.ModelAdmin):
+#class PrevisionnelAdmin(admin.ModelAdmin):
+    actions = ('export_previsionnel_action', 'export_previsionnel_excel_action')
+    aujourdhui = date.today()
+    L, Ldescription = list_display_previsionnel(aujourdhui)
+    list_display = ["Nom_Affaire", ] + L
+    search_fields = ("Nom_Affaire__startswith",)
+    #print(L)
+    #print(Lfonction)
+    #print(Ldescription)
+    #list_display = ("Nom_Affaire","Deja_Facture","Montant_Max_Echeance_En_Cours","Reste_A_Facturer")
+    totalsum_list = L
+    localized_fields = L
+
+    form = PrevisionnelForm
+    formfield_overrides = {models.DecimalField: {
+            'widget': forms.TextInput(attrs={'style': 'text-align:right;', }),
+        },
+    }
+
+    unit_of_measure = ""
+    totalsum_decimal_places = 2
+    #change_list_template = 'bdd/Liste_Previsionnel.html'
+
+    change_form_template = 'bdd/Modification_Previsionnel.html'
+
+    class Meta:
+        model = Previsionnel
+
+    def export_previsionnel_action(self, request, queryset):
+        response = HttpResponse(
+            content_type='text/csv',
+            headers={'Content-Disposition': 'attachment; filename="previsionnel.csv"'},
+        )
+        writer = csv.writer(response)
+        today = date.today()
+        liste_entete = list_entete_previsionnel(today)
+        writer.writerow(liste_entete)
+        for user in queryset:
+            writer.writerow([
+                user.Nom_Affaire(),user.fonction0(), user.fonction1(),user.fonction2(),user.fonction3(),user.fonction4(),
+                user.fonction5(),user.fonction6(),user.fonction7(),user.fonction8(), user.fonction9(),
+                user.fonction10(), user.fonction11(), user.fonction12(), user.fonction13()
+            ])
+        return response
+    export_previsionnel_action.short_description = 'Export Previsionnel csv'
+
+    def export_previsionnel_excel_action(self,request,queryset):
+        today = date.today()
+        liste_entete = list_entete_previsionnel(today)
+        rows=[]
+        for user in queryset:
+            rows.append([
+                user.Nom_Affaire(),user.fonction0(), user.fonction1(),user.fonction2(),user.fonction3(),user.fonction4(),
+                user.fonction5(),user.fonction6(),user.fonction7(),user.fonction8(), user.fonction9(),
+                user.fonction10(), user.fonction11(), user.fonction12(), user.fonction13()
+            ])
+        return export_to_excel_response("previsionnel.xlsx",liste_entete,rows)
+    export_previsionnel_excel_action.short_description = 'Export Previsionnel Excel '
+
+    def get_actions(self, request):
+        actions = super().get_actions(request)
+        if 'delete_selected' in actions:
+            del actions['delete_selected']
+        return actions
+
+    def has_add_permission(self, request):
+        return False
+
+    def get_readonly_fields(self, request, obj = None):
+        if not obj:
+            return []
+        else:
+            return ('Descriptif','Echeance_En_Cours','Montant_Affaire_str','Deja_Facture_str','Reste_A_Facturer_str',)
+
+    def changelist_view(self, request, extra_context=None):
+        response = super(PrevisionnelAdmin, self).changelist_view(request, extra_context)
+        if not hasattr(response, "context_data") or "cl" not in response.context_data:
+            return response
+        filtered_query_set = response.context_data["cl"].queryset
+        extra_context = extra_context or {}
+        extra_context["totals"] = {}
+        extra_context["unit_of_measure"] = self.unit_of_measure
+
+        for elem in self.totalsum_list:
+            try:
+                self.model._meta.get_field(elem)  # Checking if elem is a field
+                total = filtered_query_set.aggregate(totalsum_field=Sum(elem))["totalsum_field"]
+                if total is not None:
+                    extra_context["totals"][
+                        label_for_field(elem, self.model, self)] = round(total, self.totalsum_decimal_places)
+            except FieldDoesNotExist:  # maybe it's a property
+                if hasattr(self.model, elem):
+                    total = 0
+                    for f in filtered_query_set:
+                        try:
+                            total += getattr(f, elem, 0)
+                        except TypeError:
+                            # This allows calculating totals of columns
+                            # that are generated from functions in the model
+                            # by simply calling the function reference that
+                            # getattr returns
+                            total += getattr(f, elem, 0)()
+                    extra_context["totals"][
+                        label_for_field(elem, self.model, self)
+                    ] = round(total, self.totalsum_decimal_places)
+
+        response.context_data.update(extra_context)
+        return response
+
+    def change_view(self,request, object_id, extra_context = None):
+        #facture = Facture.objects.get(pk=object_id)
+        extra_context = extra_context or {}
+        #extra_context['Num_Facture'] = facture.Numero_Facture
+
+        return super().change_view(request, object_id, extra_context = extra_context)
+
+    def response_change(self, request, obj):
+        if "Retour_Affaire" in request.POST:
+            if obj.Reste() < 0:
+                obj.save()
+                obj.Mise_A_Jour_Montant()
+                #previsionnel=Previsionnel.objects.get(pk=obj.id)
+                #Mise_A_Jour_Montant(previsionnel)
+                messages.error(request,
+                           "La somme des montants prévisionnels est supérieure aux honoraires de l'affaire ({} euros). Le dernier montant prévisionnel a été ajusté en conséquence. Validez à nouveau après vérification.".format(
+                               obj.Montant_Affaire()))
+                return redirect('.')
+            if obj.Reste() > 0:
+                obj.save()
+                obj.Mise_A_Jour_Montant()
+                messages.error(request,
+                           "La somme des montants prévisionnels est inférieure aux honoraires de l'affaire ({} euros). Le dernier montant prévisionnel à été ajusté en conséquence. Validez à nouveau après vérification.".format(
+                               obj.Montant_Affaire()))
+                return redirect('.')
+
+            obj.save()
+            idaffaire = obj.ID_Affaire_id
+            url = '/admin/bdd/affaire/{}/change'.format(idaffaire)
+            return redirect(url)
+
+        if "Retour_Previsionnel" in request.POST:
+            if obj.Reste() < 0:
+                obj.save()
+                obj.Mise_A_Jour_Montant()
+                #previsionnel=Previsionnel.objects.get(pk=obj.id)
+                #Mise_A_Jour_Montant(previsionnel)
+                messages.error(request,
+                           "La somme des montants prévisionnels est supérieure aux honoraires de l'affaire ({} euros). Le dernier montant prévisionnel a été ajusté en conséquence. Validez à nouveau après vérification.".format(
+                               obj.Montant_Affaire()))
+                return redirect('.')
+            if obj.Reste() > 0:
+                obj.save()
+                obj.Mise_A_Jour_Montant()
+                messages.error(request,
+                           "La somme des montants prévisionnels est inférieure aux honoraires de l'affaire ({} euros). Le dernier montant prévisionnel à été ajusté en conséquence. Validez à nouveau après vérification.".format(
+                               obj.Montant_Affaire()))
+                return redirect('.')
+            obj.save()
+            url = '/admin/bdd/previsionnel/'
+            return redirect(url)
+
+        if "Verifier_Montant" in request.POST:
+            if obj.Reste() < 0:
+                print('ici2')
+                obj.save()
+                obj.Mise_A_Jour_Montant()
+                #previsionnel=Previsionnel.objects.get(pk=obj.id)
+                #Mise_A_Jour_Montant(previsionnel)
+                messages.error(request,
+                           "La somme des montants prévisionnels est supérieure aux honoraires de l'affaire ({} euros). Le dernier montant prévisionnel a été ajusté en conséquence. Validez à nouveau après vérification.".format(
+                               obj.Montant_Affaire()))
+                return redirect('.')
+            if obj.Reste() > 0:
+                print('ici3')
+                obj.save()
+                obj.Mise_A_Jour_Montant()
+                messages.error(request,
+                           "La somme des montants prévisionnels est inférieure aux honoraires de l'affaire ({} euros). Le dernier montant prévisionnel à été ajusté en conséquence. Validez à nouveau après vérification.".format(
+                               obj.Montant_Affaire()))
+                return redirect('.')
+            messages.info(request,
+                           "La somme des montants prévisionnels est bien égale aux honoraires de l'affaire ({} euros). Vous pouvez maintenant valider sans problème.".format(
+                               obj.Montant_Affaire()))
+            obj.save()
+            url = '/admin/bdd/previsionnel/{}/change'.format(obj.id)
+            return redirect(url)
+
+        if "Retour_Facture" in request.POST: #Ne retourne pas sur la fature
+            if obj.Reste() < 0:
+                obj.save()
+                obj.Mise_A_Jour_Montant()
+                # previsionnel=Previsionnel.objects.get(pk=obj.id)
+                # Mise_A_Jour_Montant(previsionnel)
+                messages.error(request,
+                               "La somme des montants prévisionnels est supérieure aux honoraires de l'affaire ({} euros). Le dernier montant prévisionnel a été ajusté en conséquence. Validez à nouveau après vérification.".format(
+                                   obj.Montant_Affaire()))
+                return redirect('.')
+            if obj.Reste() > 0:
+                obj.save()
+                obj.Mise_A_Jour_Montant()
+                messages.error(request,
+                               "La somme des montants prévisionnels est inférieure aux honoraires de l'affaire ({} euros). Le dernier montant prévisionnel à été ajusté en conséquence. Validez à nouveau après vérification.".format(
+                                   obj.Montant_Affaire()))
+            obj.save()
+            return HttpResponse('.')
+
+        return super().response_change(request, obj)
+
 
 #Filtre des factures à relancer
 class A_Relancer_Filter(admin.SimpleListFilter):
@@ -881,19 +1143,14 @@ class FactureAdmin(admin.ModelAdmin):
                     q_array.append(element.id)
             super().delete_queryset(request, queryset.filter(pk__in=q_array))'''
 
-    def Date_Prev_Affaire_aff(self,obj):
-        return obj.Date_Prev_Affaire().strftime('%d/%m/%Y')
-
-    Date_Prev_Affaire_aff.short_description = "Date prévisionnelle actuelle de l'affaire"
-
     def get_form(self, request, obj=None, **kwargs):
         if not obj:
             self.readonly_fields = ()
             return CreationFactureForm
         elif obj.deja_validee:
-            self.readonly_fields = ('Avoirs_Lies','Montants_Avoirs_Lies','Date_Prev_Affaire', 'Honoraire_Affaire', 'Reste_Affaire', 'Num_Affaire')
+            self.readonly_fields = ('Avoirs_Lies','Montants_Avoirs_Lies','Date_Prev_En_Cours_Affaire', 'Honoraire_Affaire', 'Reste_Affaire', 'Num_Affaire')
             return FactureForm
-        self.readonly_fields = ('Avoirs_Lies','Montants_Avoirs_Lies','Date_Prev_Affaire', 'Honoraire_Affaire', 'Reste_Affaire', 'Num_Affaire')
+        self.readonly_fields = ('Avoirs_Lies','Montants_Avoirs_Lies', 'Honoraire_Affaire', 'Reste_Affaire', 'Num_Affaire')
         return super().get_form(request, obj, **kwargs)
 
     def get_readonly_fields(self, request, obj = None):
@@ -903,7 +1160,7 @@ class FactureAdmin(admin.ModelAdmin):
             return ['Numero_Facture','Nom_Affaire','ID_Payeur','ID_Envoi_Facture','ID_Pilote',
                   'Descriptif','Montant_Facture_HT','Taux_TVA','Solde_Pour_Avoir_Eventuel','Avoirs_Lies','Montants_Avoirs_Lies','Facture_Liee','Date_Facture','Modalites_Paiement']
         elif obj.Num_Relance == 0 and not obj.deja_validee:
-            return ('Date_Prev_Affaire_aff','Honoraire_Affaire', 'Reste_Affaire', 'Num_Affaire','Modalites_Paiement',)
+            return ('Date_Prev_En_Cours_Affaire_aff','Honoraire_Affaire', 'Reste_Affaire', 'Num_Affaire','Modalites_Paiement',)
         else:
             return []
 
@@ -918,6 +1175,9 @@ class FactureAdmin(admin.ModelAdmin):
 
     def change_view(self,request, object_id, extra_context = None):
         facture = Facture.objects.get(pk=object_id)
+        if facture.ID_Prev_id != facture.id_previsionnel():
+            facture.ID_Prev_id = facture.id_previsionnel()
+            facture.save()
         id = facture.ID_Affaire_id
         affaire = Affaire.objects.get(pk=id)
         reste = affaire.Reste_A_Regler()
@@ -954,6 +1214,11 @@ class FactureAdmin(admin.ModelAdmin):
         if "Home" in request.POST and request.method == 'POST':
             return redirect('home')
             #return redirect('/admin/bdd')
+
+        if "Afficher_Previsionnel" in request.POST:
+            idprev = obj.id_previsionnel()
+            url = '/admin/bdd/previsionnel/{}/change'.format(idprev)
+            return redirect(url)
 
         if "Creer_Avoir" in request.POST:
             #print(obj.Nb_Avoir(), obj.Solde_Pour_Avoir_Eventuel())
@@ -1357,6 +1622,7 @@ admin.site.register(Attachment, AttachmentAdmin)
 admin.site.register(Envoi_Facture, EnvoiFactureAdmin)
 admin.site.register(Compteur_Indice, CompteurIndiceAdmin)
 admin.site.register(Ingeprev,IngeprevAdmin)
+admin.site.register(Previsionnel,PrevisionnelAdmin)
 
 #admin.site.disable_action('delete_selected')
 

@@ -9,6 +9,199 @@ from django.shortcuts import redirect
 from .models import *
 import os
 
+def list_display_previsionnel(aujourdhui):
+    L = []
+    Ldescription = []
+    k = 0
+    L.append("fonction{}".format(k))
+    Ldescription.append('antérieures')
+    for k in range(1,13):
+        debut, fin = debut_fin_mois(aujourdhui, k)
+        mois = debut.month
+        annee = debut.year
+        L.append("fonction{}".format(k))
+        Ldescription.append(str(mois) + '-' + str(annee))
+    k = 13
+    L.append("fonction{}".format(k))
+    Ldescription.append('postérieures')
+    return L, Ldescription
+
+def list_entete_previsionnel(aujourdhui):
+    Ldescription = ["Nom Affaire"]
+    k = 0
+    Ldescription.append('antérieures')
+    for k in range(1,13):
+        debut, fin = debut_fin_mois(aujourdhui, k)
+        mois = debut.month
+        annee = debut.year
+        Ldescription.append(str(mois) + '-' + str(annee))
+    k = 13
+    Ldescription.append('postérieures')
+    return Ldescription
+
+'''
+def list_display_previsionnel(aujourdhui):
+    global fonction0, fonction1,fonction2,fonction3,fonction4,fonction5,fonction6,fonction7,fonction8,fonction9,fonction10,fonction11,fonction12
+    L = []
+    Lfonction = []
+    Ldescription = []
+
+    k = 0
+    debut, fin = debut_fin_mois(aujourdhui, k)
+    mois = debut.month
+    annee = debut.year
+    def fonction0(self, obj):
+        debut, fin = debut_fin_mois(aujourdhui, 0)
+        debut = date(2022,9,1)
+        print(debut)
+        return obj.Montant_Entre_Date(debut, fin)
+    L.append("fonction{}".format(k))
+    Lfonction.append(fonction0)
+    Ldescription.append('dates antérieures')
+
+    k = 1
+    debut, fin = debut_fin_mois(aujourdhui, k)
+    mois = debut.month
+    annee = debut.year
+    def fonction1(self, obj):
+        debut, fin = debut_fin_mois(aujourdhui, 1)
+        return obj.Montant_Entre_Date(debut, fin)
+    L.append("fonction{}".format(k))
+    Lfonction.append(fonction1)
+    Ldescription.append(str(mois) + '-' + str(annee))
+
+    k = 2
+    debut, fin = debut_fin_mois(aujourdhui, k)
+    mois = debut.month
+    annee = debut.year
+    def fonction2(self, obj):
+        debut, fin = debut_fin_mois(aujourdhui, 2)
+        return obj.Montant_Entre_Date(debut, fin)
+    L.append("fonction{}".format(k))
+    Lfonction.append(fonction2)
+    Ldescription.append(str(mois) + '-' + str(annee))
+
+    k = 3
+    debut, fin = debut_fin_mois(aujourdhui, k)
+    mois = debut.month
+    annee = debut.year
+    def fonction3(self, obj):
+        debut, fin = debut_fin_mois(aujourdhui, 3)
+        return obj.Montant_Entre_Date(debut, fin)
+    L.append("fonction{}".format(k))
+    Lfonction.append(fonction3)
+    Ldescription.append(str(mois) + '-' + str(annee))
+
+    k = 4
+    debut, fin = debut_fin_mois(aujourdhui, k)
+    mois = debut.month
+    annee = debut.year
+    def fonction4(self, obj):
+        debut, fin = debut_fin_mois(aujourdhui, 4)
+        return obj.Montant_Entre_Date(debut, fin)
+    L.append("fonction{}".format(k))
+    Lfonction.append(fonction4)
+    Ldescription.append(str(mois) + '-' + str(annee))
+
+    k = 5
+    debut, fin = debut_fin_mois(aujourdhui, k)
+    mois = debut.month
+    annee = debut.year
+    def fonction5(self, obj):
+        debut, fin = debut_fin_mois(aujourdhui, 5)
+        return obj.Montant_Entre_Date(debut, fin)
+    L.append("fonction{}".format(k))
+    Lfonction.append(fonction5)
+    Ldescription.append(str(mois) + '-' + str(annee))
+
+    k = 6
+    debut, fin = debut_fin_mois(aujourdhui, k)
+    mois = debut.month
+    annee = debut.year
+    def fonction6(self, obj):
+        debut, fin = debut_fin_mois(aujourdhui, 6)
+        return obj.Montant_Entre_Date(debut, fin)
+    L.append("fonction{}".format(k))
+    Lfonction.append(fonction6)
+    Ldescription.append(str(mois) + '-' + str(annee))
+
+    k = 7
+    debut, fin = debut_fin_mois(aujourdhui, k)
+    mois = debut.month
+    annee = debut.year
+    def fonction7(self, obj):
+        debut, fin = debut_fin_mois(aujourdhui, 7)
+        return obj.Montant_Entre_Date(debut, fin)
+    L.append("fonction{}".format(k))
+    Lfonction.append(fonction7)
+    Ldescription.append(str(mois) + '-' + str(annee))
+
+    k = 8
+    debut, fin = debut_fin_mois(aujourdhui, k)
+    mois = debut.month
+    annee = debut.year
+    def fonction8(self, obj):
+        debut, fin = debut_fin_mois(aujourdhui, 8)
+        return obj.Montant_Entre_Date(debut, fin)
+    L.append("fonction{}".format(k))
+    Lfonction.append(fonction8)
+    Ldescription.append(str(mois) + '-' + str(annee))
+
+    k = 9
+    debut, fin = debut_fin_mois(aujourdhui, k)
+    mois = debut.month
+    annee = debut.year
+    def fonction9(self, obj):
+        debut, fin = debut_fin_mois(aujourdhui, 9)
+        return obj.Montant_Entre_Date(debut, fin)
+    L.append("fonction{}".format(k))
+    Lfonction.append(fonction9)
+    Ldescription.append(str(mois) + '-' + str(annee))
+
+    k = 10
+    debut, fin = debut_fin_mois(aujourdhui, k)
+    mois = debut.month
+    annee = debut.year
+    def fonction10(self, obj):
+        debut, fin = debut_fin_mois(aujourdhui, 10)
+        return obj.Montant_Entre_Date(debut, fin)
+    L.append("fonction{}".format(k))
+    Lfonction.append(fonction10)
+    Ldescription.append(str(mois) + '-' + str(annee))
+
+    k = 11
+    debut, fin = debut_fin_mois(aujourdhui, k)
+    mois = debut.month
+    annee = debut.year
+    def fonction11(self, obj):
+        debut, fin = debut_fin_mois(aujourdhui, 11)
+        return obj.Montant_Entre_Date(debut, fin)
+    L.append("fonction{}".format(k))
+    Lfonction.append(fonction11)
+    Ldescription.append(str(mois) + '-' + str(annee))
+
+    k = 12
+    debut, fin = debut_fin_mois(aujourdhui, 12)
+    mois = debut.month
+    annee = debut.year
+    def fonction12(self, obj):
+        debut, fin = debut_fin_mois(aujourdhui, 12)
+        return obj.Montant_Entre_Date(debut, fin)
+    L.append("fonction{}".format(k))
+    Lfonction.append(fonction12)
+    Ldescription.append(str(mois) + '-' + str(annee))
+
+    return L, Lfonction, Ldescription
+'''
+
+def debut_fin_mois(aujourdhui,k):
+    #k représente le nombre de mois à rajouter
+    mois = aujourdhui.month
+    annee = aujourdhui.year
+    debutmois = date(annee + (mois+k-1) // 12 , (mois + k - 1) % 12 + 1, 1)
+    finmois = date(annee + (mois+k)//12, (mois+k)%12 + 1, 1) - timedelta(days=1)
+    return debutmois,finmois
+
 def creer_pdf_facture(facture,affaire,offre,ingeprev,dossier):
     """Crée le fichier pdf de la facture dans le dossier PRIVE
     Donnée nécessaire : obj,dossier"""

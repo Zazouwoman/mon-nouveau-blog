@@ -2,6 +2,9 @@
 from django import forms
 from multiupload.fields import MultiFileField
 
+from django.contrib.admin.widgets import AdminDateWidget, AdminTimeWidget, RelatedFieldWidgetWrapper
+from django.contrib.admin import site as admin_site
+
 from .models import *
 
 class InfoEmailForm(forms.ModelForm):
@@ -141,15 +144,117 @@ class CreationAffaireForm(forms.ModelForm):
          self.fields['ID_Mission'].queryset = Offre_Mission.objects.filter(Etat="ATT")
 
 class AffaireForm(forms.ModelForm):
+    #Cas où le prévisionnel n'a pas encore été créé
     class Meta:
         model = Affaire
-        exclude = ['soldee','ID_Client_Cache','Type_Dossier','Indice_Dossier','ID_Mission','Etat']
+        exclude = ['soldee','ID_Client_Cache','Type_Dossier','Indice_Dossier','ID_Mission','Etat','previsionnelcree']
         localized_fields = ('Honoraires_Global',)
 
     def __init__(self, *args, **kwargs):
         super(AffaireForm, self).__init__(*args, **kwargs)
         #self.fields['Honoraires_Global_str_'].widget.attrs['readonly'] = True
         self.fields['Ref_Affaire'].widget.attrs['readonly'] = True
+        self.fields['Date_Creation'].widget.attrs['readonly'] = True
+        #self.fields['Date_Creation'].widget.attrs['disabled'] = True
+        #self.fields['Date_Creation'].widget.attrs.update({'required':True})
+
+    def clean(self):
+        cleaned_data=super().clean()
+        datecreation=cleaned_data.get("Date_Creation")
+        date1 = self.initial['Date_Creation']
+        if date1 != datecreation:
+            #self.fields['Date_Creation'] = date1
+            raise ValidationError("La date de création ne doit pas être modifiée. Remettez la date initiale qui est le {}.".format(date1))
+
+class AffaireForm2(forms.ModelForm):
+    #cas où le prévisionnel a été créé
+    class Meta:
+        model = Affaire
+        exclude = ['soldee','ID_Client_Cache','Type_Dossier','Indice_Dossier','ID_Mission','Etat','previsionnelcree','Date_Previsionnelle']
+        localized_fields = ('Honoraires_Global',)
+
+    def __init__(self, *args, **kwargs):
+        super(AffaireForm2, self).__init__(*args, **kwargs)
+        #self.fields['Honoraires_Global_str_'].widget.attrs['readonly'] = True
+        self.fields['Ref_Affaire'].widget.attrs['readonly'] = True
+        self.fields['Date_Creation'].widget.attrs['readonly'] = True
+        #self.fields['Date_Creation'].widget = AdminDateWidget
+        #self.fields['ID_Mission'].widget.attrs['readonly'] = True
+
+class PrevisionnelForm(forms.ModelForm):
+    class Meta:
+        model = Previsionnel
+        fields = '__all__'
+        localized_fields = ('Montant_Previsionnel1','Montant_Previsionnel2','Montant_Previsionnel3','Montant_Previsionnel4','Montant_Previsionnel5','Montant_Previsionnel6','Montant_Previsionnel7',)
+
+    #Numero_Phase_En_Cours = forms.CharField(max_length = 2, label="Numéro de la phase en attente de facturation", required = False)
+
+    def __init__(self, *args, **kwargs):
+        super(PrevisionnelForm, self).__init__(*args, **kwargs)
+        self.fields['ID_Affaire'].widget.attrs['readonly'] = True
+        id=self.initial['ID_Affaire']
+        previsionnel=Previsionnel.objects.get(ID_Affaire_id=id)
+        #self.fields['Numero_Phase_En_Cours'].initial = previsionnel.Echeance_En_Cours()
+        #self.fields['Numero_Phase_En_Cours'].widget.attrs['readonly'] = True
+
+    def clean(self):
+        cleaned_data = super(PrevisionnelForm,self).clean()
+        Ldate = []
+        for k in range(1,8):
+            Ldate.append(cleaned_data.get("Date_Previsionnelle{}".format(k)))
+        Lmontant = []
+        for k in range(1, 8):
+            Lmontant.append(cleaned_data.get("Montant_Previsionnel{}".format(k)))
+        ordre = True
+        for k in range(6):
+            if Ldate[k]!=None and Ldate[k+1]!=None and Ldate[k] > Ldate[k+1]:
+                ordre = False
+        if not ordre:
+            raise ValidationError("Les dates ne sont pas dans l'ordre chronologique. Validation Impossible.")
+        montant = True
+        for k in range(6):
+            if Lmontant[k]==0:
+                for j in range(k+1,7):
+                    if Lmontant[j]!=0:
+                        montant = False
+                        k1,j1 = k+1,j+1
+        if not montant:
+            raise ValidationError(
+                "Le montant prévisionnel {} est non nul alors que le montant prévisionnel {} est nul. Validation impossible. ".format(
+                j1, k1))
+        date1 = True
+        for k in range(7):
+            if Lmontant[k]!=0 and Ldate[k] == None:
+                date1 = False
+                k2 = k+1
+        if not date1:
+            raise ValidationError("La date prévionnelle {} est vide alors que le montant prévisionnel {} est non nul. Validation impossible.".format(k2,k2))
+
+        id = self.initial['ID_Affaire']
+        obj = Previsionnel.objects.get(ID_Affaire_id = id)
+        honoraires = obj.Montant_Affaire()
+        reste = honoraires - sum(Lmontant)
+        '''
+        if reste < 0:
+            obj.save()
+            obj.Mise_A_Jour_Montant()
+            obj.save()
+            cleaned_data['Montant_Previsionnel2']=obj.Montant_Previsionnel2
+            # previsionnel=Previsionnel.objects.get(pk=obj.id)
+            # Mise_A_Jour_Montant(previsionnel)
+            raise ValidationError(
+                           "La somme des montants prévisionnels est supérieure aux honoraires de l'affaire ({} euros). Validation impossible".format(
+                               obj.Montant_Affaire()))
+        if reste > 0:
+            obj.save()
+            obj.Mise_A_Jour_Montant()
+            obj.save()
+            cleaned_data['Montant_Previsionnel2'] = obj.Montant_Previsionnel2
+            #print(obj.Reste(),obj.Montant_Previsionnel2)
+            raise ValidationError(
+                           "La somme des montants prévisionnels est inférieure aux honoraires de l'affaire ({} euros). Validation impossible.".format(
+                               obj.Montant_Affaire()))'''
+        return cleaned_data
 
 class CreationFactureForm(forms.ModelForm):
     class Meta:
@@ -193,7 +298,60 @@ class FactureFormModif(forms.ModelForm):
                   'Descriptif','Montant_Facture_HT','Taux_TVA','Date_Facture','Facture_Liee']
         localized_fields = ('Montant_Facture_HT',)
 
-    Date_Prev = forms.DateField(label="Nouvelle date prévisionnelle de l'affaire", required=False)
+    #Date_Prev = forms.DateField(label="Nouvelle date prévisionnelle de facturation de l'affaire", required=False)
+
+    def __init__(self, *args, **kwargs):
+        super(FactureFormModif, self).__init__(*args, **kwargs)
+        self.fields['Numero_Facture'].widget.attrs['readonly'] = True
+        self.fields['Nom_Affaire'].widget.attrs['readonly'] = True
+        self.fields['ID_Affaire'].widget = forms.HiddenInput()
+        id=self.initial['ID_Affaire']
+        '''
+        try:
+            previsionnel=Previsionnel.objects.get(ID_Affaire_id=id)
+            idprev = previsionnel.id
+            self.fields['Date_Prev'].initial = previsionnel.Prochaine_Date_Previsionnelle()
+        except:
+            affaire = Affaire.objects.get(pk=id)
+            self.fields['Date_Prev'].initial = affaire.Date_Previsionnelle
+        self.fields['Date_Prev'].widget.attrs['readonly'] = True'''
+
+    def clean_sku(self):
+        if self.instance:
+            return self.instance.sku
+        else:
+            return self.fields['sku']
+
+    def save(self, commit=True):
+        instance = super(FactureFormModif, self).save(commit)
+        facture = Facture.objects.get(pk=instance.pk)
+        affaire = Affaire.objects.get(pk=facture.ID_Affaire_id)
+        #nouvdate = self.cleaned_data['Date_Prev']
+        #affaire.Date_Previsionnelle = nouvdate
+        facture.save()
+        affaire.save()
+        instance.save()
+        return instance
+
+'''Si on veut le popup
+class FactureFormModif(forms.ModelForm):
+    class Meta:
+        model = Facture
+        fields = ['Numero_Facture','ID_Affaire','Nom_Affaire','ID_Payeur','ID_Envoi_Facture','Ref_Client','ID_Pilote',
+                  'Descriptif','Montant_Facture_HT','Taux_TVA','Date_Facture','Facture_Liee']
+        localized_fields = ('Montant_Facture_HT',)
+
+    ID_Prev = Facture._meta.get_field('ID_Prev').formfield(
+        widget=RelatedFieldWidgetWrapper(
+            Facture._meta.get_field('ID_Prev').formfield().widget,
+            Facture._meta.get_field('ID_Prev').remote_field,
+            admin_site,
+            can_add_related=False,
+            can_change_related=True,
+        )
+    )
+
+    #Date_Prev = forms.DateField(label="Nouvelle date prévisionnelle de l'affaire", required=False)
 
     def __init__(self, *args, **kwargs):
         super(FactureFormModif, self).__init__(*args, **kwargs)
@@ -201,20 +359,27 @@ class FactureFormModif(forms.ModelForm):
         self.fields['Nom_Affaire'].widget.attrs['readonly'] = True
         #self.fields['Modalites_Paiement'].widget.attrs['readonly'] = True
         self.fields['ID_Affaire'].widget = forms.HiddenInput()
-        id=self.initial['ID_Affaire']
-        affaire=Affaire.objects.get(pk=id)
-        self.fields['Date_Prev'].initial = affaire.Date_Previsionnelle
+        #self.fields['ID_Prev'].widget.attrs['readonly'] = True
+        self.fields['ID_Prev'].widget.attrs['hidden'] = True
+        #self.fields['ID_Prev'].widget.attrs['disabled'] = True
+
+    def clean_sku(self):
+        if self.instance:
+            return self.instance.sku
+        else:
+            return self.fields['sku']
 
     def save(self, commit=True):
         instance = super(FactureFormModif, self).save(commit)
         facture = Facture.objects.get(pk=instance.pk)
         affaire = Affaire.objects.get(pk=facture.ID_Affaire_id)
-        nouvdate = self.cleaned_data['Date_Prev']
-        affaire.Date_Previsionnelle = nouvdate
+        #nouvdate = self.cleaned_data['Date_Prev']
+        #affaire.Date_Previsionnelle = nouvdate
         facture.save()
         affaire.save()
         instance.save()
         return instance
+'''
 
 class VisualisationFactureForm(forms.ModelForm):
     class Meta:

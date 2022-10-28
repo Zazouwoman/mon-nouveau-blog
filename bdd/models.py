@@ -36,6 +36,9 @@ DOSSIER_PRIVE = settings.MEDIA_ROOT_PRIVE #Nom du dossier privé dans lequel son
 #DOSSIER_TEMP = tempfile.TemporaryDirectory().name
 DOSSIER_TEMP = DOSSIER + tempfile.TemporaryDirectory().name
 
+def mois_annee(date):
+    return date.mois,date.year
+
 def formater_tel(tel_int):
     tel_str = str(tel_int)
     numeros = [tel_str[x:x+2] for x in range(0,len(tel_str),2)]
@@ -348,6 +351,7 @@ class Offre_Mission(models.Model):
 
 class Affaire(models.Model):
     soldee = models.BooleanField(default = 'False', verbose_name = "Archivée")  #Pour savoir si l'affaire est soldée
+    previsionnelcree = models.BooleanField(default='False', verbose_name="Prévisionnel Créé")  # Pour savoir si le prévisionnel a été créé
     Type_Dossier = models.CharField(default = "A",max_length = 3)
     Indice_Dossier = models.IntegerField(default = 0,blank=True)
     Ref_Affaire = models.CharField(default = "A0001",max_length = 50, verbose_name = "Réf. Affaire")
@@ -383,6 +387,11 @@ class Affaire(models.Model):
     class Meta:
         ordering = ['Nom_Affaire']
 
+    def Descriptif(self):
+        mission = Offre_Mission.objects.get(pk=self.ID_Mission_id)
+        descriptif = mission.Descriptif
+        return descriptif
+
     def Adresse(self):
         mission = Offre_Mission.objects.get(pk=self.ID_Mission_id)
         adresse = mission.Adresse
@@ -403,6 +412,36 @@ class Affaire(models.Model):
     Adresse.short_description = "Adresse de la Mission"
     CP.short_description = "Code Postal"
     Ville.short_description = "Ville"
+
+    def creer_previsionnel(self):
+        idaffaire = self.pk
+        dateprevisionnelle = self.Date_Previsionnelle
+        if dateprevisionnelle == None:
+            dateprevisionnelle = date.today()
+            #self.Date_Previsionnelle = dateprevisionnelle
+        montant = self.Honoraires_Global
+        previsionnel = Previsionnel.objects.create(ID_Affaire_id = idaffaire,Date_Previsionnelle1 = dateprevisionnelle,
+                                                   Montant_Previsionnel1 = montant)
+        previsionnel.save()
+        self.previsionnelcree = True
+        self.save()
+
+    def id_previsionnel(self):
+        idaffaire = self.pk
+        previsionnel = Previsionnel.objects.get(ID_Affaire_id = idaffaire)
+        idprev = previsionnel.pk
+        return idprev
+
+    def Premiere_Date_Previsionnelle(self):
+        try:
+            idaffaire = self.pk
+            previsionnel = Previsionnel.objects.get(ID_Affaire_id=idaffaire)
+            date = previsionnel.Date_Previsionnelle_En_Cours()
+        except:
+            date = self.Date_Previsionnelle
+        return date
+
+    Premiere_Date_Previsionnelle.short_description = "Première Date Prévisionnelle de Facturation"
 
     def save(self, *args,**kwargs):
         if self.Ref_Affaire == 'A0001':  #Lors de la création de l'affaire, création du numéro, accepation de l'offre, remplissage automatique des champs connus
@@ -431,6 +470,7 @@ class Affaire(models.Model):
                 envoi_facture = creer_Envoi_Facture(self.ID_Payeur_id)
                 idenvoifacture = envoi_facture.id
                 self.ID_Envoi_Facture_id = idenvoifacture
+
         super().save(*args,**kwargs)
 
     def client(self):
@@ -458,6 +498,371 @@ class Affaire(models.Model):
     class Meta:
         verbose_name_plural = "2. Affaires"
 
+class Previsionnel(models.Model):
+    ID_Affaire = models.OneToOneField(Affaire , on_delete=models.CASCADE, verbose_name = "Nom de l'affaire")
+    Date_Previsionnelle1 = models.DateField(blank = True, null = True, default = None, verbose_name = "Date prévisionnelle 1 de facturation")
+    Date_Previsionnelle2 = models.DateField(blank=True, null=True, default=None,
+                                           verbose_name="Date prévisionnelle 2 de facturation")
+    Date_Previsionnelle3 = models.DateField(blank=True, null=True, default=None,
+                                           verbose_name="Date prévisionnelle 3 de facturation")
+    Date_Previsionnelle4 = models.DateField(blank=True, null=True, default=None,
+                                           verbose_name="Date prévisionnelle 4 de facturation")
+    Date_Previsionnelle5 = models.DateField(blank=True, null=True, default=None,
+                                           verbose_name="Date prévisionnelle 5 de facturation")
+    Date_Previsionnelle6 = models.DateField(blank=True, null=True, default=None,
+                                           verbose_name="Date prévisionnelle 6 de facturation")
+    Date_Previsionnelle7 = models.DateField(blank=True, null=True, default=None,
+                                           verbose_name="Date prévisionnelle 7 de facturation")
+    Montant_Previsionnel1 = models.DecimalField(max_digits=12, decimal_places=2, verbose_name = 'Montant prévisionnel 1', default = 0)
+    Montant_Previsionnel2 = models.DecimalField(max_digits=12, decimal_places=2, verbose_name='Montant prévisionnel 2',
+                                                default=0,null=True,blank=True)
+    Montant_Previsionnel3 = models.DecimalField(max_digits=12, decimal_places=2, verbose_name='Montant prévisionnel 3',
+                                                default=0,null=True,blank=True)
+    Montant_Previsionnel4 = models.DecimalField(max_digits=12, decimal_places=2, verbose_name='Montant prévisionnel 4',
+                                                default=0,null=True,blank=True)
+    Montant_Previsionnel5 = models.DecimalField(max_digits=12, decimal_places=2, verbose_name='Montant prévisionnel 5',
+                                                default=0,null=True,blank=True)
+    Montant_Previsionnel6 = models.DecimalField(max_digits=12, decimal_places=2, verbose_name='Montant prévisionnel 6',
+                                                default=0,null=True,blank=True)
+    Montant_Previsionnel7 = models.DecimalField(max_digits=12, decimal_places=2, verbose_name='Montant prévisionnel 7',
+                                                default=0,null=True,blank=True)
+
+    def aujourdhui(self):
+        return date.today()
+
+    def fonction0(self):
+        debut, fin = debut_fin_mois(self.aujourdhui(), 0)
+        return self.Anterieur_Date(fin)
+    def fonction1(self):
+        debut, fin = debut_fin_mois(self.aujourdhui(), 1)
+        return self.Montant_Entre_Date(debut, fin)
+    def fonction2(self):
+        debut, fin = debut_fin_mois(self.aujourdhui(), 2)
+        return self.Montant_Entre_Date(debut, fin)
+    def fonction3(self):
+        debut, fin = debut_fin_mois(self.aujourdhui(), 3)
+        return self.Montant_Entre_Date(debut, fin)
+    def fonction4(self):
+        debut, fin = debut_fin_mois(self.aujourdhui(), 4)
+        return self.Montant_Entre_Date(debut, fin)
+    def fonction5(self):
+        debut, fin = debut_fin_mois(self.aujourdhui(), 5)
+        return self.Montant_Entre_Date(debut, fin)
+    def fonction6(self):
+        debut, fin = debut_fin_mois(self.aujourdhui(), 6)
+        return self.Montant_Entre_Date(debut, fin)
+    def fonction7(self):
+        debut, fin = debut_fin_mois(self.aujourdhui(), 7)
+        return self.Montant_Entre_Date(debut, fin)
+    def fonction8(self):
+        debut, fin = debut_fin_mois(self.aujourdhui(), 8)
+        return self.Montant_Entre_Date(debut, fin)
+    def fonction9(self):
+        debut, fin = debut_fin_mois(self.aujourdhui(), 9)
+        return self.Montant_Entre_Date(debut, fin)
+    def fonction10(self):
+        debut, fin = debut_fin_mois(self.aujourdhui(), 10)
+        return self.Montant_Entre_Date(debut, fin)
+    def fonction11(self):
+        debut, fin = debut_fin_mois(self.aujourdhui(), 11)
+        return self.Montant_Entre_Date(debut, fin)
+    def fonction12(self):
+        debut, fin = debut_fin_mois(self.aujourdhui(), 12)
+        return self.Montant_Entre_Date(debut, fin)
+    def fonction13(self):
+        debut, fin = debut_fin_mois(self.aujourdhui(), 13)
+        return self.Posterieur_Date(debut)
+
+    today = date.today()
+    L, Ldescription = list_display_previsionnel(today)
+    k = 0
+    fonction0.short_description = Ldescription[k]
+    k = 1
+    fonction1.short_description = Ldescription[k]
+    k = 2
+    fonction2.short_description = Ldescription[k]
+    k = 3
+    fonction3.short_description = Ldescription[k]
+    k = 4
+    fonction4.short_description = Ldescription[k]
+    k = 5
+    fonction5.short_description = Ldescription[k]
+    k = 6
+    fonction6.short_description = Ldescription[k]
+    k = 7
+    fonction7.short_description = Ldescription[k]
+    k = 8
+    fonction8.short_description = Ldescription[k]
+    k = 9
+    fonction9.short_description = Ldescription[k]
+    k = 10
+    fonction10.short_description = Ldescription[k]
+    k = 11
+    fonction11.short_description = Ldescription[k]
+    k = 12
+    fonction12.short_description = Ldescription[k]
+    k = 13
+    fonction13.short_description = Ldescription[k]
+
+    def Nom_Affaire(self):
+        idaffaire = self.ID_Affaire_id
+        affaire = Affaire.objects.get(pk = idaffaire)
+        return affaire.Nom_Affaire
+
+    def Descriptif(self):
+        idaffaire = self.ID_Affaire_id
+        affaire = Affaire.objects.get(pk = idaffaire)
+        descriptif = affaire.Descriptif()
+        return descriptif
+
+    def Montant_Affaire(self):
+        idaffaire = self.ID_Affaire_id
+        affaire = Affaire.objects.get(pk = idaffaire)
+        honoraires = affaire.Honoraires_Global
+        return honoraires
+
+    def Montant_Affaire_str(self):
+        nombre = self.Montant_Affaire()
+        return '{:,.2f}'.format(nombre).replace(',', ' ').replace('.', ',')
+    Montant_Affaire_str.short_description = "Honoraires de l'Affaire"
+
+    def Reste_A_Facturer(self):
+        idaffaire = self.ID_Affaire_id
+        affaire = Affaire.objects.get(pk=idaffaire)
+        return affaire.Reste_A_Regler()
+
+    def Reste_A_Facturer_str(self):
+        nombre = self.Reste_A_Facturer()
+        return '{:,.2f}'.format(nombre).replace(',', ' ').replace('.', ',')
+    Reste_A_Facturer_str.short_description = "Reste à Facturer"
+
+    def Deja_Facture(self):
+        idaffaire = self.ID_Affaire_id
+        affaire = Affaire.objects.get(pk=idaffaire)
+        honoraires = affaire.Honoraires_Global
+        resteafacturer = affaire.Reste_A_Regler()
+        return honoraires - resteafacturer
+
+    def Deja_Facture_str(self):
+        nombre = self.Deja_Facture()
+        return '{:,.2f}'.format(nombre).replace(',', ' ').replace('.', ',')
+    Deja_Facture_str.short_description = "Déjà facturé"
+
+    def Liste_Montants(self):
+        L = [self.Montant_Previsionnel1, self.Montant_Previsionnel2, self.Montant_Previsionnel3, self.Montant_Previsionnel4,
+             self.Montant_Previsionnel5, self.Montant_Previsionnel6, self.Montant_Previsionnel7]
+        return L
+
+    def Liste_Montant_Cumules(self):
+        L = self.Liste_Montants()
+        LC = [L[0]]
+        montantcumule = L[0]
+        for k in range(1,len(L)):
+            montantcumule += L[k]
+            LC.append(montantcumule)
+        return LC
+
+    def Liste_Montant_Non_Factures(self):
+        Linit = self.Liste_Montants()
+        LC = self.Liste_Montant_Cumules()
+        k = self.Echeance_En_Cours()-1
+        LNonFacture = []
+        for i in range(k):
+            LNonFacture.append(0)
+        valk = LC[k] - self.Deja_Facture()
+        LNonFacture.append(valk)
+        for i in range(k+1,len(Linit)):
+            LNonFacture.append(Linit[i])
+        return LNonFacture
+
+    def Reste(self):
+        idaffaire = self.ID_Affaire_id
+        affaire = Affaire.objects.get(pk = idaffaire)
+        honoraires = affaire.Honoraires_Global
+        montant = sum(self.Liste_Montants())
+        reste = honoraires - montant
+        return reste
+
+    def Dernier_Montant_Non_Nul(self):
+        #Renvoie le numéro (pas l'indice dans L) du dernier montant non nul, 7 si aucun montant n'est non nul.
+        L = self.Liste_Montants()
+        for i in range(1,len(L)):
+            if L[i] == 0:
+                return i
+        return len(L)
+
+    def Echeance_En_Cours(self): #Renvoie k+1 tel que LC[k] <= dejaregle < LC[k+1]
+        #si ça renvoie 1 ça veut dire que, compte tenu des factures déjà créées,
+        #la phase en cours est DateEcheance1 avec MontantEcheance1
+        LC = self.Liste_Montant_Cumules()
+        idaffaire = self.ID_Affaire_id
+        affaire = Affaire.objects.get(pk=idaffaire)
+        restefacturer = affaire.Reste_A_Regler()
+        dejaregle = affaire.Honoraires_Global - restefacturer
+        k = 0
+        while k < len(LC) and dejaregle >= LC[k]:
+            if dejaregle >= LC[k]:
+                k += 1
+        if k < 7:
+            return k + 1
+        elif k==7:
+            return 7
+
+    Echeance_En_Cours.short_description = "Numéro Phase Prévisionnelle en Cours"
+
+    def Liste_Dates(self):
+        L = [self.Date_Previsionnelle1, self.Date_Previsionnelle2, self.Date_Previsionnelle3, self.Date_Previsionnelle4,
+             self.Date_Previsionnelle5, self.Date_Previsionnelle6, self.Date_Previsionnelle7]
+        return L
+
+    def Montant_Entre_Date(self,date1,date2):
+        LMontant = self.Liste_Montant_Non_Factures()
+        Ldate = self.Liste_Dates()
+        total = 0
+        for k in range(len(LMontant)):
+            montant = LMontant[k]
+            date = Ldate[k]
+            if date != None and date1 <= date <= date2:
+                total += montant
+        return total
+
+    def Posterieur_Date(self,date1):
+        LMontant = self.Liste_Montant_Non_Factures()
+        Ldate = self.Liste_Dates()
+        total = 0
+        for k in range(len(LMontant)):
+            montant = LMontant[k]
+            date = Ldate[k]
+            if date != None and date1 <= date:
+                total += montant
+        return total
+
+    def Anterieur_Date(self,date2):
+        LMontant = self.Liste_Montant_Non_Factures()
+        Ldate = self.Liste_Dates()
+        total = 0
+        for k in range(len(LMontant)):
+            montant = LMontant[k]
+            date = Ldate[k]
+            if date != None and date <= date2:
+                total += montant
+        return total
+
+    def Montant_Mois(self,mois,annee):
+        date1 = date(annee,mois,1)
+        date2 = date(annee,mois,30)
+        return self.Montant_Entre_Date(date1,date2)
+
+    def Date_Previsionnelle_En_Cours(self):
+        k = self.Echeance_En_Cours()
+        L = self.Liste_Dates()
+        return L[k-1]
+
+    def Montant_Max_Echeance_En_Cours(self):
+        k = self.Echeance_En_Cours()
+        LC = self.Liste_Montant_Cumules()
+        dejaregle = self.Deja_Facture()
+        montantmax = LC[k-1] - dejaregle
+        return montantmax
+
+    def Prochaine_Date_Previsionnelle(self):
+        k = self.Echeance_En_Cours()
+        L = self.Liste_Dates()
+        #print(L)
+        #print(k)
+        if k<7:
+            return L[k]
+        else:
+            return L[6]
+
+    def Mise_A_Jour_Date(self,date):
+        k = self.Echeance_En_Cours()
+        if k == 1:
+            self.Date_Previsionnelle1 = date
+        elif k == 2:
+            self.Date_Previsionnelle2 = date
+        elif k == 3:
+            self.Date_Previsionnelle3 = date
+        elif k == 4:
+            self.Date_Previsionnelle4 = date
+        elif k == 5:
+            self.Date_Previsionnelle5 = date
+        elif k == 6:
+            self.Date_Previsionnelle6 = date
+        elif k == 7:
+            self.Date_Previsionnelle7 = date
+        self.save()
+
+    def Mise_A_Jour_Montant(self):
+        k = self.Dernier_Montant_Non_Nul()
+        reste = self.Reste()
+        if reste > 0:
+            if k == 1:
+                self.Montant_Previsionnel2 += reste
+                self.Date_Previsionnelle2 = self.Date_Previsionnelle1
+            elif k == 2:
+                self.Montant_Previsionnel3 += reste
+                self.Date_Previsionnelle3 = self.Date_Previsionnelle2
+            elif k == 3:
+                self.Montant_Previsionnel4 += reste
+                self.Date_Previsionnelle4 = self.Date_Previsionnelle3
+            elif k == 4:
+                self.Montant_Previsionnel5 += reste
+                self.Date_Previsionnelle5 = self.Date_Previsionnelle4
+            elif k == 5:
+                self.Montant_Previsionnel6 += reste
+                self.Date_Previsionnelle6 = self.Date_Previsionnelle5
+            elif k == 6:
+                self.Montant_Previsionnel7 += reste
+                self.Date_Previsionnelle7 = self.Date_Previsionnelle6
+            elif k == 7:
+                self.Montant_Previsionnel7 += reste
+            self.save()
+        if reste < 0:
+            if k == 1:
+                self.Montant_Previsionnel1 += reste
+            elif k == 2:
+                self.Montant_Previsionnel2 += reste
+            elif k == 3:
+                self.Montant_Previsionnel3 += reste
+            elif k == 4:
+                self.Montant_Previsionnel4 += reste
+            elif k == 5:
+                self.Montant_Previsionnel5 += reste
+            elif k == 6:
+                self.Montant_Previsionnel6 += reste
+            elif k == 7:
+                self.Montant_Previsionnel7 += reste
+            self.save()
+        k = self.Dernier_Montant_Non_Nul()
+        Lmontant = self.Liste_Montants()
+        if Lmontant[k-1] < 0:
+            if k == 1:
+                self.Montant_Previsionnel1 = 0
+            elif k == 2:
+                self.Montant_Previsionnel2 = 0
+            elif k == 3:
+                self.Montant_Previsionnel3 = 0
+            elif k == 4:
+                self.Montant_Previsionnel4 = 0
+            elif k == 5:
+                self.Montant_Previsionnel5 = 0
+            elif k == 6:
+                self.Montant_Previsionnel6 = 0
+            elif k == 7:
+                self.Montant_Previsionnel7 = 0
+            self.save()
+            self.Mise_A_Jour_Montant()
+
+    def save(self, *args, **kwargs):
+        affaire = Affaire.objects.get(id=self.ID_Affaire_id)
+        affaire.Date_Previsionnelle = self.Date_Previsionnelle_En_Cours()
+        affaire.save()
+        super().save(*args, **kwargs)
+
+    class Meta:
+        verbose_name_plural = "7. Previsionnel"
+
 class Facture(models.Model):
     deja_validee = models.BooleanField(default = False, verbose_name = 'Validée') #Pour savoir si la facture a déjà été validée
     deja_envoyee = models.BooleanField(default = False, verbose_name = 'Envoyée') #Pour savoir si la facture a déjà été envoyée par mail
@@ -466,6 +871,7 @@ class Facture(models.Model):
     Numero_Facture = models.CharField(default = "",max_length = 50, verbose_name = "Numéro de facture", blank = True)
     Indice_Facture = models.IntegerField(default = 0,blank=True)
     ID_Affaire  = models.ForeignKey(Affaire , on_delete=models.CASCADE, verbose_name = "Nom de l'affaire")
+    ID_Prev = models.ForeignKey(Previsionnel , on_delete=models.SET_NULL, verbose_name = "Prévisionnel de l'affaire", null = True, blank = True)
     Nom_Affaire = models.CharField(max_length = 100, verbose_name = "Nom de l'Affaire", blank = True, null = True)
     ID_Payeur = models.ForeignKey(Client,on_delete=models.SET_NULL, null = True,verbose_name = "Payeur")
     ID_Envoi_Facture = models.ForeignKey(Envoi_Facture, on_delete=models.CASCADE,
@@ -546,6 +952,21 @@ class Facture(models.Model):
 
     class Meta:
         verbose_name_plural = "3. Factures"
+
+    '''def Mettre_A_Jour_Previsionnel(self):
+        try:
+            previsionnel = Previsionnel.objects.get(ID_Affaire_id=self.ID_Affaire_id)
+            k_avant_facture = previsionnel.Echeance_En_Cours()
+      '''
+
+    def id_previsionnel(self):
+        idaffaire = self.ID_Affaire_id
+        affaire = Affaire.objects.get(pk=idaffaire)
+        if not affaire.previsionnelcree:
+            affaire.creer_previsionnel()
+        previsionnel = Previsionnel.objects.get(ID_Affaire_id = idaffaire)
+        idprev = previsionnel.pk
+        return idprev
 
     def pdf(self):
         if not self.deja_validee:
@@ -712,6 +1133,24 @@ class Facture(models.Model):
         affaire = Affaire.objects.get(pk=self.ID_Affaire_id)
         return affaire.Date_Previsionnelle
 
+    def Date_Prev_Affaire_aff(self):
+        return self.Date_Prev_Affaire().strftime('%d/%m/%Y')
+
+    Date_Prev_Affaire_aff.short_description = "Date prévisionnelle actuelle de l'affaire"
+
+    def Date_Prev_En_Cours_Affaire(self):
+        try:
+            previsionnel = Previsionnel.objects.get(ID_Affaire=self.ID_Affaire_id)
+            return previsionnel.Date_Previsionnelle_En_Cours()
+        except:  #cas où le prévisionnel n'a pas encore été créé
+            affaire = Affaire.objects.get(pk=self.ID_Affaire_id)
+            return affaire.Date_Previsionnelle
+
+    def Date_Prev_En_Cours_Affaire_aff(self):
+        return self.Date_Prev_En_Cours_Affaire().strftime('%d/%m/%Y')
+
+    Date_Prev_En_Cours_Affaire_aff.short_description = "Date prévisionnelle actuelle de l'affaire"
+
     def Num_Affaire(self):
         affaire = Affaire.objects.get(pk=self.ID_Affaire_id)
         return affaire.Ref_Affaire
@@ -727,12 +1166,11 @@ class Facture(models.Model):
     def Date_Echeance1(self):
         if self.Fin_Mois == "Non":
             echeance = self.Date_Facture + timedelta(days=self.Delais_Paiement)
-        elif self.Fin_Mois == "Oui":
-            echeance1 = self.Date_Facture + timedelta(days=self.Delais_Paiement)
-            premier = date(echeance1.year, echeance1.month, 1)
-            dernier = premier + relativedelta(months=1, days=-1)  #date 30 jours fin du mois suivant
-            date2 = self.Date_Facture + timedelta(45)   #date 45 jours après date facture
-            echeance = min(dernier,date2)
+        elif self.Fin_Mois == "Oui": #Ici on est forcément à 30 jours fin de mois
+            datefacture = self.Date_Facture
+            premier = datefacture + timedelta(30)
+            debut,fin = debut_fin_mois(premier)
+            echeance = fin
         return echeance
 
     def Date_Relance(self):
