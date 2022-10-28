@@ -658,7 +658,10 @@ class Previsionnel(models.Model):
         LC = [L[0]]
         montantcumule = L[0]
         for k in range(1,len(L)):
-            montantcumule += L[k]
+            if L[k] != None:
+                montantcumule += L[k]
+            else:
+                montantcumule += 0
             LC.append(montantcumule)
         return LC
 
@@ -679,7 +682,11 @@ class Previsionnel(models.Model):
         idaffaire = self.ID_Affaire_id
         affaire = Affaire.objects.get(pk = idaffaire)
         honoraires = affaire.Honoraires_Global
-        montant = sum(self.Liste_Montants())
+        montant = 0
+        Lmontant = self.Liste_Montants()
+        for x in Lmontant:
+            if x !=None:
+                montant += x
         reste = honoraires - montant
         return reste
 
@@ -798,41 +805,89 @@ class Previsionnel(models.Model):
         reste = self.Reste()
         if reste > 0:
             if k == 1:
-                self.Montant_Previsionnel2 += reste
-                self.Date_Previsionnelle2 = self.Date_Previsionnelle1
+                if self.Montant_Previsionnel2 != None:
+                    self.Montant_Previsionnel2 += reste
+                else:
+                    self.Montant_Previsionnel2 = reste
+                if self.Date_Previsionnelle2 == None:
+                    self.Date_Previsionnelle2 = self.Date_Previsionnelle1
             elif k == 2:
-                self.Montant_Previsionnel3 += reste
-                self.Date_Previsionnelle3 = self.Date_Previsionnelle2
+                if self.Montant_Previsionnel3 != None:
+                    self.Montant_Previsionnel3 += reste
+                else:
+                    self.Montant_Previsionnel3 = reste
+                if self.Date_Previsionnelle3 == None:
+                    self.Date_Previsionnelle3 = self.Date_Previsionnelle2
             elif k == 3:
-                self.Montant_Previsionnel4 += reste
-                self.Date_Previsionnelle4 = self.Date_Previsionnelle3
+                if self.Montant_Previsionnel4 != None:
+                    self.Montant_Previsionnel4 += reste
+                else:
+                    self.Montant_Previsionnel4 = reste
+                if self.Date_Previsionnelle4 == None:
+                    self.Date_Previsionnelle4 = self.Date_Previsionnelle3
             elif k == 4:
-                self.Montant_Previsionnel5 += reste
-                self.Date_Previsionnelle5 = self.Date_Previsionnelle4
+                if self.Montant_Previsionnel5 != None:
+                    self.Montant_Previsionnel5 += reste
+                else:
+                    self.Montant_Previsionnel5 = reste
+                if self.Date_Previsionnelle5 == None:
+                    self.Date_Previsionnelle5 = self.Date_Previsionnelle4
             elif k == 5:
-                self.Montant_Previsionnel6 += reste
-                self.Date_Previsionnelle6 = self.Date_Previsionnelle5
+                if self.Montant_Previsionnel6 != None:
+                    self.Montant_Previsionnel6 += reste
+                else:
+                    self.Montant_Previsionnel6 = reste
+                if self.Date_Previsionnelle6 == None:
+                    self.Date_Previsionnelle6 = self.Date_Previsionnelle5
             elif k == 6:
-                self.Montant_Previsionnel7 += reste
-                self.Date_Previsionnelle7 = self.Date_Previsionnelle6
+                if self.Montant_Previsionnel7 != None:
+                    self.Montant_Previsionnel7 += reste
+                else:
+                    self.Montant_Previsionnel7 = reste
+                if self.Date_Previsionnelle7 == None:
+                    self.Date_Previsionnelle7 = self.Date_Previsionnelle6
             elif k == 7:
-                self.Montant_Previsionnel7 += reste
+                if self.Montant_Previsionnel7 != None:
+                    self.Montant_Previsionnel8 += reste
+                else:
+                    self.Montant_Previsionnel7 = reste
             self.save()
         if reste < 0:
             if k == 1:
-                self.Montant_Previsionnel1 += reste
+                if self.Montant_Previsionnel1 != None:
+                    self.Montant_Previsionnel1 += reste
+                else:
+                    self.Montant_Previsionnel1 = reste
             elif k == 2:
-                self.Montant_Previsionnel2 += reste
+                if self.Montant_Previsionnel2 != None:
+                    self.Montant_Previsionnel2 += reste
+                else:
+                    self.Montant_Previsionnel2 = reste
             elif k == 3:
-                self.Montant_Previsionnel3 += reste
+                if self.Montant_Previsionnel3 != None:
+                    self.Montant_Previsionnel3 += reste
+                else:
+                    self.Montant_Previsionnel3 = reste
             elif k == 4:
-                self.Montant_Previsionnel4 += reste
+                if self.Montant_Previsionnel4 != None:
+                    self.Montant_Previsionnel4 += reste
+                else:
+                    self.Montant_Previsionnel4 = reste
             elif k == 5:
-                self.Montant_Previsionnel5 += reste
+                if self.Montant_Previsionnel5 != None:
+                    self.Montant_Previsionnel5 += reste
+                else:
+                    self.Montant_Previsionnel5 = reste
             elif k == 6:
-                self.Montant_Previsionnel6 += reste
+                if self.Montant_Previsionnel6 != None:
+                    self.Montant_Previsionnel6 += reste
+                else:
+                    self.Montant_Previsionnel6 = reste
             elif k == 7:
-                self.Montant_Previsionnel7 += reste
+                if self.Montant_Previsionnel7 != None:
+                    self.Montant_Previsionnel7 += reste
+                else:
+                    self.Montant_Previsionnel7 = reste
             self.save()
         k = self.Dernier_Montant_Non_Nul()
         Lmontant = self.Liste_Montants()

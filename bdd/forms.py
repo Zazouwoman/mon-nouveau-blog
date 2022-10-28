@@ -229,12 +229,12 @@ class PrevisionnelForm(forms.ModelForm):
                 k2 = k+1
         if not date1:
             raise ValidationError("La date prévionnelle {} est vide alors que le montant prévisionnel {} est non nul. Validation impossible.".format(k2,k2))
-
+        '''
         id = self.initial['ID_Affaire']
         obj = Previsionnel.objects.get(ID_Affaire_id = id)
         honoraires = obj.Montant_Affaire()
         reste = honoraires - sum(Lmontant)
-        '''
+
         if reste < 0:
             obj.save()
             obj.Mise_A_Jour_Montant()
