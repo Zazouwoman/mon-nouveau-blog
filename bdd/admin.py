@@ -810,7 +810,7 @@ class PrevisionnelAdmin(admin.ModelAdmin):
     actions = ('export_previsionnel_action', 'export_previsionnel_excel_action')
     aujourdhui = date.today()
     L, Ldescription = list_display_previsionnel(aujourdhui)
-    list_display = ["Nom_Affaire", ] + L
+    list_display = ["Nom_Affaire", "Montant_Affaire", "Deja_Facture" ] + L
     search_fields = ("Nom_Affaire__startswith",)
     #print(L)
     #print(Lfonction)
