@@ -827,7 +827,7 @@ class PrevisionnelAdmin(admin.ModelAdmin):
 
     unit_of_measure = ""
     totalsum_decimal_places = 2
-    #change_list_template = 'bdd/Liste_Previsionnel.html'
+    change_list_template = 'bdd/Liste_Previsionnel.html'
 
     change_form_template = 'bdd/Modification_Previsionnel.html'
 
