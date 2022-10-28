@@ -27,7 +27,7 @@ def list_display_previsionnel(aujourdhui):
     return L, Ldescription
 
 def list_entete_previsionnel(aujourdhui):
-    Ldescription = ["Nom Affaire"]
+    Ldescription = ["Nom Affaire"] + ["Montant_Affaire","Deja_Facture"]
     k = 0
     Ldescription.append('antérieures')
     for k in range(1,13):

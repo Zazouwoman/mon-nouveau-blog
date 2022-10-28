@@ -816,8 +816,8 @@ class PrevisionnelAdmin(admin.ModelAdmin):
     #print(Lfonction)
     #print(Ldescription)
     #list_display = ("Nom_Affaire","Deja_Facture","Montant_Max_Echeance_En_Cours","Reste_A_Facturer")
-    totalsum_list = L
-    localized_fields = L
+    totalsum_list = ["Montant_Affaire","Deja_Facture"] + L
+    localized_fields = ["Montant_Affaire","Deja_Facture"] + L
 
     form = PrevisionnelForm
     formfield_overrides = {models.DecimalField: {
@@ -845,7 +845,8 @@ class PrevisionnelAdmin(admin.ModelAdmin):
         writer.writerow(liste_entete)
         for user in queryset:
             writer.writerow([
-                user.Nom_Affaire(),user.fonction0(), user.fonction1(),user.fonction2(),user.fonction3(),user.fonction4(),
+                user.Nom_Affaire(),user.Montant_Affaire(),user.Deja_Facture(),
+                user.fonction0(), user.fonction1(),user.fonction2(),user.fonction3(),user.fonction4(),
                 user.fonction5(),user.fonction6(),user.fonction7(),user.fonction8(), user.fonction9(),
                 user.fonction10(), user.fonction11(), user.fonction12(), user.fonction13()
             ])
@@ -858,7 +859,8 @@ class PrevisionnelAdmin(admin.ModelAdmin):
         rows=[]
         for user in queryset:
             rows.append([
-                user.Nom_Affaire(),user.fonction0(), user.fonction1(),user.fonction2(),user.fonction3(),user.fonction4(),
+                user.Nom_Affaire(),user.Montant_Affaire(),user.Deja_Facture(),
+                user.fonction0(), user.fonction1(),user.fonction2(),user.fonction3(),user.fonction4(),
                 user.fonction5(),user.fonction6(),user.fonction7(),user.fonction8(), user.fonction9(),
                 user.fonction10(), user.fonction11(), user.fonction12(), user.fonction13()
             ])
