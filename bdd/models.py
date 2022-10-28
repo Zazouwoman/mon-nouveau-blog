@@ -1169,7 +1169,7 @@ class Facture(models.Model):
         elif self.Fin_Mois == "Oui": #Ici on est forcément à 30 jours fin de mois
             datefacture = self.Date_Facture
             premier = datefacture + timedelta(30)
-            debut,fin = debut_fin_mois(premier)
+            debut,fin = debut_fin_mois(premier,0)
             echeance = fin
         return echeance
 
