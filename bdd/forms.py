@@ -199,6 +199,20 @@ class PrevisionnelForm(forms.ModelForm):
 
     def clean(self):
         cleaned_data = super(PrevisionnelForm,self).clean()
+        if cleaned_data['Montant_Previsionnel1'] == None:
+            cleaned_data['Montant_Previsionnel1'] = 0
+        if cleaned_data['Montant_Previsionnel2'] == None:
+            cleaned_data['Montant_Previsionnel0'] = 0
+        if cleaned_data['Montant_Previsionnel3']== None:
+            cleaned_data['Montant_Previsionnel3'] = 0
+        if cleaned_data['Montant_Previsionnel4'] == None:
+            cleaned_data['Montant_Previsionnel4'] = 0
+        if cleaned_data['Montant_Previsionnel5'] == None:
+            cleaned_data['Montant_Previsionnel5'] = 0
+        if cleaned_data['Montant_Previsionnel6'] == None:
+            cleaned_data['Montant_Previsionnel6'] = 0
+        if cleaned_data['Montant_Previsionnel7'] == None:
+            cleaned_data['Montant_Previsionnel7'] = 0
         Ldate = []
         for k in range(1,8):
             Ldate.append(cleaned_data.get("Date_Previsionnelle{}".format(k)))
@@ -255,6 +269,8 @@ class PrevisionnelForm(forms.ModelForm):
                            "La somme des montants prévisionnels est inférieure aux honoraires de l'affaire ({} euros). Validation impossible.".format(
                                obj.Montant_Affaire()))'''
         return cleaned_data
+
+
 
 class CreationFactureForm(forms.ModelForm):
     class Meta:

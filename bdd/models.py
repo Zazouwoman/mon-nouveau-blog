@@ -515,17 +515,17 @@ class Previsionnel(models.Model):
                                            verbose_name="Date prévisionnelle 7 de facturation")
     Montant_Previsionnel1 = models.DecimalField(max_digits=12, decimal_places=2, verbose_name = 'Montant prévisionnel 1', default = 0)
     Montant_Previsionnel2 = models.DecimalField(max_digits=12, decimal_places=2, verbose_name='Montant prévisionnel 2',
-                                                default=0,null=True,blank=True)
+                                                default=0,blank=True)
     Montant_Previsionnel3 = models.DecimalField(max_digits=12, decimal_places=2, verbose_name='Montant prévisionnel 3',
-                                                default=0,null=True,blank=True)
+                                                default=0,blank=True)
     Montant_Previsionnel4 = models.DecimalField(max_digits=12, decimal_places=2, verbose_name='Montant prévisionnel 4',
-                                                default=0,null=True,blank=True)
+                                                default=0,blank=True)
     Montant_Previsionnel5 = models.DecimalField(max_digits=12, decimal_places=2, verbose_name='Montant prévisionnel 5',
-                                                default=0,null=True,blank=True)
+                                                default=0,blank=True)
     Montant_Previsionnel6 = models.DecimalField(max_digits=12, decimal_places=2, verbose_name='Montant prévisionnel 6',
-                                                default=0,null=True,blank=True)
+                                                default=0,blank=True)
     Montant_Previsionnel7 = models.DecimalField(max_digits=12, decimal_places=2, verbose_name='Montant prévisionnel 7',
-                                                default=0,null=True,blank=True)
+                                                default=0,blank=True)
 
     def aujourdhui(self):
         return date.today()
@@ -910,6 +910,20 @@ class Previsionnel(models.Model):
             self.Mise_A_Jour_Montant()
 
     def save(self, *args, **kwargs):
+        if self.Montant_Previsionnel1 == None:
+            self.Montant_Previsionnel1 = 0
+        if self.Montant_Previsionnel2 == None:
+            self.Montant_Previsionnel2 = 0
+        if self.Montant_Previsionnel3 == None:
+            self.Montant_Previsionnel3 = 0
+        if self.Montant_Previsionnel4 == None:
+            self.Montant_Previsionnel4 = 0
+        if self.Montant_Previsionnel5 == None:
+            self.Montant_Previsionnel5 = 0
+        if self.Montant_Previsionnel6 == None:
+            self.Montant_Previsionnel6 = 0
+        if self.Montant_Previsionnel7 == None:
+            self.Montant_Previsionnel7 = 0
         affaire = Affaire.objects.get(id=self.ID_Affaire_id)
         affaire.Date_Previsionnelle = self.Date_Previsionnelle_En_Cours()
         affaire.save()
