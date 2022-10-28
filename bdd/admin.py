@@ -659,7 +659,7 @@ class AffaireAdmin(admin.ModelAdmin):
     list_editable = ('soldee',)
     totalsum_list = ('Honoraires_Global','Reste_A_Regler','Solde',)
     localized_fields = ('Honoraires_Global','Reste_A_Regler',)
-    list_per_page = 9
+    #    list_per_page = 9
     formfield_overrides = {models.DecimalField: {
             'widget': forms.TextInput(attrs={'style': 'text-align:right;', }),
         },
