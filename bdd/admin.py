@@ -1200,6 +1200,7 @@ class FactureAdmin(admin.ModelAdmin):
         else:
             extra_context['FA'] = False
         extra_context = extra_context or {}
+
         return super().change_view(request, object_id, extra_context = extra_context)
 
     def response_change(self, request, obj):
@@ -1574,6 +1575,59 @@ class FactureAdmin(admin.ModelAdmin):
             id = email.pk
             url = '/admin/bdd/infoemail/{}/change'.format(id)
             return redirect(url, pk=email.pk)
+
+        if "Test_Apercu_Relance" in request.POST:  # Ouvre la fenêtre d'envoi du mail
+            facture = get_object_or_404(Facture, pk=obj.pk)
+            affaire = Affaire.objects.get(pk=obj.ID_Affaire_id)
+            offre = Offre_Mission.objects.get(pk=affaire.ID_Mission_id)
+            ingeprev = Ingeprev.objects.get(Nom='INGEPREV')
+
+            # En cas de problème, il faut créer le pdf de la facture
+            if not obj.Fichier_Facture_cree:
+                creer_pdf_facture(facture, affaire, offre, ingeprev, DOSSIER_PRIVE)
+
+            # Création de l'email prérempli
+            message = 'Email de Test'
+            #message_facture(facture, offre)
+            typeaction = 'Test_Email'
+            idfacture = facture.id
+            if facture.Facture_Avoir == "FA":
+                sujet = 'Test Lettre de Relance Facture INGEPREV'
+            else:
+                sujet = 'Test Lettre de Relance Avoir INGEPREV'
+            From = settings.DEFAULT_FROM_EMAIL
+            To = "gaudy.claire@gmail.com"
+            RAR = facture.Num_RAR_Demeure
+            email = InfoEmail.objects.create(From=From, To=To, Message=message,
+                                             Subject=sujet, ID_Facture=idfacture, Type_Action=typeaction, RAR=RAR)
+            email.save()
+
+            # Récupération des avoirs liés pdf éventuels
+            nb = facture.Nb_Avoir()
+            if nb >= 1:
+                L = facture.Avoirs_Lies()
+                for k in range(len(L)):
+                    x = L[k]
+                    avoir = Facture.objects.get(Numero_Facture=x)
+                    if not avoir.Fichier_Facture_cree:
+                        creer_pdf_facture(avoir, affaire, offre, ingeprev, DOSSIER_PRIVE)
+
+                    chemin = Path(DOSSIER_PRIVE + 'factures/{}.pdf'.format(x))
+                    with chemin.open(mode='rb') as f:
+                        Attachment.objects.create(file=File(f, name=chemin.name), message=email, nom='Avoir')
+
+            # Création des lettres de relance
+            for k in range(2,5):
+                creer_pdf_relance_temporaire(k, facture, affaire, offre, ingeprev, DOSSIER_PRIVE)
+                chemin = Path(DOSSIER_PRIVE + 'tmp/Relance{}.pdf'.format(k))
+                with chemin.open(mode='rb') as f:
+                    Attachment.objects.create(file=File(f, name=chemin.name), message=email,
+                                          nom='Lettre de Relance {}'.format(k))
+
+            id = email.pk
+            url = '/admin/bdd/infoemail/{}/change'.format(id)
+            return redirect(url, pk=email.pk)
+
 
         if "Renvoi_Facture" in request.POST:  # Ouvre la fenêtre d'envoi du mail
             facture = get_object_or_404(Facture, pk=obj.pk)

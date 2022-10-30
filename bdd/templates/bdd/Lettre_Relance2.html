@@ -149,7 +149,7 @@
         {% endif %}
         <p class="western" align="justify">
             Pour m&eacute;moire, cette facture a d&eacute;j&agrave; d&ucirc; faire l&apos;objet d&apos;une relance par
-            mail le {{facture.Date_Relance1}} puis d&apos;une relance t&eacute;l&eacute;phonique le {{facture.Date_Relance2}}.
+            mail le {{facture.Date_Relance1}}.
         </p>
         <p class="western" align="justify">
             Nous vous saurions gr&eacute; de bien vouloir r&eacute;gulariser cette situation rapidement et de nous confirmer
@@ -170,16 +170,14 @@
         </td>
         <td class="right" valign="top">
             <p class="western" align="left">
-                <br>
             <br>
                 Pour INGEPREV
-                <br>
+            <br>
                 {{facture.Prenom_Pilote}} {{facture.Nom_Pilote}}
          <br>
          T&eacute;l. : {{facture.Tel_Portable_Pilote_Affiche}}
           <br>
          Mail : {{facture.Email_Pilote}}
-
         </td>
     </table>
 </div>
@@ -197,7 +195,6 @@
         {% if nb > 1 %}
        Pi&egrave;ces jointes : copie de la facture n&deg;{{facture.Numero_Facture}} + copie des avoirs
         {% endif %}
-        <br>
         <br>
         {% if not complementclient or not complementfacture %}
         <br>

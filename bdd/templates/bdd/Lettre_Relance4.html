@@ -106,7 +106,6 @@
      <p class="western" align = "left">
          <br>
          <br>
-         <br>
      Paris, le {{date}}
     </p>
  </td>
@@ -124,7 +123,6 @@
 </div>
 <div>
     <p class="western" align="left">
-        <br>
     <br>
     Madame, Monsieur,
     </p>
@@ -133,8 +131,8 @@
         notre facture n&deg;{{facture.Numero_Facture}} en date du {{facture.Date_Facture}} arriv&eacute;e &agrave;
         &eacute;ch&eacute;ance le {{facture.Date_Echeance1}} malgr&eacute; nos trois relances pr&eacute;c&eacute;dentes ;
         une premi&egrave;re relance par mail en date du {{facture.Date_Relance1}}, une deuxi&egrave;me relance par courrier suivi
-        n&deg;{{facture.Num_Suivi}} en date du {{facture.Date_Relance2}} puis une troisi&eacute;me relance par courrier
-        RAR n&deg;{{facture.Num_RAR}} en date du {{facture.Date_Relance3}}
+        n&deg;{{facture.Num_Suivi}} en date du {{facture.Date_Relance2}} puis une troisi&egrave;me relance par courrier
+        RAR n&deg;{{facture.Num_RAR}} en date du {{facture.Date_Relance3}}.
     </p>
         {% if nb == 1 %}
         <p class="western" align="justify">
@@ -164,15 +162,25 @@
         <p class="western" align="left">
             Veuillez agr&eacute;er, Madame, Monsieur, l&apos;expression de mes salutations distingu&eacute;es.
         </p>
-    <p class="western" align="left">
-        <br>
-        Pour INGEPREV
-            <br>
-        Le directeur g&eacute;n&eacute;ral
-        <br>
-        {{facture.Prenom_Pilote}} {{facture.Nom_Pilote}}
-    </p>
     </div>
+<div>
+    <table>
+        <td class="left" valign="top">
+
+        </td>
+        <td class="right" valign="top">
+            <p class="western" align="left">
+            <br>
+                Pour INGEPREV
+            <br>
+                {{facture.Prenom_Pilote}} {{facture.Nom_Pilote}}
+         <br>
+         T&eacute;l. : {{facture.Tel_Portable_Pilote_Affiche}}
+          <br>
+         Mail : {{facture.Email_Pilote}}
+        </td>
+    </table>
+</div>
 <div>
         <p class="western">
         <br>
@@ -180,7 +188,6 @@
         <br>
        Pi&egrave;ces jointes : copie de la facture n&deg;{{facture.Numero_Facture}} + lettre de relance 2 + lettre
         de relance 3
-        <br>
         <br>
         {% endif %}
         {% if nb == 1 %}

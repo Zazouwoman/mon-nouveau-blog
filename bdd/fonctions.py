@@ -306,6 +306,53 @@ def creer_pdf_relance(k,facture,affaire,offre,ingeprev,dossier):
         facture.Fichier_Relance4_cree = True
     facture.save()
 
+def creer_pdf_relance_temporaire(k,facture,affaire,offre,ingeprev,dossier):
+    """Crée le fichier pdf de la lettre de relance n°k dans dossier"""
+
+    data = {}
+    data['facture'] = facture
+    data['Ref_Affaire'] = affaire.Ref_Affaire
+    data['affaire'] = affaire
+    data['Date_Echeance'] = facture.Date_Echeance1()
+    data['Montant_TTC'] = facture.Montant_Facture_TTC()
+    data['ingeprev'] = ingeprev
+    data['mission'] = offre
+    data['date'] = date.today()
+    data['nb'] = facture.Nb_Avoir()
+    data['avoir'] = facture.Avoirs_Lies()
+    data['montant_avoir_lie'] = facture.Montants_Avoirs_Lies_TTC()
+    data['solde'] = facture.Solde_Pour_Avoir_Eventuel()
+    if facture.Facture_Avoir == "FA":
+        data['FA'] = True
+    else:
+        data['FA'] = False
+    if adresses_identiques(facture):
+        data['identiques'] = True
+    else:
+        data['identiques'] = False
+    if adresses_completes_identiques(facture):
+        data['completes_identiques'] = True
+    else:
+        data['completes_identiques'] = False
+
+    if facture.Complement_Adresse_Facture == '':
+        data['complementfacture'] = False
+    else:
+        data['complementfacture'] = True
+    if facture.Complement_Adresse_Client == '':
+        data['complementclient'] = False
+    else:
+        data['complementclient'] = True
+    if offre.Complement_Adresse == '':
+        data['complementmission'] = False
+    else:
+        data['complementmission'] = True
+
+    source_html = 'bdd/Lettre_Relance{}.html'.format(k)
+    fichier = dossier + 'tmp/Relance{}.pdf'.format(k)
+    creer_html_to_pdf(source_html, fichier, data)
+    facture.save()
+
 
 def adresses_identiques(facture):
     L1 = [facture.Denomination_Client, facture.Adresse_Client, facture.Complement_Adresse_Client, facture.CP_Client, facture.Ville_Client]
@@ -343,11 +390,11 @@ def message_relance(facture):
     pilote = '{} {}'.format(facture.Prenom_Pilote, facture.Nom_Pilote)
     nb = facture.Nb_Avoir()
     if nb == 0:
-        message = civ + """\n\nPar la présente nous nous permettons de vous rappeler que notre facture n°{} en date du {} vient d'arriver à échéance.\nSi vous venez de procéder à son paiement, nous vous prions de bien vouloir ne pas tenir compte de ce courriel.\n\nBien cordialement, \n\nPour INGEPREV \n{}""".format(facture.Numero_Facture, facture.Date_Facture.strftime('%d/%m/%Y'), pilote)
+        message = civ + """\n\nPar la présente nous nous permettons de vous rappeler que notre facture n°{} en date du {} vient d'arriver à échéance.\nNous vous saurions gré de bien vouloir nous préciser par retour si vous aviez des raisons particulières pour ne pas procéder au paiement de cette facture.\nBien sûr,si vous venez de procéder à son paiement, nous vous prions de bien vouloir ne pas tenir compte de ce courriel.\n\nRestant à votre entière disposition pour tout renseignement.\n\nBien cordialement, \n\nPour INGEPREV \n{}""".format(facture.Numero_Facture, facture.Date_Facture.strftime('%d/%m/%Y'), pilote)
     elif nb == 1:
         L = facture.Avoirs_Lies()
         avoir = L[0]
-        message = civ + """\n\nPar la présente nous nous permettons de vous rappeler que notre facture n°{} en date du {} vient d'arriver à échéance.\nPour mémoire, cette facture avait fait l'objet d'un avoir partiel n°{}.\nSi vous venez de procéder à son paiement, nous vous prions de bien vouloir ne pas tenir compte de ce courriel.\n\nBien cordialement, \n\nPour INGEPREV \n{}""".format(
+        message = civ + """\n\nPar la présente nous nous permettons de vous rappeler que notre facture n°{} en date du {} vient d'arriver à échéance.\nPour mémoire, cette facture avait fait l'objet d'un avoir partiel n°{}.\nNous vous saurions gré de bien vouloir nous préciser par retour si vous aviez des raisons particulières pour ne pas procéder au paiement de cette facture.\nBien sûr, si vous venez de procéder à son paiement, nous vous prions de bien vouloir ne pas tenir compte de ce courriel.\n\nRestant à votre entière disposition pour tout renseignement.\n\nBien cordialement, \n\nPour INGEPREV \n{}""".format(
             facture.Numero_Facture, facture.Date_Facture.strftime('%d/%m/%Y'), avoir, pilote)
     else:
         avoirs = ''
@@ -356,7 +403,7 @@ def message_relance(facture):
             x = L[k]
             avoirs += 'n°{} ,'.format(x)
         avoirs += 'n°{} et n°{} '.format(L[len(L)-2], L[len(L)-1])
-        message = civ + """\n\nPar la présente nous nous permettons de vous rappeler que notre facture n°{} en date du {} vient d'arriver à échéance.\nPour mémoire, cette facture avait fait l'objet des avoirs partiels {}.\nSi vous venez de procéder à son paiement, nous vous prions de bien vouloir ne pas tenir compte de ce courriel.\n\nBien cordialement, \n\nPour INGEPREV \n{}""".format(
+        message = civ + """\n\nPar la présente nous nous permettons de vous rappeler que notre facture n°{} en date du {} vient d'arriver à échéance.\nPour mémoire, cette facture avait fait l'objet des avoirs partiels {}.\nNous vous saurions gré de bien vouloir nous préciser par retour si vous aviez des raisons particulières pour ne pas procéder au paiement de cette facture.\nBien sûr,si vous venez de procéder à son paiement, nous vous prions de bien vouloir ne pas tenir compte de ce courriel.\n\nRestant à votre entière disposition  pur tout renseignement.\n\nBien cordialement, \n\nPour INGEPREV \n{}""".format(
             facture.Numero_Facture, facture.Date_Facture.strftime('%d/%m/%Y'), avoirs, pilote)
     return message
 

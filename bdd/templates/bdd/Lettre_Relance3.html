@@ -82,7 +82,6 @@
   A l&apos;attention de {{facture.Civilite_Facture}} {{facture.Nom_Facture}} {{facture.Prenom_Facture}}
       </p>
      <p class="western" align = "left">
-         <br>
      Paris, le {{date}}
     </p>
  </td>
@@ -116,16 +115,18 @@
 </div>
 <div>
 <p class="western" align="left">
-             <br>
+        {% if not complementclient or not complementfacture %}
+        <br>
+        {% endif %}
     Objet : 3&egrave;me relance suite au non-paiement d&apos;une facture.
     <br>
     Courrier RAR n&deg;{{facture.Num_RAR}}
-    <br>
     <br>
 </p>
 </div>
 <div>
     <p class="western" align="left">
+                 <br>
     Madame, Monsieur,
     </p>
     <p class="western" align="justify">
@@ -154,7 +155,7 @@
             cette situation, et de proc&eacute;der au r&egrave;glement de la somme due.
         </p>
         <p class="western" align="justify">
-            Vous trouverez en attach&eacute; de ce courrier, une photocopie de la facture {% if nb == 0 %}concern&eacute; et {% endif %}
+            Vous trouverez en attach&eacute; de ce courrier, une photocopie de la facture {% if nb == 0 %}concern&eacute;e et {% endif %}
             {% if nb > 0 %}et des avoirs concern&eacute;s ainsi qu&apos;{% endif %}une copie de la premi&egrave;re lettre de relance qui vous a &eacute;t&eacute; envoy&eacute;e.
         </p>
         <p class="western" align="justify">
@@ -175,7 +176,6 @@
         <td class="right" valign="top">
             <p class="western" align="left">
             <br>
-            <br>
                 Pour INGEPREV
             <br>
                 {{facture.Prenom_Pilote}} {{facture.Nom_Pilote}}
@@ -193,7 +193,6 @@
         <br>
        Pi&egrave;ces jointes : copie de la facture n&deg;{{facture.Numero_Facture}} + copie de la premi&egrave;re lettre de relance
         <br>
-        <br>
         {% endif %}
         {% if nb == 1 %}
        Pi&egrave;ces jointes : copie de la facture n&deg;{{facture.Numero_Facture}} + copie de l&apos;avoir + copie de la premi&egrave;re lettre de relance
@@ -201,8 +200,8 @@
         {% if nb > 1 %}
        Pi&egrave;ces jointes : copie de la facture n&deg;{{facture.Numero_Facture}} + copie des avoirs + copie de la premi&egrave;re lettre de relance
         {% endif %}
-        {% if not complementclient or not complementfacture %}
         <br>
+        {% if not complementclient or not complementfacture %}
         <br>
         {% endif %}
     </p>
