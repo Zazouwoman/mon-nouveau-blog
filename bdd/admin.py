@@ -1752,7 +1752,7 @@ class FactureAdmin(admin.ModelAdmin):
             if not facture.Fichier_Word_cree:
                 for k in range(2,5):
                     creer_pdf_relance_temporaire2(k, facture, affaire, offre, ingeprev, DOSSIER_PRIVE, envoi, payeur)
-                    chemin = facture.Fonction_Nom_Fichier_Pdf_Relance(k)
+                    chemin = Path(DOSSIER_PRIVE + 'tmp/Relance{}.pdf'.format(k))
                     with chemin.open(mode='rb') as f:
                         Attachment.objects.create(file=File(f, name=chemin.name), message=email,
                                                   nom='Lettre de Relance {}'.format(k))
