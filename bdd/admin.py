@@ -1862,9 +1862,7 @@ class Fichier_WordAdmin(admin.ModelAdmin):
             obj.save()
             try:
                 idfacture = obj.ID_Facture_id
-                print('ici',idfacture)
                 email = InfoEmail.objects.filter(ID_Facture=idfacture).order_by('id').latest('id')
-                print(email)
                 url = '/admin/bdd/infoemail/{}/change'.format(email.pk)
             except:
                 idfacture = obj.ID_Facture_id

@@ -480,13 +480,12 @@ class Fichier_WordForm(forms.ModelForm):
         if pdf4 != None:
             if pdf4 != '' and (word4 == None or word4 == ''):
                 raise ValidationError("Validation impossible : s'il y a un fichier pdf 4 il faut aussi mettre le fichier word4 correspondant.")
-        '''
         if word2 != '' and facture.Num_Relance <=2:
             raise ValidationError("Impossible de téléverser le fichier word de la relance 2 car la relance 2 n'a pas encore été validée dans la base de données.")
         if word3 != '' and facture.Num_Relance <=3:
             raise ValidationError("Impossible de téléverser le fichier word de la relance 3 car la relance 3 n'a pas encore été validée dans la base de données.")
         if word4 != '' and facture.Num_Relance <=4:
-            raise ValidationError("Impossible de téléverser le fichier word de la relance 4 car la relance 4 n'a pas encore été validée dans la base de données.")'''
+            raise ValidationError("Impossible de téléverser le fichier word de la relance 4 car la relance 4 n'a pas encore été validée dans la base de données.")
 
     '''
     def save(self, commit=True):

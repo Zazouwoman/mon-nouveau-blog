@@ -1521,6 +1521,12 @@ class Fichier_Word(models.Model):
         else:
             return mark_safe(
                 "<a href='{}' target='_blank'>{}</a>".format(reverse('lien_fichier_pdf4', args=[self.id]), self.PDF4))
+    lien_word2.short_description = 'Bon lien vers word2'
+    lien_word3.short_description = 'Bon lien vers word3'
+    lien_word4.short_description = 'Bon lien vers word4'
+    lien_PDF2.short_description = 'Bon lien vers pdf2'
+    lien_PDF3.short_description = 'Bon lien vers pdf3'
+    lien_PDF4.short_description = 'Bon lien vers pdf4'
 
     def Numero_Facture(self):
         facture = Facture.objects.get(id = self.ID_Facture_id)
