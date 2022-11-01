@@ -480,11 +480,11 @@ class Fichier_WordForm(forms.ModelForm):
         if pdf4 != None:
             if pdf4 != '' and (word4 == None or word4 == ''):
                 raise ValidationError("Validation impossible : s'il y a un fichier pdf 4 il faut aussi mettre le fichier word4 correspondant.")
-        if word2 != None and facture.Num_Relance <=2:
+        if (word2 != None or pdf2 != None) and facture.Num_Relance <=2:
             raise ValidationError("Impossible de téléverser le fichier word de la relance 2 car la relance 2 n'a pas encore été validée dans la base de données.")
-        if word3 != None and facture.Num_Relance <=3:
+        if (word3 != None or pdf3 != None) and facture.Num_Relance <=3:
             raise ValidationError("Impossible de téléverser le fichier word de la relance 3 car la relance 3 n'a pas encore été validée dans la base de données.")
-        if word4 != None and facture.Num_Relance <=4:
+        if (word4 != None or pdf4!=None) and facture.Num_Relance <=4:
             raise ValidationError("Impossible de téléverser le fichier word de la relance 4 car la relance 4 n'a pas encore été validée dans la base de données.")
 
     '''
