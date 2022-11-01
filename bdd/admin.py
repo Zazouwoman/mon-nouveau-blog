@@ -68,6 +68,8 @@ class IngeprevAdmin(admin.ModelAdmin):
     }
     localized_fields = ('Capital',)
 
+    def has_add_permission(self, request):
+        return False
 
 class EnvoiOffreAdmin(admin.ModelAdmin):
     def get_model_perms(self, request, *args, **kwargs):
@@ -1832,14 +1834,26 @@ class FactureAdmin(admin.ModelAdmin):
 
         return super().response_change(request, obj)
 
+'''
+class Fichier_WordInline(admin.TabularInline):
+    model = Fichier_Word
+    extra = 0
+    fields = ('Numero_Facture','lien_word2','lien_PDF2','lien_word3','lien_PDF3','lien_word4','lien_PDF4')
+    readonly_fields = ('Numero_Facture','lien_word2','lien_PDF2','lien_word3','lien_PDF3','lien_word4','lien_PDF4')
+'''
+
 class Fichier_WordAdmin(admin.ModelAdmin):
-    list_display = ('ID_Facture','Word2','Word3','Word4')
+    list_display = ('Numero_Facture','lien_word2','lien_PDF2','lien_word3','lien_PDF3','lien_word4','lien_PDF4')
+    readonly_fields = ('Numero_Facture','lien_word2','lien_PDF2','lien_word3','lien_PDF3','lien_word4','lien_PDF4')
 
     form = Fichier_WordForm
     change_form_template = 'bdd/Modification_Fichier_Word.html'
 
     class Meta:
         model = Fichier_Word
+
+    def has_add_permission(self, request):
+        return False
 
     def get_model_perms(self, request, *args, **kwargs):
         if not request.user.is_superuser:

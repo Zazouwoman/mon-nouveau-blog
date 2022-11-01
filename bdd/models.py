@@ -158,7 +158,7 @@ class Ingeprev(models.Model):
     Linkedin = models.URLField(max_length=300, blank = True)
 
     class Meta:
-        verbose_name_plural = "6. INGEPREV"
+        verbose_name_plural = "7. INGEPREV"
 
     def delete(self,*args,**kwargs):
         obj = Ingeprev.objects.get(pk = self.pk)
@@ -194,7 +194,7 @@ class Pilote(models.Model):
 
     class Meta:
         ordering = ['Nom']
-        verbose_name_plural = "5. Pilotes"
+        verbose_name_plural = "6. Pilotes"
 
 class Client(models.Model):
     Type_Dossier = models.CharField(default = "C",max_length = 3)
@@ -244,7 +244,7 @@ class Client(models.Model):
 
     class Meta:
         ordering = ['Denomination_Sociale']
-        verbose_name_plural = "4. Clients"
+        verbose_name_plural = "5. Clients"
 
 class Compteur_Indice(models.Model):
     Type_Dossier = models.CharField(max_length = 3)
@@ -943,7 +943,7 @@ class Previsionnel(models.Model):
         super().save(*args, **kwargs)
 
     class Meta:
-        verbose_name_plural = "7. Previsionnel"
+        verbose_name_plural = "8. Previsionnel"
 
 class Facture(models.Model):
     deja_validee = models.BooleanField(default = False, verbose_name = 'Validée') #Pour savoir si la facture a déjà été validée
@@ -1473,6 +1473,9 @@ class Fichier_Word(models.Model):
     PDF4 = models.FileField(upload_to=renommage4bis, blank=True, verbose_name="Fichier PDF de Relance 4", default='')
     Word4_cree = models.BooleanField(default=False, verbose_name="Word4_créé")
     Date_Creation_Word4 = models.DateTimeField(null=True,blank=True, verbose_name="Date de création du Word4")
+
+    class Meta:
+        verbose_name_plural = "4. Fichiers de Relance Téléversés"
 
     def Fonction_Nom_Fichier_Word2(self):
         chemin = Path(DOSSIER_PRIVE + self.Word2.name)
