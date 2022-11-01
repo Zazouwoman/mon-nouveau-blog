@@ -39,8 +39,8 @@ from docx.oxml.ns import qn
 from docx.enum.text import WD_ALIGN_PARAGRAPH,WD_LINE_SPACING
 
 import shutil
-from docx2pdf import convert
-import pythoncom
+#from docx2pdf import convert
+#import pythoncom
 import os.path
 
 DOSSIER = settings.MEDIA_ROOT #Nom du dossier public dans lequel sont enregistrés les factures, lettres de relance
