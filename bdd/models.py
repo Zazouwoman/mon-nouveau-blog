@@ -26,9 +26,23 @@ from django.contrib import messages
 
 from decimal import Decimal
 from .fonctions import *
+from .fonctionsWord import *
 from django.core.exceptions import ValidationError
 from pathlib import Path
 import tempfile
+
+from docx import Document
+from docx.shared import Inches
+from docx.shared import Pt,Cm
+from docx.enum.section import WD_SECTION
+from docx.oxml.ns import qn
+from docx.enum.text import WD_ALIGN_PARAGRAPH,WD_LINE_SPACING
+
+import shutil
+from docx2pdf import convert
+import pythoncom
+import os.path
+
 
 DOSSIER = settings.MEDIA_ROOT #Nom du dossier public dans lequel sont enregistrés les factures, lettres de relance
 DOSSIER_PRIVE = settings.MEDIA_ROOT_PRIVE #Nom du dossier privé dans lequel sont enregistrés les factures, lettres de relance ...
@@ -1019,14 +1033,24 @@ class Facture(models.Model):
     Fichier_Relance4_cree = models.BooleanField(default=False, verbose_name="Relance4_pdf_créée")
     Date_Creation_Fichier_Relance4 = models.DateTimeField(null=True, blank=True, verbose_name="Date de création du fichier relance4 pdf")
 
+    #Pour les fichiers de relance word téléversés
+    Fichier_Word_cree = models.BooleanField(default=False, verbose_name="Fichiers Words Créés")
+
     class Meta:
         verbose_name_plural = "3. Factures"
 
-    '''def Mettre_A_Jour_Previsionnel(self):
-        try:
-            previsionnel = Previsionnel.objects.get(ID_Affaire_id=self.ID_Affaire_id)
-            k_avant_facture = previsionnel.Echeance_En_Cours()
-      '''
+    def id_fichier_word(self):
+        idfacture = self.pk
+        fichier_word = Fichier_Word.objects.get(ID_Facture_id = idfacture)
+        idfichierword = fichier_word.pk
+        return idfichierword
+
+    def creer_fichier_word(self):  #Pour créer l'enregistrement associé dans Fichier_Word
+        idfacture = self.pk
+        fichier_word = Fichier_Word.objects.create(ID_Facture_id = idfacture)
+        fichier_word.save()
+        self.Fichier_Word_cree = True
+        self.save()
 
     def id_previsionnel(self):
         idaffaire = self.ID_Affaire_id
@@ -1045,9 +1069,79 @@ class Facture(models.Model):
         else:
             return mark_safe("<a href='%s' target='_blank'>PDF</a>"%reverse('facture_pdf',args=[self.id]))
 
+    def word(self):
+        return mark_safe("<a href='%s' target='_blank'>WORD</a>"%reverse('relance_word2', args=[self.id]))
+
+    def relance2_word(self):
+        #chargement des données
+        facture = self
+        ingeprev = Ingeprev.objects.get(Nom='INGEPREV')
+        affaire = Affaire.objects.get(pk = self.ID_Affaire_id)
+        mission = Offre_Mission.objects.get(pk=affaire.ID_Mission_id)
+        payeur = Client.objects.get(pk = self.ID_Payeur_id)
+        envoi = Envoi_Facture.objects.get(pk = self.ID_Envoi_Facture_id)
+        doc = relance_word(2,facture,ingeprev, affaire, mission, payeur, envoi)
+        return doc
+    def relance3_word(self):
+        #chargement des données
+        facture = self
+        ingeprev = Ingeprev.objects.get(Nom='INGEPREV')
+        affaire = Affaire.objects.get(pk = self.ID_Affaire_id)
+        mission = Offre_Mission.objects.get(pk=affaire.ID_Mission_id)
+        payeur = Client.objects.get(pk = self.ID_Payeur_id)
+        envoi = Envoi_Facture.objects.get(pk = self.ID_Envoi_Facture_id)
+        doc = relance_word(3,facture,ingeprev, affaire, mission, payeur, envoi)
+        return doc
+    def relance4_word(self):
+        #chargement des données
+        facture = self
+        ingeprev = Ingeprev.objects.get(Nom='INGEPREV')
+        affaire = Affaire.objects.get(pk = self.ID_Affaire_id)
+        mission = Offre_Mission.objects.get(pk=affaire.ID_Mission_id)
+        payeur = Client.objects.get(pk = self.ID_Payeur_id)
+        envoi = Envoi_Facture.objects.get(pk = self.ID_Envoi_Facture_id)
+        doc = relance_word(4,facture,ingeprev, affaire, mission, payeur, envoi)
+        return doc
+
+    def Date_Facture_aff(self):
+        return self.Date_Facture.strftime('%d/%m/%Y')
+    def Date_Echeance1_aff(self):
+        return self.Date_Echeance1().strftime('%d/%m/%Y')
+    def Date_Relance1_aff(self):
+        return self.Date_Relance1.strftime('%d/%m/%Y')
+    def Date_Relance2_aff(self):
+        return self.Date_Relance2.strftime('%d/%m/%Y')
+    def Date_Relance3_aff(self):
+        return self.Date_Relance3.strftime('%d/%m/%Y')
+
     def Fonction_Nom_Fichier_Facture(self):
         chemin = Path(DOSSIER_PRIVE + 'factures/{}.pdf'.format(self.Numero_Facture))
         return chemin
+    def Fonction_Nom_Fichier_Word_Relance(self,k):
+        chemin = Path(DOSSIER_PRIVE + 'relances/Relance{}-{}.docx'.format(k,self.Numero_Facture))
+        return chemin
+    def Fonction_Nom_Fichier_Pdf_Relance(self,k):
+        chemin = Path(DOSSIER_PRIVE + 'relances/Relance{}-{}.pdf'.format(k,self.Numero_Facture))
+        return chemin
+
+    def Word2Cree(self):
+        try:
+            fichier_word = Fichier_Word.objects.get(ID_Facture_id=self.id)
+            return fichier_word.Word2_cree
+        except:
+            return False
+    def Word3Cree(self):
+        try:
+            fichier_word = Fichier_Word.objects.get(ID_Facture_id=self.id)
+            return fichier_word.Word3_cree
+        except:
+            return False
+    def Word4Cree(self):
+        try:
+            fichier_word = Fichier_Word.objects.get(ID_Facture_id=self.id)
+            return fichier_word.Word4_cree
+        except:
+            return False
 
     def Tel_Portable_Pilote_Affiche(self):
         return formater_tel(self.Tel_Portable_Pilote)
@@ -1334,6 +1428,196 @@ class Facture(models.Model):
             self.Facture_Avoir = 'AV'
         self.save()
 
+def renommage2(instance,nom_fichier):
+    facture = Facture.objects.get(pk = instance.ID_Facture_id)
+    numfacture = facture.Numero_Facture
+    fichier = 'relances/Relance2-{}.docx'.format(numfacture)
+    return fichier
+
+def renommage3(instance,nom_fichier):
+    facture = Facture.objects.get(pk = instance.ID_Facture_id)
+    numfacture = facture.Numero_Facture
+    fichier = 'relances/Relance3-{}.docx'.format(numfacture)
+    return fichier
+def renommage4(instance,nom_fichier):
+    facture = Facture.objects.get(pk = instance.ID_Facture_id)
+    numfacture = facture.Numero_Facture
+    fichier = 'relances/Relance4-{}.docx'.format(numfacture)
+    return fichier
+
+class Fichier_Word(models.Model):
+    ID_Facture = models.ForeignKey(Facture, on_delete=models.SET_NULL, verbose_name="Facture associée", blank=True,null=True)
+    Word2 = models.FileField(upload_to=renommage2,blank=True,verbose_name="Fichier Word de Relance 2",default='')
+    Word2_cree = models.BooleanField(default=False, verbose_name="Word2_créé")
+    Date_Creation_Word2 = models.DateTimeField(null=True,blank=True, verbose_name="Date de création du Word2")
+    Word3 = models.FileField(upload_to=renommage3, null=True, blank=True,verbose_name="Fichier Word de Relance 3",default='')
+    Word3_cree = models.BooleanField(default=False, verbose_name="Word3_créé")
+    Date_Creation_Word3 = models.DateTimeField(null=True,blank=True, verbose_name="Date de création du Word3")
+    Word4 = models.FileField(upload_to=renommage4, blank=True,verbose_name="Fichier Word de Relance 4",default='')
+    Word4_cree = models.BooleanField(default=False, verbose_name="Word4_créé")
+    Date_Creation_Word4 = models.DateTimeField(null=True,blank=True, verbose_name="Date de création du Word4")
+
+    def Fonction_Nom_Fichier_Word2(self):
+        chemin = Path(DOSSIER_PRIVE + self.Word2.name)
+        return chemin
+    def Fonction_Nom_Fichier_Word3(self):
+        chemin = Path(DOSSIER_PRIVE + self.Word3.name)
+        return chemin
+    def Fonction_Nom_Fichier_Word4(self):
+        chemin = Path(DOSSIER_PRIVE + self.Word4.name)
+        return chemin
+
+    def lien_word2(self):
+        if self.id == None:
+            return None
+        else:
+            return mark_safe(
+                "<a href='{}' target='_blank'>{}</a>".format(reverse('lien_fichier_word2', args=[self.id]), self.Word2))
+    def lien_word3(self):
+        if self.id == None:
+            return None
+        else:
+            return mark_safe(
+                "<a href='{}' target='_blank'>{}</a>".format(reverse('lien_fichier_word3', args=[self.id]), self.Word3))
+    def lien_word4(self):
+        if self.id == None:
+            return None
+        else:
+            return mark_safe(
+                "<a href='{}' target='_blank'>{}</a>".format(reverse('lien_fichier_word4', args=[self.id]), self.Word4))
+
+    def Numero_Facture(self):
+        facture = Facture.objects.get(id = self.ID_Facture_id)
+        return facture.Numero_Facture
+
+    def creer_pdf(self,k):
+        facture = Facture.objects.get(id = self.ID_Facture_id)
+        if k == 2:
+            source = self.Word2.path
+        elif k == 3:
+            source = self.Word3.path
+        elif k == 4:
+            source = self.Word4.path
+        #source = Path(DOSSIER + 'relances/Relance{}-{}.docx'.format(k, facture.Numero_Facture))
+        destination1 = Path(DOSSIER_PRIVE + 'relances/Relance{}-{}.docx'.format(k, facture.Numero_Facture))
+        shutil.copy(source, destination1)
+        convert(destination1)
+        destination2 = Path(
+            DOSSIER_PRIVE + 'facturation_par_dossier/{}/Relance{}-{}.docx'.format(facture.Num_Affaire(), k,
+                                                                                 facture.Numero_Facture))
+        shutil.copy(source, destination2)
+        source_pdf = Path(DOSSIER_PRIVE + 'relances/Relance{}-{}.pdf'.format(k, facture.Numero_Facture))
+        destination_pdf = Path(
+            DOSSIER_PRIVE + 'facturation_par_dossier/{}/Relance{}-{}.pdf'.format(facture.Num_Affaire(), k,
+                                                                                  facture.Numero_Facture))
+        shutil.copy(source_pdf, destination_pdf)
+
+    def effacer_pdf(self,k):
+        facture = Facture.objects.get(id=self.ID_Facture_id)
+        affaire = Affaire.objects.get(pk=facture.ID_Affaire_id)
+        mission = Offre_Mission.objects.get(pk=affaire.ID_Mission_id)
+        ingeprev = Ingeprev.objects.get(Nom='INGEPREV')
+        payeur = Client.objects.get(pk=facture.ID_Payeur_id)
+        envoi = Envoi_Facture.objects.get(pk=facture.ID_Envoi_Facture_id)
+
+        d = Path(DOSSIER_PRIVE + 'relances/Relance{}-{}.docx'.format(k, facture.Numero_Facture))
+        if os.path.isfile(d):
+            os.remove(d)
+        d = Path(DOSSIER_PRIVE + 'facturation_par_dossier/{}/Relance{}-{}.docx'.format(facture.Num_Affaire(), k,
+                                                                                  facture.Numero_Facture))
+        if os.path.isfile(d):
+            os.remove(d)
+        d = Path(DOSSIER_PRIVE + 'relances/Relance{}-{}.pdf'.format(k, facture.Numero_Facture))
+        if os.path.isfile(d):
+            os.remove(d)
+            if k == 2:
+                cree = facture.Fichier_Relance2_cree
+            elif k == 3:
+                cree = facture.Fichier_Relance3_cree
+            elif k == 4:
+                cree = facture.Fichier_Relance4_cree
+            if cree:
+                creer_pdf_relance2(k, facture, affaire, mission, ingeprev, DOSSIER_PRIVE, envoi, payeur)
+
+        d = Path(DOSSIER_PRIVE + 'facturation_par_dossier/{}/Relance{}-{}.pdf'.format(facture.Num_Affaire(), k,
+                                                                                  facture.Numero_Facture))
+        if os.path.isfile(d):
+            os.remove(d)
+            if k == 2:
+                cree = facture.Fichier_Relance2_cree
+            elif k == 3:
+                cree = facture.Fichier_Relance3_cree
+            elif k == 4:
+                cree = facture.Fichier_Relance4_cree
+            if cree:
+                source = Path(DOSSIER_PRIVE + 'relances/Relance{}-{}.pdf'.format(k, facture.Numero_Facture))
+                destination = Path(
+                    DOSSIER_PRIVE + 'facturation_par_dossier/{}/Relance{}-{}.pdf'.format(facture.Num_Affaire(), k,
+                                                                                         facture.Numero_Facture))
+                shutil.copy(source, destination)
+
+    def copie_fichier(self):
+        if self.Word2 != '' or self.Word3 != '' or self.Word4 != '':
+            pythoncom.CoInitialize()
+        if self.Word2 != '':
+            self.creer_pdf(2)
+        if self.Word3 != '':
+            self.creer_pdf(3)
+        if self.Word4 != '':
+            self.creer_pdf(4)
+
+    def effacer_fichier(self):
+        if self.Word2 == '' and self.Word2_cree:
+            self.effacer_pdf(2)
+        if self.Word3 == '' and self.Word3_cree:
+            self.effacer_pdf(3)
+        if self.Word4 == '' and self.Word4_cree:
+            self.effacer_pdf(4)
+
+    def save(self, *args, **kwargs):
+        self.effacer_fichier()
+        if self.Word2 != '':
+            self.Word2_cree = True
+            self.Date_Creation_Word2 = timezone.now()
+        else:
+            self.Word2_cree = False
+            self.Date_Creation_Word2 = None
+        if self.Word3 != '':
+            self.Word3_cree = True
+            self.Date_Creation_Word3 = timezone.now()
+        else:
+            self.Word3_cree = False
+            self.Date_Creation_Word3 = None
+        if self.Word4 != '':
+            self.Word4_cree = True
+            self.Date_Creation_Word4 = timezone.now()
+        else:
+            self.Word4_cree = False
+            self.Date_Creation_Word4 = None
+        '''
+        if self.id is None:
+            saved_document = self.Word2
+            self.Word2 = None
+            super(Fichier_Word, self).save(*args, **kwargs)
+            self.Word2 = saved_document
+            if 'force_insert' in kwargs:
+                kwargs.pop('force_insert')
+            '''
+        super(Fichier_Word,self).save(*args, **kwargs)
+        self.copie_fichier()
+
+    def delete(self,*args,**kwargs):
+        obj = Fichier_Word.objects.get(pk = self.pk)
+        obj.Word2.delete()
+        if os.path.isfile(self.Word2.path):
+            os.remove(self.Word2.path)
+        obj.Word3.delete()
+        if os.path.isfile(self.Word3.path):
+            os.remove(self.Word3.path)
+        obj.Word2.delete()
+        if os.path.isfile(self.Word4.path):
+            os.remove(self.Word4.path)
+        super(Fichier_Word, self).delete(*args,**kwargs)
 
 class InfoEmail(models.Model):
     From = models.EmailField(max_length=70, verbose_name = 'De')

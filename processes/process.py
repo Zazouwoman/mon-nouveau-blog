@@ -35,9 +35,6 @@ def bd_backup_run():
 	l.dt_end = timezone.now()
 	l.save()
 	
-	
-
-
 if __name__ == "__main__":
 	bd_backup_run()
 		

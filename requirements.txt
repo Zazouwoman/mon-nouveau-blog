@@ -14,3 +14,5 @@ mysqlclient
 psycopg2-binary
 django-import-export
 django-tabular-export
+python-docx
+docx2pdf

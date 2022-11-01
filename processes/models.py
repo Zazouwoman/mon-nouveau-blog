@@ -21,6 +21,7 @@ class LogBackup(Log):
 	def Fonction_Nom_Fichier(self):
 		return self.fichier
 
+
 	def lien(self):
 		if self.id == None:
 			return None

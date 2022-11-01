@@ -16,6 +16,9 @@ db.sqlite3
 /static/
 /media/
 
+#Dossier Backup
+Backup/
+
 # macOS
 ._*
 .DS_Store

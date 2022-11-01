@@ -440,7 +440,30 @@ class EnvoiFactureForm(forms.ModelForm):
             #self.add_error('Delais_Paiement',msg)
             #self.add_error('Fin_Mois',msg)
 
+class Fichier_WordForm(forms.ModelForm):
+    class Meta:
+        model = Fichier_Word
+        #fields = ['Numero_Facture', 'Nom_Affaire']
+        fields = ['ID_Facture','Word2','Word3','Word4']
+        #fields = '__all__'
 
+    def __init__(self, *args, **kwargs):
+        super(Fichier_WordForm, self).__init__(*args, **kwargs)
+        self.fields['ID_Facture'].widget = forms.HiddenInput()
+
+    def clean(self):
+        cleaned_data = super().clean()
+        idfacture = self.initial['ID_Facture']
+        facture = Facture.objects.get(id = idfacture)
+        word2 = cleaned_data.get("Word2")
+        if word2 != '' and facture.Num_Relance <=2:
+            raise ValidationError("Impossible de téléverser le fichierword de la relance 2 car la relance 2 n'a pas encore été validée dans la base de données.")
+        word3 = cleaned_data.get("Word3")
+        if word3 != '' and facture.Num_Relance <=3:
+            raise ValidationError("Impossible de téléverser le fichierword de la relance 3 car la relance 3 n'a pas encore été validée dans la base de données.")
+        word4 = cleaned_data.get("Word4")
+        if word4 != '' and facture.Num_Relance <=4:
+            raise ValidationError("Impossible de téléverser le fichierword de la relance 4 car la relance 4 n'a pas encore été validée dans la base de données.")
 
 
 

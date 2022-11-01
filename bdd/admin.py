@@ -90,12 +90,43 @@ class AttachmentForm(forms.ModelForm):
 
 class AttachmentAdmin(admin.ModelAdmin):
     model = Attachment
-    list_display = ('file', 'pdf', 'message', 'file_link',)
+    list_display = ('file', 'pdf', 'message', 'nom', 'word', 'file_link',)
 
     def get_model_perms(self, request, *args, **kwargs):
         if not request.user.is_superuser:
             return {}
         return super().get_model_perms(request)
+
+    def word(self,obj):
+        if obj.id == None:
+            return None
+        else:
+            nom = obj.nom
+            message = InfoEmail.objects.get(pk=obj.message_id)
+            facture = Facture.objects.get(id=message.ID_Facture)
+            if nom == 'Lettre de Relance 2':
+                if facture.Word2Cree():
+                    return mark_safe(
+                    "<a href='{}'>WORD</a>".format(reverse('relance_word2bis', args=[message.ID_Facture])))
+                else:
+                    return mark_safe(
+                    "<a href='{}'>WORD</a>".format(reverse('relance_word2', args=[message.ID_Facture])))
+            elif nom == 'Lettre de Relance 3':
+                if facture.Word3Cree():
+                    return mark_safe(
+                    "<a href='{}'>WORD</a>".format(reverse('relance_word3bis', args=[message.ID_Facture])))
+                else:
+                    return mark_safe(
+                    "<a href='{}'>WORD</a>".format(reverse('relance_word3', args=[message.ID_Facture])))
+            elif nom == 'Lettre de Relance 4':
+                if facture.Word4Cree():
+                    return mark_safe(
+                    "<a href='{}'>WORD</a>".format(reverse('relance_word4bis', args=[message.ID_Facture])))
+                else:
+                    return mark_safe(
+                    "<a href='{}'>WORD</a>".format(reverse('relance_word4', args=[message.ID_Facture])))
+            else:
+                return None
 
 class CompteurIndiceAdmin(admin.ModelAdmin):
     def get_model_perms(self, request, *args, **kwargs):
@@ -115,18 +146,51 @@ class AttachmentInline(admin.TabularInline):
     #readonly_fields = ['nom', 'pdf', ]
     #fields = ['nom', 'file_link', ]
     #readonly_fields = ['nom', 'file_link', ]
-    fields = ['Num_Facture', 'nom', 'pdf']
-    readonly_fields = ['Num_Facture','nom','pdf']
+    fields = ['Num_Facture', 'nom', 'pdf','word']
+    readonly_fields = ['Num_Facture','nom','pdf','word']
 
     def pdf(self,obj):
         if obj.id == None:
             return None
         else:
             return mark_safe(
-                "<a href='{}' target='_blank'>PDF</a>".format(reverse('attachment_pdf', args=[obj.id])))
+                        "<a href='{}' target='_blank'>PDF</a>".format(reverse('attachment_pdf', args=[obj.id])))
 
     pdf.allow_tags = True
+    pdf.short_description = 'Visualiser pdf'
 
+    def word(self,obj):
+        if obj.id == None:
+            return None
+        else:
+            nom = obj.nom
+            message = InfoEmail.objects.get(pk=obj.message_id)
+            facture = Facture.objects.get(id=message.ID_Facture)
+            if nom == 'Lettre de Relance 2':
+                if facture.Word2Cree():
+                    return mark_safe(
+                    "<a href='{}'>WORD</a>".format(reverse('relance_word2bis', args=[message.ID_Facture])))
+                else:
+                    return mark_safe(
+                    "<a href='{}'>WORD</a>".format(reverse('relance_word2', args=[message.ID_Facture])))
+            elif nom == 'Lettre de Relance 3':
+                if facture.Word3Cree():
+                    return mark_safe(
+                    "<a href='{}'>WORD</a>".format(reverse('relance_word3bis', args=[message.ID_Facture])))
+                else:
+                    return mark_safe(
+                    "<a href='{}'>WORD</a>".format(reverse('relance_word3', args=[message.ID_Facture])))
+            elif nom == 'Lettre de Relance 4':
+                if facture.Word4Cree():
+                    return mark_safe(
+                    "<a href='{}'>WORD</a>".format(reverse('relance_word4bis', args=[message.ID_Facture])))
+                else:
+                    return mark_safe(
+                    "<a href='{}'>WORD</a>".format(reverse('relance_word4', args=[message.ID_Facture])))
+            else:
+                return None
+
+    word.short_description = 'Télécharger fichier Word'
 
     def get_model_perms(self, request, *args, **kwargs):
         if not request.user.is_superuser:
@@ -148,8 +212,41 @@ class AttachmentInline2(admin.TabularInline):
     Version fichiers liés modifiables : 
     fields = ['nom','file']
     '''
-    fields = ['Num_Facture','nom','pdf']
-    readonly_fields = ['nom', 'pdf', 'Num_Facture']
+    fields = ['Num_Facture','nom','pdf','word']
+    readonly_fields = ['nom', 'pdf', 'Num_Facture','word']
+
+    def word(self,obj):
+        if obj.id == None:
+            return None
+        else:
+            nom = obj.nom
+            message = InfoEmail.objects.get(pk=obj.message_id)
+            facture = Facture.objects.get(id=message.ID_Facture)
+            if nom == 'Lettre de Relance 2':
+                if facture.Word2Cree():
+                    return mark_safe(
+                    "<a href='{}'>WORD</a>".format(reverse('relance_word2bis', args=[message.ID_Facture])))
+                else:
+                    return mark_safe(
+                    "<a href='{}'>WORD</a>".format(reverse('relance_word2', args=[message.ID_Facture])))
+            elif nom == 'Lettre de Relance 3':
+                if facture.Word3Cree():
+                    return mark_safe(
+                    "<a href='{}'>WORD</a>".format(reverse('relance_word3bis', args=[message.ID_Facture])))
+                else:
+                    return mark_safe(
+                    "<a href='{}'>WORD</a>".format(reverse('relance_word3', args=[message.ID_Facture])))
+            elif nom == 'Lettre de Relance 4':
+                if facture.Word4Cree():
+                    return mark_safe(
+                    "<a href='{}'>WORD</a>".format(reverse('relance_word4bis', args=[message.ID_Facture])))
+                else:
+                    return mark_safe(
+                    "<a href='{}'>WORD</a>".format(reverse('relance_word4', args=[message.ID_Facture])))
+            else:
+                return None
+
+    word.short_description = 'Télécharger fichier Word'
 
     def get_model_perms(self, request, *args, **kwargs):
         if not request.user.is_superuser:
@@ -246,14 +343,19 @@ class InfoEmailAdmin(admin.ModelAdmin):
         if "Relancer" in request.POST:
             num = facture.Num_Relance
             mise_a_jour_relance(facture, num)
+            idfacture = email.ID_Facture
             email.delete()
             messages.add_message(request, messages.INFO, 'Relance {} enregistrée avec succès !!'.format(num))
             if 2 <= num <= 4:
                 source = Path(DOSSIER_PRIVE + 'relances/Relance{}-{}.pdf'.format(num,facture.Numero_Facture))
                 destination = Path(DOSSIER_PRIVE + 'facturation_par_dossier/{}/Relance{}-{}.pdf'.format(facture.Num_Affaire(),num,facture.Numero_Facture))
                 shutil.copy(source, destination)
-            url = '/admin/bdd/facture/'
-            return redirect(url)
+            try:
+                url = '/admin/bdd/facture/{}/change'.format(idfacture)
+                return redirect(url)
+            except:
+                url = '/admin/bdd/facture'
+                return redirect(url)
 
         if "Fermer" in request.POST:
             if facture.Num_Relance < 4:
@@ -306,6 +408,7 @@ class InfoEmailAdmin(admin.ModelAdmin):
 
         if "Relancer" in request.POST:
             mise_a_jour_relance(facture, num)
+            idfacture = email.ID_Facture
             email.delete()
             messages.add_message(request, messages.INFO, 'Relance {} sur la facture n°{} enregistrée avec succès !!'.format(num,facture.Numero_Facture))
             if 2 <= num <= 4:
@@ -314,8 +417,13 @@ class InfoEmailAdmin(admin.ModelAdmin):
                     DOSSIER_PRIVE + 'facturation_par_dossier/{}/Relance{}-{}.pdf'.format(facture.Num_Affaire(), num,
                                                                                    facture.Numero_Facture))
                 shutil.copy(source, destination)
-            url = '/admin/bdd/facture/'
-            return redirect(url)
+
+            try:
+                url = '/admin/bdd/facture/{}/change'.format(idfacture)
+                return redirect(url)
+            except:
+                url = '/admin/bdd/facture'
+                return redirect(url)
 
         if ("Valider_Suivi" in request.POST) or ("Mettre_a_jour_Suivi" in request.POST):
             if obj.Suivi == 'A préciser':
@@ -346,13 +454,15 @@ class InfoEmailAdmin(admin.ModelAdmin):
             affaire = Affaire.objects.get(pk=facture.ID_Affaire_id)
             mission = Offre_Mission.objects.get(pk=affaire.ID_Mission_id)
             ingeprev = Ingeprev.objects.get(Nom='INGEPREV')
+            payeur = Client.objects.get(pk=facture.ID_Payeur_id)
+            envoi = Envoi_Facture.objects.get(pk=facture.ID_Envoi_Facture_id)
 
             if num == 3 or num == 4:
                 if "Mettre_a_jour_RAR" in request.POST:
                     attachment = Attachment.objects.filter(message_id = email.id).filter(nom = "Lettre de Relance {}".format(num))
                     attachment.delete()
 
-                creer_pdf_relance(3, facture, affaire, mission, ingeprev, DOSSIER_PRIVE)
+                creer_pdf_relance2(num, facture, affaire, mission, ingeprev, DOSSIER_PRIVE,envoi,payeur)
                 chemin = Path(DOSSIER_PRIVE + 'relances/Relance{}-{}.pdf'.format(num, facture.Numero_Facture))
                 with chemin.open(mode='rb') as f:
                     Attachment.objects.create(file=File(f, name=chemin.name), message=email,
@@ -405,6 +515,16 @@ class InfoEmailAdmin(admin.ModelAdmin):
 
             obj.delete()
             url = '/admin/bdd/facture/'
+            return redirect(url)
+
+        if "Televerser_Word" in request.POST:
+            facture = Facture.objects.get(id=obj.ID_Facture)
+            try:
+                Fichier_Word.objects.get(ID_Facture_id=obj.ID_Facture)
+            except:
+                facture.creer_fichier_word()
+            idfichierword = facture.id_fichier_word()
+            url = '/admin/bdd/fichier_word/{}/change'.format(idfichierword)
             return redirect(url)
 
         return super().response_change(request, obj)
@@ -1257,101 +1377,6 @@ class FactureAdmin(admin.ModelAdmin):
                                      "La facture n'a pas été envoyée. Vous ne pouvez pas créer d'avoir. Envoyez votre facture d'abord." )
                 return redirect(".")
 
-        if "Relancer_Facture" in request.POST and request.method == 'POST':
-            if obj.deja_payee:
-                messages.add_message(request, messages.ERROR,
-                                     "La facture a été payée. Vous ne pouvez pas la relancer.")
-                return redirect('.')
-            if obj.Num_Relance >= 7:
-                num = obj.Num_Relance
-                affichage_message_relance(messages, request, num)
-                return redirect('.')
-            if obj.Num_Relance != 0:
-                num = obj.Num_Relance
-                affichage_message_relance(messages, request, num)
-                try:
-                    obj.save()
-
-                    facture = get_object_or_404(Facture, pk=obj.pk)
-                    affaire = Affaire.objects.get(pk=obj.ID_Affaire_id)
-                    mission = Offre_Mission.objects.get(pk=affaire.ID_Mission_id)
-                    ingeprev = Ingeprev.objects.get(Nom='INGEPREV')
-
-                    # En cas de problème, il faut créer le pdf de la facture
-                    if not obj.Fichier_Facture_cree:
-                        creer_pdf_facture(facture, affaire, mission, ingeprev, DOSSIER_PRIVE)
-
-                    # Création de l'email prérempli
-                    message = message_relance(facture)
-                    typeaction = 'Relance{}'.format(facture.Num_Relance)
-                    idfacture = facture.id
-                    sujet = 'Relance {} Facture INGEPREV'.format(facture.Num_Relance)
-                    From = settings.DEFAULT_FROM_EMAIL
-
-                    if facture.Num_Relance <= 3:
-                        RAR = facture.Num_RAR
-                    else:
-                        RAR = facture.Num_RAR_Demeure
-                    Suivi = facture.Num_Suivi
-
-                    email = InfoEmail.objects.create(From = From, To=facture.Email_Facture, Message=message,
-                                                     Subject=sujet, RAR = RAR, Suivi = Suivi,
-                                                     ID_Facture=idfacture, Type_Action=typeaction)
-
-                    #Récupération de la facture pdf
-                    chemin = Path(DOSSIER_PRIVE + 'factures/{}.pdf'.format(facture.Numero_Facture))
-                    with chemin.open(mode='rb') as f:
-                        Attachment.objects.create(file=File(f, name=chemin.name), message=email, nom = 'Facture')
-
-                    #Récupération des avoirs liés pdf éventuels
-                    nb = facture.Nb_Avoir()
-                    if nb >= 1:
-                        L = facture.Avoirs_Lies()
-                        for k in range(len(L)):
-                            x = L[k]
-                            avoir = Facture.objects.get(Numero_Facture = x)
-                            if not avoir.Fichier_Facture_cree:
-                                creer_pdf_facture(avoir, affaire, mission, ingeprev, DOSSIER_PRIVE)
-
-                            chemin = Path(DOSSIER_PRIVE + 'factures/{}.pdf'.format(x))
-                            with chemin.open(mode='rb') as f:
-                                Attachment.objects.create(file=File(f, name=chemin.name), message=email, nom='Avoir')
-
-                    #Création des lettres de relance
-                    if facture.Num_Relance >= 2:
-                        if (not facture.Fichier_Relance2_cree) or facture.Num_Relance == 2:
-                            creer_pdf_relance(2,facture,affaire,mission,ingeprev,DOSSIER_PRIVE)
-
-                        chemin = Path(DOSSIER_PRIVE + 'relances/Relance2-{}.pdf'.format(facture.Numero_Facture))
-                        with chemin.open(mode='rb') as f:
-                            Attachment.objects.create(file=File(f, name=chemin.name), message=email, nom = 'Lettre de Relance 2')
-
-                    if facture.Num_Relance == 4:
-                        for k in range(3,facture.Num_Relance):
-                            if not facture.Fichier_Relance3_cree:
-                                creer_pdf_relance(3,facture, affaire, mission, ingeprev, DOSSIER_PRIVE)
-                            chemin = Path(DOSSIER_PRIVE + 'relances/Relance{}-{}.pdf'.format(k,facture.Numero_Facture))
-                            with chemin.open(mode='rb') as f:
-                                Attachment.objects.create(file=File(f, name=chemin.name), message=email, nom = 'Lettre de Relance {}'.format(k))
-
-                    elif facture.Num_Relance == 5 or facture.Num_Relance == 6:
-                        if not facture.Fichier_Relance3_cree:
-                            creer_pdf_relance(3,facture, affaire, mission, ingeprev, DOSSIER_PRIVE)
-                        if not facture.Fichier_Relance4_cree:
-                            creer_pdf_relance(4,facture, affaire, mission, ingeprev, DOSSIER_PRIVE)
-                        for k in range(3,5):
-                            chemin = Path(DOSSIER_PRIVE + 'relances/Relance{}-{}.pdf'.format(k,facture.Numero_Facture))
-                            with chemin.open(mode='rb') as f:
-                                Attachment.objects.create(file=File(f, name=chemin.name), message=email, nom = 'Lettre de Relance {}'.format(k))
-
-                    id = email.pk
-                    url = '/admin/bdd/infoemail/{}/change'.format(id)
-                    return redirect(url, pk=email.pk)
-
-                except(ValueError, TypeError):
-                    pass
-            return redirect(".")
-
         if "Valider_Facture" in request.POST:  #Crée la facture (numéro définitif + enregistrement du fichier pdf + rediriger vers envoi mail )
             if not obj.deja_validee:
                 try:
@@ -1576,11 +1601,118 @@ class FactureAdmin(admin.ModelAdmin):
             url = '/admin/bdd/infoemail/{}/change'.format(id)
             return redirect(url, pk=email.pk)
 
+        if "Relancer_Facture" in request.POST and request.method == 'POST':
+            if obj.deja_payee:
+                messages.add_message(request, messages.ERROR,
+                                     "La facture a été payée. Vous ne pouvez pas la relancer.")
+                return redirect('.')
+            if obj.Num_Relance >= 7:
+                num = obj.Num_Relance
+                affichage_message_relance(messages, request, num)
+                return redirect('.')
+            if obj.Num_Relance != 0:
+                num = obj.Num_Relance
+                affichage_message_relance(messages, request, num)
+                try:
+                    obj.save()
+                    facture = get_object_or_404(Facture, pk=obj.pk)
+                    affaire = Affaire.objects.get(pk=obj.ID_Affaire_id)
+                    mission = Offre_Mission.objects.get(pk=affaire.ID_Mission_id)
+                    ingeprev = Ingeprev.objects.get(Nom='INGEPREV')
+                    payeur = Client.objects.get(pk = facture.ID_Payeur_id)
+                    envoi = Envoi_Facture.objects.get(pk=facture.ID_Envoi_Facture_id)
+
+                    # En cas de problème, il faut créer le pdf de la facture
+                    if not obj.Fichier_Facture_cree:
+                        creer_pdf_facture(facture, affaire, mission, ingeprev, DOSSIER_PRIVE)
+
+                    # Création de l'email prérempli
+                    message = message_relance(facture)
+                    typeaction = 'Relance{}'.format(facture.Num_Relance)
+                    idfacture = facture.id
+                    sujet = 'Relance {} Facture INGEPREV'.format(facture.Num_Relance)
+                    From = settings.DEFAULT_FROM_EMAIL
+
+                    if facture.Num_Relance <= 3:
+                        RAR = facture.Num_RAR
+                    else:
+                        RAR = facture.Num_RAR_Demeure
+                    Suivi = facture.Num_Suivi
+
+                    email = InfoEmail.objects.create(From = From, To=facture.Email_Facture, Message=message,
+                                                     Subject=sujet, RAR = RAR, Suivi = Suivi,
+                                                     ID_Facture=idfacture, Type_Action=typeaction)
+
+                    #Récupération de la facture pdf
+                    chemin = Path(DOSSIER_PRIVE + 'factures/{}.pdf'.format(facture.Numero_Facture))
+                    with chemin.open(mode='rb') as f:
+                        Attachment.objects.create(file=File(f, name=chemin.name), message=email, nom = 'Facture')
+
+                    #Récupération des avoirs liés pdf éventuels
+                    nb = facture.Nb_Avoir()
+                    if nb >= 1:
+                        L = facture.Avoirs_Lies()
+                        for k in range(len(L)):
+                            x = L[k]
+                            avoir = Facture.objects.get(Numero_Facture = x)
+                            if not avoir.Fichier_Facture_cree:
+                                creer_pdf_facture(avoir, affaire, mission, ingeprev, DOSSIER_PRIVE)
+
+                            chemin = Path(DOSSIER_PRIVE + 'factures/{}.pdf'.format(x))
+                            with chemin.open(mode='rb') as f:
+                                Attachment.objects.create(file=File(f, name=chemin.name), message=email, nom='Avoir')
+
+                    #Création des lettres de relance
+                    if facture.Num_Relance >= 2:
+                        if not facture.Word2Cree():
+                            if (not facture.Fichier_Relance2_cree) or facture.Num_Relance == 2:
+                                creer_pdf_relance2(2, facture, affaire, mission, ingeprev, DOSSIER_PRIVE, envoi, payeur)
+
+                            chemin = Path(DOSSIER_PRIVE + 'relances/Relance2-{}.pdf'.format(facture.Numero_Facture))
+                        else:
+                            chemin = facture.Fonction_Nom_Fichier_Pdf_Relance(2)
+                        with chemin.open(mode='rb') as f:
+                            Attachment.objects.create(file=File(f, name=chemin.name), message=email,
+                                                      nom='Lettre de Relance {}'.format(2))
+
+                    if facture.Num_Relance == 4:
+                        for k in range(3,facture.Num_Relance):
+                            if not facture.Word3Cree():
+                                if not facture.Fichier_Relance3_cree:
+                                    creer_pdf_relance2(3, facture, affaire, mission, ingeprev, DOSSIER_PRIVE, envoi,
+                                                       payeur)
+
+                                chemin = Path(DOSSIER_PRIVE + 'relances/Relance{}-{}.pdf'.format(k,facture.Numero_Facture))
+                            else:
+                                chemin = facture.Fonction_Nom_Fichier_Pdf_Relance(k)
+                            with chemin.open(mode='rb') as f:
+                                Attachment.objects.create(file=File(f, name=chemin.name), message=email, nom = 'Lettre de Relance {}'.format(k))
+
+                    elif facture.Num_Relance == 5 or facture.Num_Relance == 6:
+                        if not facture.Fichier_Relance3_cree and not facture.Word3Cree():
+                            creer_pdf_relance2(3,facture, affaire, mission, ingeprev, DOSSIER_PRIVE,envoi,payeur)
+                        if not facture.Fichier_Relance4_cree and not facture.Word4Cree():
+                            creer_pdf_relance2(4,facture, affaire, mission, ingeprev, DOSSIER_PRIVE,envoi,payeur)
+                        for k in range(3,5):
+                            chemin = Path(DOSSIER_PRIVE + 'relances/Relance{}-{}.pdf'.format(k,facture.Numero_Facture))
+                            with chemin.open(mode='rb') as f:
+                                Attachment.objects.create(file=File(f, name=chemin.name), message=email, nom = 'Lettre de Relance {}'.format(k))
+
+                    id = email.pk
+                    url = '/admin/bdd/infoemail/{}/change'.format(id)
+                    return redirect(url, pk=email.pk)
+
+                except(ValueError, TypeError):
+                    pass
+            return redirect(".")
+
         if "Test_Apercu_Relance" in request.POST:  # Ouvre la fenêtre d'envoi du mail
             facture = get_object_or_404(Facture, pk=obj.pk)
             affaire = Affaire.objects.get(pk=obj.ID_Affaire_id)
             offre = Offre_Mission.objects.get(pk=affaire.ID_Mission_id)
             ingeprev = Ingeprev.objects.get(Nom='INGEPREV')
+            payeur = Client.objects.get(pk=facture.ID_Payeur_id)
+            envoi = Envoi_Facture.objects.get(pk=facture.ID_Envoi_Facture_id)
 
             # En cas de problème, il faut créer le pdf de la facture
             if not obj.Fichier_Facture_cree:
@@ -1617,17 +1749,46 @@ class FactureAdmin(admin.ModelAdmin):
                         Attachment.objects.create(file=File(f, name=chemin.name), message=email, nom='Avoir')
 
             # Création des lettres de relance
-            for k in range(2,5):
-                creer_pdf_relance_temporaire(k, facture, affaire, offre, ingeprev, DOSSIER_PRIVE)
-                chemin = Path(DOSSIER_PRIVE + 'tmp/Relance{}.pdf'.format(k))
+            if not facture.Fichier_Word_cree:
+                for k in range(2,5):
+                    creer_pdf_relance_temporaire2(k, facture, affaire, offre, ingeprev, DOSSIER_PRIVE, envoi, payeur)
+                    chemin = facture.Fonction_Nom_Fichier_Pdf_Relance(k)
+                    with chemin.open(mode='rb') as f:
+                        Attachment.objects.create(file=File(f, name=chemin.name), message=email,
+                                                  nom='Lettre de Relance {}'.format(k))
+            else:
+                if not facture.Word2Cree():
+                    creer_pdf_relance_temporaire2(2, facture, affaire, offre, ingeprev, DOSSIER_PRIVE, envoi,
+                                                      payeur)
+                    chemin = Path(DOSSIER_PRIVE + 'tmp/Relance{}.pdf'.format(2))
+                else:
+                    chemin = facture.Fonction_Nom_Fichier_Pdf_Relance(2)
                 with chemin.open(mode='rb') as f:
                     Attachment.objects.create(file=File(f, name=chemin.name), message=email,
-                                          nom='Lettre de Relance {}'.format(k))
+                                                  nom='Lettre de Relance {}'.format(2))
+                if not facture.Word3Cree():
+                    creer_pdf_relance_temporaire2(3, facture, affaire, offre, ingeprev, DOSSIER_PRIVE, envoi,
+                                                      payeur)
+                    chemin = Path(DOSSIER_PRIVE + 'tmp/Relance{}.pdf'.format(3))
+                else:
+                    chemin = facture.Fonction_Nom_Fichier_Pdf_Relance(3)
+                with chemin.open(mode='rb') as f:
+                    Attachment.objects.create(file=File(f, name=chemin.name), message=email,
+                                                  nom='Lettre de Relance {}'.format(3))
+                if not facture.Word4Cree():
+                    creer_pdf_relance_temporaire2(4, facture, affaire, offre, ingeprev, DOSSIER_PRIVE, envoi,
+                                                      payeur)
+                    chemin = Path(DOSSIER_PRIVE + 'tmp/Relance{}.pdf'.format(4))
+                else:
+                    chemin = facture.Fonction_Nom_Fichier_Pdf_Relance(4)
+                with chemin.open(mode='rb') as f:
+                    Attachment.objects.create(file=File(f, name=chemin.name), message=email,
+                                                  nom='Lettre de Relance {}'.format(4))
+
 
             id = email.pk
             url = '/admin/bdd/infoemail/{}/change'.format(id)
             return redirect(url, pk=email.pk)
-
 
         if "Renvoi_Facture" in request.POST:  # Ouvre la fenêtre d'envoi du mail
             facture = get_object_or_404(Facture, pk=obj.pk)
@@ -1664,8 +1825,63 @@ class FactureAdmin(admin.ModelAdmin):
             url = '/admin/bdd/infoemail/{}/change'.format(id)
             return redirect(url, pk=email.pk)
 
+        if "Televerser_Word" in request.POST:
+            try:
+                Fichier_Word.objects.get(ID_Facture_id=obj.id)
+            except:
+                obj.creer_fichier_word()
+            idfichierword = obj.id_fichier_word()
+            url = '/admin/bdd/fichier_word/{}/change'.format(idfichierword)
+            return redirect(url)
 
         return super().response_change(request, obj)
+
+class Fichier_WordAdmin(admin.ModelAdmin):
+    list_display = ('ID_Facture','Word2','Word3','Word4')
+
+    form = Fichier_WordForm
+    change_form_template = 'bdd/Modification_Fichier_Word.html'
+
+    class Meta:
+        model = Fichier_Word
+
+    def get_model_perms(self, request, *args, **kwargs):
+        if not request.user.is_superuser:
+            return {}
+        return super().get_model_perms(request)
+
+    def get_readonly_fields(self, request, obj = None):
+        if not obj:
+            return []
+        else:
+            return ('Numero_Facture',)
+
+    def response_change(self, request, obj):
+        if "Retour_Facture" in request.POST:
+            obj.save()
+            idfacture = obj.ID_Facture_id
+            url = '/admin/bdd/facture/{}/change'.format(idfacture)
+            return redirect(url)
+        if "Retour_Relance" in request.POST:
+            obj.save()
+            try:
+                idfacture = obj.ID_Facture_id
+                print('ici',idfacture)
+                email = InfoEmail.objects.filter(ID_Facture=idfacture).order_by('id').latest('id')
+                print(email)
+                url = '/admin/bdd/infoemail/{}/change'.format(email.pk)
+            except:
+                idfacture = obj.ID_Facture_id
+                url = '/admin/bdd/facture/{}/change'.format(idfacture)
+            return redirect(url)
+        return super().response_change(request, obj)
+
+    def change_view(self,request, object_id, extra_context = None):
+        extra_context = extra_context or {}
+        fichier_word = Fichier_Word.objects.get(id = object_id)
+        extra_context['fichier_word'] = fichier_word
+        return super().change_view(request, object_id, extra_context=extra_context)
+
 
 admin.site.register(InfoEmail, InfoEmailAdmin)
 admin.site.register(Pilote)
@@ -1679,6 +1895,7 @@ admin.site.register(Envoi_Facture, EnvoiFactureAdmin)
 admin.site.register(Compteur_Indice, CompteurIndiceAdmin)
 admin.site.register(Ingeprev,IngeprevAdmin)
 admin.site.register(Previsionnel,PrevisionnelAdmin)
+admin.site.register(Fichier_Word,Fichier_WordAdmin)
 
 #admin.site.disable_action('delete_selected')
 
