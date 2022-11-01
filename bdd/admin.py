@@ -1852,7 +1852,8 @@ class Fichier_WordAdmin(admin.ModelAdmin):
     class Meta:
         model = Fichier_Word
 
-
+    def has_add_permission(self, request):
+        return False
 
     def get_model_perms(self, request, *args, **kwargs):
         if not request.user.is_superuser:
