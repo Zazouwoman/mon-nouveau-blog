@@ -43,7 +43,6 @@ from docx2pdf import convert
 import pythoncom
 import os.path
 
-
 DOSSIER = settings.MEDIA_ROOT #Nom du dossier public dans lequel sont enregistrés les factures, lettres de relance
 DOSSIER_PRIVE = settings.MEDIA_ROOT_PRIVE #Nom du dossier privé dans lequel sont enregistrés les factures, lettres de relance ...
 #DOSSIER_TEMP = tempfile.TemporaryDirectory(prefix="facture-").name
@@ -1433,7 +1432,6 @@ def renommage2(instance,nom_fichier):
     numfacture = facture.Numero_Facture
     fichier = 'relances/Relance2-{}.docx'.format(numfacture)
     return fichier
-
 def renommage3(instance,nom_fichier):
     facture = Facture.objects.get(pk = instance.ID_Facture_id)
     numfacture = facture.Numero_Facture
@@ -1445,15 +1443,34 @@ def renommage4(instance,nom_fichier):
     fichier = 'relances/Relance4-{}.docx'.format(numfacture)
     return fichier
 
+def renommage2bis(instance,nom_fichier):
+    facture = Facture.objects.get(pk = instance.ID_Facture_id)
+    numfacture = facture.Numero_Facture
+    fichier = 'relances/Relance2-{}.pdf'.format(numfacture)
+    return fichier
+def renommage3bis(instance,nom_fichier):
+    facture = Facture.objects.get(pk = instance.ID_Facture_id)
+    numfacture = facture.Numero_Facture
+    fichier = 'relances/Relance3-{}.pdf'.format(numfacture)
+    return fichier
+def renommage4bis(instance,nom_fichier):
+    facture = Facture.objects.get(pk = instance.ID_Facture_id)
+    numfacture = facture.Numero_Facture
+    fichier = 'relances/Relance4-{}.pdf'.format(numfacture)
+    return fichier
+
 class Fichier_Word(models.Model):
     ID_Facture = models.ForeignKey(Facture, on_delete=models.SET_NULL, verbose_name="Facture associée", blank=True,null=True)
     Word2 = models.FileField(upload_to=renommage2,blank=True,verbose_name="Fichier Word de Relance 2",default='')
+    PDF2 = models.FileField(upload_to=renommage2bis, blank=True, verbose_name="Fichier PDF de Relance 2", default='')
     Word2_cree = models.BooleanField(default=False, verbose_name="Word2_créé")
     Date_Creation_Word2 = models.DateTimeField(null=True,blank=True, verbose_name="Date de création du Word2")
     Word3 = models.FileField(upload_to=renommage3, null=True, blank=True,verbose_name="Fichier Word de Relance 3",default='')
+    PDF3 = models.FileField(upload_to=renommage3bis, blank=True, verbose_name="Fichier PDF de Relance 3", default='')
     Word3_cree = models.BooleanField(default=False, verbose_name="Word3_créé")
     Date_Creation_Word3 = models.DateTimeField(null=True,blank=True, verbose_name="Date de création du Word3")
     Word4 = models.FileField(upload_to=renommage4, blank=True,verbose_name="Fichier Word de Relance 4",default='')
+    PDF4 = models.FileField(upload_to=renommage4bis, blank=True, verbose_name="Fichier PDF de Relance 4", default='')
     Word4_cree = models.BooleanField(default=False, verbose_name="Word4_créé")
     Date_Creation_Word4 = models.DateTimeField(null=True,blank=True, verbose_name="Date de création du Word4")
 
@@ -1486,6 +1503,25 @@ class Fichier_Word(models.Model):
             return mark_safe(
                 "<a href='{}' target='_blank'>{}</a>".format(reverse('lien_fichier_word4', args=[self.id]), self.Word4))
 
+    def lien_PDF2(self):
+        if self.id == None:
+            return None
+        else:
+            return mark_safe(
+                "<a href='{}' target='_blank'>{}</a>".format(reverse('lien_fichier_PDF2', args=[self.id]), self.PDF2))
+    def lien_PDF3(self):
+        if self.id == None:
+            return None
+        else:
+            return mark_safe(
+                "<a href='{}' target='_blank'>{}</a>".format(reverse('lien_fichier_PDF3', args=[self.id]), self.PDF3))
+    def lien_PDF4(self):
+        if self.id == None:
+            return None
+        else:
+            return mark_safe(
+                "<a href='{}' target='_blank'>{}</a>".format(reverse('lien_fichier_PDF4', args=[self.id]), self.PDF4))
+
     def Numero_Facture(self):
         facture = Facture.objects.get(id = self.ID_Facture_id)
         return facture.Numero_Facture
@@ -1494,23 +1530,25 @@ class Fichier_Word(models.Model):
         facture = Facture.objects.get(id = self.ID_Facture_id)
         if k == 2:
             source = self.Word2.path
+            source_pdf = self.PDF2.path
         elif k == 3:
             source = self.Word3.path
+            source_pdf = self.PDF3.path
         elif k == 4:
             source = self.Word4.path
-        #source = Path(DOSSIER + 'relances/Relance{}-{}.docx'.format(k, facture.Numero_Facture))
+            source_pdf = self.PDF4.path
         destination1 = Path(DOSSIER_PRIVE + 'relances/Relance{}-{}.docx'.format(k, facture.Numero_Facture))
         shutil.copy(source, destination1)
-        convert(destination1)
         destination2 = Path(
             DOSSIER_PRIVE + 'facturation_par_dossier/{}/Relance{}-{}.docx'.format(facture.Num_Affaire(), k,
                                                                                  facture.Numero_Facture))
         shutil.copy(source, destination2)
-        source_pdf = Path(DOSSIER_PRIVE + 'relances/Relance{}-{}.pdf'.format(k, facture.Numero_Facture))
-        destination_pdf = Path(
+        destination_pdf1 = Path(DOSSIER_PRIVE + 'relances/Relance{}-{}.pdf'.format(k, facture.Numero_Facture))
+        shutil.copy(source_pdf, destination_pdf1)
+        destination_pdf2 = Path(
             DOSSIER_PRIVE + 'facturation_par_dossier/{}/Relance{}-{}.pdf'.format(facture.Num_Affaire(), k,
                                                                                   facture.Numero_Facture))
-        shutil.copy(source_pdf, destination_pdf)
+        shutil.copy(source_pdf, destination_pdf2)
 
     def effacer_pdf(self,k):
         facture = Facture.objects.get(id=self.ID_Facture_id)
@@ -1558,7 +1596,8 @@ class Fichier_Word(models.Model):
 
     def copie_fichier(self):
         if self.Word2 != '' or self.Word3 != '' or self.Word4 != '':
-            pythoncom.CoInitialize()
+            #pythoncom.CoInitialize()
+            pass
         if self.Word2 != '':
             self.creer_pdf(2)
         if self.Word3 != '':
@@ -1567,33 +1606,42 @@ class Fichier_Word(models.Model):
             self.creer_pdf(4)
 
     def effacer_fichier(self):
-        if self.Word2 == '' and self.Word2_cree:
+        if (self.Word2 == '' and self.Word2_cree) or (self.PDF2 == '' and self.Word2_cree):
             self.effacer_pdf(2)
-        if self.Word3 == '' and self.Word3_cree:
+        if (self.Word3 == '' and self.Word3_cree) or (self.PDF3 == '' and self.Word3_cree):
             self.effacer_pdf(3)
-        if self.Word4 == '' and self.Word4_cree:
+        if (self.Word4 == '' and self.Word4_cree) or (self.PDF4 == '' and self.Word4_cree):
             self.effacer_pdf(4)
 
     def save(self, *args, **kwargs):
         self.effacer_fichier()
+        if self.PDF2 == '':
+            self.Word2 = ''
+        if self.PDF3 == '':
+            self.Word3 = ''
+        if self.PDF4 == '':
+            self.Word4 = ''
         if self.Word2 != '':
             self.Word2_cree = True
             self.Date_Creation_Word2 = timezone.now()
         else:
             self.Word2_cree = False
             self.Date_Creation_Word2 = None
+            self.PDF2.delete()
         if self.Word3 != '':
             self.Word3_cree = True
             self.Date_Creation_Word3 = timezone.now()
         else:
             self.Word3_cree = False
             self.Date_Creation_Word3 = None
+            self.PDF3.delete()
         if self.Word4 != '':
             self.Word4_cree = True
             self.Date_Creation_Word4 = timezone.now()
         else:
             self.Word4_cree = False
             self.Date_Creation_Word4 = None
+            self.PDF4.delete()
         '''
         if self.id is None:
             saved_document = self.Word2
@@ -1611,12 +1659,33 @@ class Fichier_Word(models.Model):
         obj.Word2.delete()
         if os.path.isfile(self.Word2.path):
             os.remove(self.Word2.path)
+            if os.path.isfile(self.PDF2.path):
+                os.remove(self.PDF2.path)
         obj.Word3.delete()
         if os.path.isfile(self.Word3.path):
             os.remove(self.Word3.path)
-        obj.Word2.delete()
+            if os.path.isfile(self.PDF3.path):
+                os.remove(self.PDF3.path)
+        obj.Word4.delete()
         if os.path.isfile(self.Word4.path):
             os.remove(self.Word4.path)
+            if os.path.isfile(self.PDF4.path):
+                os.remove(self.PDF4.path)
+        obj.PDF2.delete()
+        if os.path.isfile(self.PDF2.path):
+            os.remove(self.PDF2.path)
+            if os.path.isfile(self.Word2.path):
+                os.remove(self.Word2.path)
+        obj.PDF3.delete()
+        if os.path.isfile(self.PDF3.path):
+            os.remove(self.PDF3.path)
+            if os.path.isfile(self.Word3.path):
+                os.remove(self.Word3.path)
+        obj.PDF4.delete()
+        if os.path.isfile(self.PDF4.path):
+            os.remove(self.PDF4.path)
+            if os.path.isfile(self.Word4.path):
+                os.remove(self.Word4.path)
         super(Fichier_Word, self).delete(*args,**kwargs)
 
 class InfoEmail(models.Model):

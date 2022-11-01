@@ -444,7 +444,7 @@ class Fichier_WordForm(forms.ModelForm):
     class Meta:
         model = Fichier_Word
         #fields = ['Numero_Facture', 'Nom_Affaire']
-        fields = ['ID_Facture','Word2','Word3','Word4']
+        fields = ['ID_Facture','Word2','PDF2','Word3','PDF3','Word4','PDF4']
         #fields = '__all__'
 
     def __init__(self, *args, **kwargs):
@@ -456,14 +456,44 @@ class Fichier_WordForm(forms.ModelForm):
         idfacture = self.initial['ID_Facture']
         facture = Facture.objects.get(id = idfacture)
         word2 = cleaned_data.get("Word2")
-        if word2 != '' and facture.Num_Relance <=2:
-            raise ValidationError("Impossible de téléverser le fichierword de la relance 2 car la relance 2 n'a pas encore été validée dans la base de données.")
         word3 = cleaned_data.get("Word3")
-        if word3 != '' and facture.Num_Relance <=3:
-            raise ValidationError("Impossible de téléverser le fichierword de la relance 3 car la relance 3 n'a pas encore été validée dans la base de données.")
         word4 = cleaned_data.get("Word4")
+        pdf2 = cleaned_data.get("PDF2")
+        pdf3 = cleaned_data.get("PDF3")
+        pdf4 = cleaned_data.get("PDF4")
+        if word2 != None:
+            if word2 != '' and (pdf2 == None or pdf2 == ''):
+                raise ValidationError("Validation impossible : s'il y a un fichier word 2 il faut aussi mettre le fichier pdf2 correspondant.")
+        if pdf2 != None:
+            if pdf2 != '' and (word2 == None or word2 == ''):
+                raise ValidationError("Validation impossible : s'il y a un fichier pdf 2 il faut aussi mettre le fichier word2 correspondant.")
+        if word3 != None:
+            if word3 != '' and (pdf3 == None or pdf3 == ''):
+                raise ValidationError("Validation impossible : s'il y a un fichier word 3 il faut aussi mettre le fichier pdf3 correspondant.")
+        if pdf3 != None:
+            if pdf3 != '' and (word3 == None or word3 == ''):
+                raise ValidationError("Validation impossible : s'il y a un fichier pdf 3 il faut aussi mettre le fichier word3 correspondant.")
+        if word4 != None:
+            if word4 != '' and (pdf4 == None or pdf4 == ''):
+                raise ValidationError("Validation impossible : s'il y a un fichier word 4 il faut aussi mettre le fichier pdf4 correspondant.")
+        if pdf4 != None:
+            if pdf4 != '' and (word4 == None or word4 == ''):
+                raise ValidationError("Validation impossible : s'il y a un fichier pdf 4 il faut aussi mettre le fichier word4 correspondant.")
+        '''
+        if word2 != '' and facture.Num_Relance <=2:
+            raise ValidationError("Impossible de téléverser le fichier word de la relance 2 car la relance 2 n'a pas encore été validée dans la base de données.")
+        if word3 != '' and facture.Num_Relance <=3:
+            raise ValidationError("Impossible de téléverser le fichier word de la relance 3 car la relance 3 n'a pas encore été validée dans la base de données.")
         if word4 != '' and facture.Num_Relance <=4:
-            raise ValidationError("Impossible de téléverser le fichierword de la relance 4 car la relance 4 n'a pas encore été validée dans la base de données.")
+            raise ValidationError("Impossible de téléverser le fichier word de la relance 4 car la relance 4 n'a pas encore été validée dans la base de données.")'''
+
+    '''
+    def save(self, commit=True):
+        instance = super(Fichier_WordForm, self).save(commit)
+        if instance.PDF2 == False and instance.Word2 != False:
+            instance.Word2.delete()
+        return instance'''
+
 
 
 

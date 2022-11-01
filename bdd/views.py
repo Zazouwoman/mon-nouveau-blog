@@ -151,13 +151,56 @@ def relance_word3bis(request, id=None):
 @login_required
 def relance_word4bis(request, id=None):
     facture = Facture.objects.get(id=id)
-    nom_fichier = "Relance2-{}.docx".format(facture.Numero_Facture)  # C'est le nom que l'on veut que le fichier ait
+    nom_fichier = "Relance4-{}.docx".format(facture.Numero_Facture)  # C'est le nom que l'on veut que le fichier ait
     fichier = facture.Fonction_Nom_Fichier_Word_Relance(4)
 
     if not (os.path.exists(fichier)):
         return render(request, "bdd/facture/facture_no_fichier.html", {"facture": facture})
 
     response = HttpResponse(content_type='application/vnd.ms-word')
+    response['Content-Disposition'] = 'inline; filename=%s' % nom_fichier
+    with open(fichier, "rb") as f:
+        response.write(f.read())
+    return response
+
+@login_required
+def relance_pdf2(request, id=None):
+    facture = Facture.objects.get(id=id)
+    nom_fichier = "Relance2-{}.pdf".format(facture.Numero_Facture)  # C'est le nom que l'on veut que le fichier ait
+    fichier = facture.Fonction_Nom_Fichier_Pdf_Relance(2)
+
+    if not (os.path.exists(fichier)):
+        return render(request, "bdd/facture/facture_no_fichier.html", {"facture": facture})
+
+    response = HttpResponse(content_type='application/pdf')
+    response['Content-Disposition'] = 'inline; filename=%s' % nom_fichier
+    with open(fichier, "rb") as f:
+        response.write(f.read())
+    return response
+@login_required
+def relance_pdf3(request, id=None):
+    facture = Facture.objects.get(id=id)
+    nom_fichier = "Relance3-{}.pdf".format(facture.Numero_Facture)  # C'est le nom que l'on veut que le fichier ait
+    fichier = facture.Fonction_Nom_Fichier_Pdf_Relance(3)
+
+    if not (os.path.exists(fichier)):
+        return render(request, "bdd/facture/facture_no_fichier.html", {"facture": facture})
+
+    response = HttpResponse(content_type='application/pdf')
+    response['Content-Disposition'] = 'inline; filename=%s' % nom_fichier
+    with open(fichier, "rb") as f:
+        response.write(f.read())
+    return response
+@login_required
+def relance_pdf4(request, id=None):
+    facture = Facture.objects.get(id=id)
+    nom_fichier = "Relance4-{}.pdf".format(facture.Numero_Facture)  # C'est le nom que l'on veut que le fichier ait
+    fichier = facture.Fonction_Nom_Fichier_Pdf_Relance(4)
+
+    if not (os.path.exists(fichier)):
+        return render(request, "bdd/facture/facture_no_fichier.html", {"facture": facture})
+
+    response = HttpResponse(content_type='application/pdf')
     response['Content-Disposition'] = 'inline; filename=%s' % nom_fichier
     with open(fichier, "rb") as f:
         response.write(f.read())
