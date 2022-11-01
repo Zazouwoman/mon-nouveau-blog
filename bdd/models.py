@@ -1651,6 +1651,7 @@ class Fichier_Word(models.Model):
             if 'force_insert' in kwargs:
                 kwargs.pop('force_insert')
             '''
+
         super(Fichier_Word,self).save(*args, **kwargs)
         self.copie_fichier()
 

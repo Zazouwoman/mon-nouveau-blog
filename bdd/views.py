@@ -32,17 +32,19 @@ def lien_fichier_word2(request, id=None):
     print('ici',fichierword)
     nom_fichier = fichierword.Word2  # C'est le nom que l'on veut que le fichier ait
     print('ici2',nom_fichier)
-    fichier = fichierword.Fonction_Nom_Fichier_Word2()
+    fichier = fichierword.Word2.path
+    print('ici3',fichier)
 
     if not (os.path.exists(fichier)):
         return render(request, "bdd/no_fichier.html", {"facture": fichierword})
 
     response = HttpResponse(content_type='application/vnd.ms-word')
-    #response = HttpResponse(content_type = 'application/vnd.openxmlformats-officedocument.wordprocessingml.document')
+    response = HttpResponse(content_type = 'application/vnd.openxmlformats-officedocument.wordprocessingml.document')
     response['Content-Disposition'] = 'inline; filename=%s' % nom_fichier
     with open(fichier, "rb") as f:
         response.write(f.read())
     return response
+
 @login_required
 def lien_fichier_word3(request, id=None):
     fichierword = Fichier_Word.objects.get(id=id)

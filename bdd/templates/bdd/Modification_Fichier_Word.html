@@ -4,6 +4,16 @@
 {% block content %}
 {% csrf_token %}
 {{block.super}}
+{{fichier_word_form.Word2.label_tag}}
+<form method="post" enctype="multipart/form-data">
+    {% csrf_token %}
+    Fichier Word 2 :
+    <input type="word 2" name="Word2">
+    <button type="submit">Upload</button>
+</form>
+
+    <p>File uploaded at: <a href="{{ fichier_word.lien_word2 }}">{{ fichier_word.lien_word2 }}</a></p>
+
 {% endblock %}
 
 {% block after_related_objects %}

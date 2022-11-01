@@ -450,6 +450,7 @@ class Fichier_WordForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super(Fichier_WordForm, self).__init__(*args, **kwargs)
         self.fields['ID_Facture'].widget = forms.HiddenInput()
+        #self.fields['lien_word2'].widget.attrs['readonly']=True
 
     def clean(self):
         cleaned_data = super().clean()

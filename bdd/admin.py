@@ -1880,6 +1880,8 @@ class Fichier_WordAdmin(admin.ModelAdmin):
         extra_context = extra_context or {}
         fichier_word = Fichier_Word.objects.get(id = object_id)
         extra_context['fichier_word'] = fichier_word
+        fichier_word_form = Fichier_WordForm(instance = fichier_word)
+        extra_context['fichier_word_form'] = fichier_word_form
         return super().change_view(request, object_id, extra_context=extra_context)
 
 
