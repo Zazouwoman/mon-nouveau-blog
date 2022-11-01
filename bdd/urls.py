@@ -27,6 +27,9 @@ urlpatterns = [
     path('lien/fichier_word2/<int:id>/', views.lien_fichier_word2, name="lien_fichier_word2"),
     path('lien/fichier_word3/<int:id>/', views.lien_fichier_word3, name="lien_fichier_word3"),
     path('lien/fichier_word4/<int:id>/', views.lien_fichier_word4, name="lien_fichier_word4"),
+    path('lien/fichier_pdf2/<int:id>/', views.lien_fichier_pdf2, name="lien_fichier_pdf2"),
+    path('lien/fichier_pdf3/<int:id>/', views.lien_fichier_pdf3, name="lien_fichier_pdf3"),
+    path('lien/fichier_pdf4/<int:id>/', views.lien_fichier_pdf4, name="lien_fichier_pdf4"),
 ] #+ static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 
 if settings.DEBUG:

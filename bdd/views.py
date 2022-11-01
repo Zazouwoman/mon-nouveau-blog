@@ -27,6 +27,49 @@ def home(request):
     return render(request, 'bdd/home.html')
 
 @login_required
+def lien_fichier_pdf2(request, id=None):
+    fichierword = Fichier_Word.objects.get(id=id)
+    nom_fichier = fichierword.PDF2  # C'est le nom que l'on veut que le fichier ait
+    fichier = fichierword.PDF2.path
+
+    if not (os.path.exists(fichier)):
+        return render(request, "bdd/no_fichier.html", {"facture": fichierword})
+
+    response = HttpResponse(content_type='application/pdf')
+    response['Content-Disposition'] = 'inline; filename=%s' % nom_fichier
+    with open(fichier, "rb") as f:
+        response.write(f.read())
+    return response
+@login_required
+def lien_fichier_pdf3(request, id=None):
+    fichierword = Fichier_Word.objects.get(id=id)
+    nom_fichier = fichierword.PDF3  # C'est le nom que l'on veut que le fichier ait
+    fichier = fichierword.PDF3.path
+
+    if not (os.path.exists(fichier)):
+        return render(request, "bdd/no_fichier.html", {"facture": fichierword})
+
+    response = HttpResponse(content_type='application/pdf')
+    response['Content-Disposition'] = 'inline; filename=%s' % nom_fichier
+    with open(fichier, "rb") as f:
+        response.write(f.read())
+    return response
+@login_required
+def lien_fichier_pdf4(request, id=None):
+    fichierword = Fichier_Word.objects.get(id=id)
+    nom_fichier = fichierword.PDF4  # C'est le nom que l'on veut que le fichier ait
+    fichier = fichierword.PDF4.path
+
+    if not (os.path.exists(fichier)):
+        return render(request, "bdd/no_fichier.html", {"facture": fichierword})
+
+    response = HttpResponse(content_type='application/pdf')
+    response['Content-Disposition'] = 'inline; filename=%s' % nom_fichier
+    with open(fichier, "rb") as f:
+        response.write(f.read())
+    return response
+
+@login_required
 def lien_fichier_word2(request, id=None):
     fichierword = Fichier_Word.objects.get(id=id)
     print('ici',fichierword)
@@ -44,7 +87,6 @@ def lien_fichier_word2(request, id=None):
     with open(fichier, "rb") as f:
         response.write(f.read())
     return response
-
 @login_required
 def lien_fichier_word3(request, id=None):
     fichierword = Fichier_Word.objects.get(id=id)

@@ -1508,19 +1508,19 @@ class Fichier_Word(models.Model):
             return None
         else:
             return mark_safe(
-                "<a href='{}' target='_blank'>{}</a>".format(reverse('lien_fichier_PDF2', args=[self.id]), self.PDF2))
+                "<a href='{}' target='_blank'>{}</a>".format(reverse('lien_fichier_pdf2', args=[self.id]), self.PDF2))
     def lien_PDF3(self):
         if self.id == None:
             return None
         else:
             return mark_safe(
-                "<a href='{}' target='_blank'>{}</a>".format(reverse('lien_fichier_PDF3', args=[self.id]), self.PDF3))
+                "<a href='{}' target='_blank'>{}</a>".format(reverse('lien_fichier_pdf3', args=[self.id]), self.PDF3))
     def lien_PDF4(self):
         if self.id == None:
             return None
         else:
             return mark_safe(
-                "<a href='{}' target='_blank'>{}</a>".format(reverse('lien_fichier_PDF4', args=[self.id]), self.PDF4))
+                "<a href='{}' target='_blank'>{}</a>".format(reverse('lien_fichier_pdf4', args=[self.id]), self.PDF4))
 
     def Numero_Facture(self):
         facture = Facture.objects.get(id = self.ID_Facture_id)

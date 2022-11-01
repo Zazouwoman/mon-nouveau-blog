@@ -495,6 +495,17 @@ class Fichier_WordForm(forms.ModelForm):
             instance.Word2.delete()
         return instance'''
 
+class Fichier_Word_Liens_Form(forms.ModelForm):
+    class Meta:
+        model = Fichier_Word
+        #fields = ['Numero_Facture', 'Nom_Affaire']
+        fields = ['ID_Facture']
+        #fields = '__all__'
+
+    def __init__(self, *args, **kwargs):
+        super(Fichier_Word_Liens_Form, self).__init__(*args, **kwargs)
+        self.fields['ID_Facture'].widget = forms.HiddenInput()
+
 
 
 

@@ -682,6 +682,7 @@ class Offre_MissionAdmin(admin.ModelAdmin):
                                                  ID_Pilote=idpilote)
                 messages.warning(request,
                                  "L'adesse d'envoi de la facture a été créée à l'identique de l'adresse du payeur avec les modalités de paiement par défaut. Vous pouvez la modifier si besoin.")
+                affaire.creer_previsionnel()
                 id = affaire.pk
                 url = '/admin/bdd/affaire/{}/change'.format(id)
                 return redirect(url, pk=id)
@@ -788,7 +789,7 @@ class AffaireAdmin(admin.ModelAdmin):
     unit_of_measure = ""
     totalsum_decimal_places = 2
     change_list_template = 'bdd/Liste_Affaires.html'
-    form = AffaireForm
+    form = AffaireForm2
     change_form_template = 'bdd/Modification_Affaire.html'
 
     class Meta:
@@ -829,8 +830,8 @@ class AffaireAdmin(admin.ModelAdmin):
     def get_form(self, request, obj=None, **kwargs):
         if not obj:
             return CreationAffaireForm
-        elif obj.previsionnelcree:
-            return AffaireForm2
+        elif not obj.previsionnelcree:
+            return AffaireForm
         return super().get_form(request, obj, **kwargs)
 
     def get_changelist_form(self, request, **kwargs):
@@ -926,16 +927,11 @@ class AffaireAdmin(admin.ModelAdmin):
         return response
 
 class PrevisionnelAdmin(admin.ModelAdmin):
-#class PrevisionnelAdmin(admin.ModelAdmin):
     actions = ('export_previsionnel_action', 'export_previsionnel_excel_action')
     aujourdhui = date.today()
     L, Ldescription = list_display_previsionnel(aujourdhui)
     list_display = ["Nom_Affaire", "Montant_Affaire", "Deja_Facture" ] + L
     search_fields = ("Nom_Affaire__startswith",)
-    #print(L)
-    #print(Lfonction)
-    #print(Ldescription)
-    #list_display = ("Nom_Affaire","Deja_Facture","Montant_Max_Echeance_En_Cours","Reste_A_Facturer")
     totalsum_list = ["Montant_Affaire","Deja_Facture"] + L
     localized_fields = ["Montant_Affaire","Deja_Facture"] + L
 
@@ -1854,7 +1850,7 @@ class Fichier_WordAdmin(admin.ModelAdmin):
         if not obj:
             return []
         else:
-            return ('Numero_Facture',)
+            return ('Numero_Facture','lien_word2','lien_PDF2','lien_word3','lien_PDF3','lien_word4','lien_PDF4')
 
     def response_change(self, request, obj):
         if "Retour_Facture" in request.POST:
