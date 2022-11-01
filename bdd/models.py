@@ -1475,7 +1475,7 @@ class Fichier_Word(models.Model):
     Date_Creation_Word4 = models.DateTimeField(null=True,blank=True, verbose_name="Date de création du Word4")
 
     class Meta:
-        verbose_name_plural = "4. Fichiers de Relance Téléversés"
+        verbose_name_plural = "4. Fichiers Téléversés"
 
     def Fonction_Nom_Fichier_Word2(self):
         chemin = Path(DOSSIER_PRIVE + self.Word2.name)
