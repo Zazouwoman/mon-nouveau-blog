@@ -53,7 +53,7 @@ def Corps_Message4(facture, ingeprev, affaire, mission, payeur, envoi, doc):
 
     paragraphe = ['Madame, Monsieur']
     tuple = self.Numero_Facture, self.Date_Facture_aff(), self.Date_Echeance1_aff(), self.Date_Relance1_aff(), self.Num_Suivi, self.Date_Relance2_aff(), self.Num_RAR, self.Date_Relance3_aff()
-    text = """Nous constatons avec regret que votre société n'a toujours pas réglé le solde de notre facture n° {} en date du {} arrivée à échéance le {} malgré nos trois relances précédentes ; une première relance par mail en date du {}, une deuxième relance par courrier suivi n°{} en date du {} puis une troisième relance par courrier RAR n° {} en date du {}.
+    text = """Nous constatons avec regret que votre société n'a toujours pas réglé le solde de notre facture n° {} en date du {} arrivée à échéance le {} malgré nos trois relances précédentes ; une première relance par mail en date du {}, une deuxième relance par courrier suivi n° {} en date du {} puis une troisième relance par courrier RAR n° {} en date du {}.
     """.format(self.Numero_Facture, self.Date_Facture_aff(), self.Date_Echeance1_aff(), self.Date_Relance1_aff(), self.Num_Suivi, self.Date_Relance2_aff(), self.Num_RAR, self.Date_Relance3_aff())
     paragraphe.append(text)
     if self.Nb_Avoir() == 1:
@@ -73,9 +73,9 @@ def Corps_Message4(facture, ingeprev, affaire, mission, payeur, envoi, doc):
             text += str(x) + ' € TTC, '
         text += "la somme restant à régler est de {} € TTC.".format(self.Reste_A_Payer_TTC())
         paragraphe.append(text)
-    text = """Ainsi, par la présente, nous vous mettons en demeure de nous verser, à titre principal, la somme de {} € TTC. Cette somme sera majorée des intérêts au taux légal dus en vertu de l'aticle 1 153 du code civil. Nous vous informons que ces pénalités courent dès réception de cette lettre.""".format(self.Reste_A_Payer_TTC())
+    text = """Ainsi, par la présente, nous vous mettons en demeure de nous verser, à titre principal, la somme de {} € TTC. Cette somme sera majorée des intérêts au taux légal dus en vertu de l'article 1 153 du code civil. Nous vous informons que ces pénalités courent dès réception de cette lettre.""".format(self.Reste_A_Payer_TTC())
     paragraphe.append(text)
-    text = """Si, dans un délai de quinze jours à compter de cette date, vous ne vous êtes toujours pas acquité de votre obligation, nous saisirons la juridiction compétente afin d'obtenir le paiement des sommes susvisées."""
+    text = """Si, dans un délai de quinze jours à compter de cette date, vous ne vous êtes toujours pas acquitté de votre obligation, nous saisirons la juridiction compétente afin d'obtenir le paiement des sommes susvisées."""
     paragraphe.append(text)
     text = "Veuillez agréer, Madame, Monsieur, l'expression de nos salutations distinguées."
     paragraphe.append(text)
