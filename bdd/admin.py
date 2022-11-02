@@ -1855,11 +1855,6 @@ class Fichier_WordAdmin(admin.ModelAdmin):
     def has_add_permission(self, request):
         return False
 
-    def get_model_perms(self, request, *args, **kwargs):
-        if not request.user.is_superuser:
-            return {}
-        return super().get_model_perms(request)
-
     def get_readonly_fields(self, request, obj = None):
         if not obj:
             return []
