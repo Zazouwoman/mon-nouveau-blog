@@ -75,7 +75,7 @@ def Corps_Message4(facture, ingeprev, affaire, mission, payeur, envoi, doc):
         paragraphe.append(text)
     text = """Ainsi, par la présente, nous vous mettons en demeure de nous verser, à titre principal, la somme de {} € TTC. Cette somme sera majorée des intérêts au taux légal dus en vertu de l'aticle 1 153 du code civil. Nous vous informons que ces pénalités courent dès réception de cette lettre.""".format(self.Reste_A_Payer_TTC())
     paragraphe.append(text)
-    text = """Si, dans un délai de quinze jours à compter de cette date, vous ne vous êtes toujours pas acquité de votre obligation, nous saisirons la juridiction compétente afin d'obtenie le paiement des sommes susvisées."""
+    text = """Si, dans un délai de quinze jours à compter de cette date, vous ne vous êtes toujours pas acquité de votre obligation, nous saisirons la juridiction compétente afin d'obtenir le paiement des sommes susvisées."""
     paragraphe.append(text)
     text = "Veuillez agréer, Madame, Monsieur, l'expression de nos salutations distinguées."
     paragraphe.append(text)
@@ -195,7 +195,7 @@ def Corps_Message2(facture,ingeprev,affaire,mission,payeur,envoi,doc):
      paragraphe = ['Madame, Monsieur']
      text = "Après vérification de votre compte client et sauf erreur de notre part, nous n'avons pas perçu le règlement de la facture suivante :"
      paragraphe.append(text)
-     text = "Facture n° {} d'un montant de {} € en date du {}, arrivée à échéance le {}".format(self.Numero_Facture,
+     text = "Facture n° {} d'un montant de {} € en date du {}, arrivée à échéance le {}.".format(self.Numero_Facture,
                                                                                                 self.Montant_Facture_TTC(),
                                                                                                 self.Date_Facture_aff(),
                                                                                                 self.Date_Echeance1_aff())
@@ -217,7 +217,7 @@ def Corps_Message2(facture,ingeprev,affaire,mission,payeur,envoi,doc):
              text += str(x) + ' € TTC, '
          text += "la somme restant à régler est de {} € TTC.".format(self.Reste_A_Payer_TTC())
          paragraphe.append(text)
-     text = "Pour mémoire, cette facture a déjà dû faire l'objet d'une relance par mail le {}".format(
+     text = "Pour mémoire, cette facture a déjà dû faire l'objet d'une relance par mail le {}.".format(
          self.Date_Relance1_aff())
      paragraphe.append(text)
      text = "Nous vous saurions gré de bien vouloir régulariser cette situation rapidement et de nous confirmer la date du règlement."

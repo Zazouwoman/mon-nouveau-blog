@@ -158,7 +158,7 @@ class Ingeprev(models.Model):
     Linkedin = models.URLField(max_length=300, blank = True)
 
     class Meta:
-        verbose_name_plural = "7. INGEPREV"
+        verbose_name_plural = "8. INGEPREV"
 
     def delete(self,*args,**kwargs):
         obj = Ingeprev.objects.get(pk = self.pk)
@@ -194,7 +194,7 @@ class Pilote(models.Model):
 
     class Meta:
         ordering = ['Nom']
-        verbose_name_plural = "6. Pilotes"
+        verbose_name_plural = "7. Pilotes"
 
 class Client(models.Model):
     Type_Dossier = models.CharField(default = "C",max_length = 3)
@@ -943,7 +943,7 @@ class Previsionnel(models.Model):
         super().save(*args, **kwargs)
 
     class Meta:
-        verbose_name_plural = "8. Previsionnel"
+        verbose_name_plural = "4. Previsionnel"
 
 class Facture(models.Model):
     deja_validee = models.BooleanField(default = False, verbose_name = 'Validée') #Pour savoir si la facture a déjà été validée
@@ -1475,7 +1475,7 @@ class Fichier_Word(models.Model):
     Date_Creation_Word4 = models.DateTimeField(null=True,blank=True, verbose_name="Date de création du Word4")
 
     class Meta:
-        verbose_name_plural = "4. Fichiers Téléversés"
+        verbose_name_plural = "6. Fichiers Téléversés"
 
     def Fonction_Nom_Fichier_Word2(self):
         chemin = Path(DOSSIER_PRIVE + self.Word2.name)
