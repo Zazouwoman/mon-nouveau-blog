@@ -1209,7 +1209,7 @@ class FactureAdmin(admin.ModelAdmin):
     #change_list_template = 'admin/change_list2.html'
     form = FactureFormModif
 
-    totalsum_list = ('Montant_Facture_HT','Reste_A_Payer')
+    totalsum_list = ('Montant_Facture_HT','Montant_Facture_TTC','Reste_A_Payer')
     unit_of_measure = ""
     totalsum_decimal_places = 2
     change_list_template = 'bdd/Liste_Affaires.html'

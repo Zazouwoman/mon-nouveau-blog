@@ -965,7 +965,7 @@ class Facture(models.Model):
     Montant_Facture_HT = models.DecimalField(max_digits=12, decimal_places=2, verbose_name = 'Montant HT', default = 0)
     Taux_TVA = models.CharField(choices = TVA, max_length = 2, verbose_name = "Taux de T.V.A.", default = "20")
 
-    Date_Facture = models.DateField(default=date.today, verbose_name = "Date")
+    Date_Facture = models.DateField(default=date.today, verbose_name = "Date Facture")
 
     Facture_Avoir = models.CharField(choices = FactureType, max_length = 10, verbose_name = "Facture ou Avoir", default = "FA")
     Facture_Liee = models.CharField(max_length=20, null=True, blank=True, verbose_name="Facture liée")  # Numéro de la facture liée à l'avoir
