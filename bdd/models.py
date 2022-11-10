@@ -962,10 +962,10 @@ class Facture(models.Model):
     ID_Pilote = models.ForeignKey(Pilote, on_delete=models.SET_NULL, null = True, verbose_name = "Pilote")
 
     Descriptif = models.TextField()
-    Montant_Facture_HT = models.DecimalField(max_digits=12, decimal_places=2, verbose_name = 'Montant Facture H.T.', default = 0)
+    Montant_Facture_HT = models.DecimalField(max_digits=12, decimal_places=2, verbose_name = 'Montant HT', default = 0)
     Taux_TVA = models.CharField(choices = TVA, max_length = 2, verbose_name = "Taux de T.V.A.", default = "20")
 
-    Date_Facture = models.DateField(default=date.today, verbose_name = "Date de la facture")
+    Date_Facture = models.DateField(default=date.today, verbose_name = "Date")
 
     Facture_Avoir = models.CharField(choices = FactureType, max_length = 10, verbose_name = "Facture ou Avoir", default = "FA")
     Facture_Liee = models.CharField(max_length=20, null=True, blank=True, verbose_name="Facture liée")  # Numéro de la facture liée à l'avoir
@@ -1230,7 +1230,7 @@ class Facture(models.Model):
             reste = Decimal('0.00')
         return reste
 
-    Reste_A_Payer.short_description = "Montant Avoirs Payés Déduits"
+    Reste_A_Payer.short_description = "Montant Avoirs Déduits"
 
     def Reste_A_Payer_TTC(self):
         reste = self.Reste_A_Payer()
@@ -1238,6 +1238,7 @@ class Facture(models.Model):
 
     def Montant_Facture_TTC(self):
         return self.Montant_Facture_HT * (100+int(self.Taux_TVA))/100
+    Montant_Facture_TTC.short_description = 'Montant TTC'
 
     def save(self,*args,**kwargs):
         if self.Numero_Facture == '':  #Lors de la création de la facture = remplissage automatique des champs connus

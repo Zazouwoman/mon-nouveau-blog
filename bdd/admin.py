@@ -1194,7 +1194,7 @@ class A_Envoyer_Filter(admin.SimpleListFilter):
 class FactureAdmin(admin.ModelAdmin):
     #list_display = ('Numero_Facture','Etat','Date_Dernier_Rappel','Date_Envoi','Date_Relance1','Date_Relance2', 'Date_Relance3', 'Date_Relance4', 'Date_Relance5', 'Num_Relance','deja_validee','deja_envoyee','deja_payee','Nom_Affaire', 'Montant_Facture_HT', 'ID_Payeur','Date_Echeance1', 'Date_Relance', 'Date_Dernier_Rappel')
     list_display = ('Numero_Facture', 'pdf', 'Etat', 'deja_validee', 'deja_envoyee', 'deja_payee', 'Nom_Affaire',
-                    'Montant_Facture_HT', 'Reste_A_Payer','ID_Payeur', 'Date_Echeance1', 'Num_Relance', 'Date_Relance', 'Date_Dernier_Rappel')
+                    'Montant_Facture_HT', 'Montant_Facture_TTC','Date_Facture','Reste_A_Payer','ID_Payeur', 'Date_Echeance1', 'Num_Relance', 'Date_Relance', 'Date_Dernier_Rappel')
     seach_fiels = ('Nom_Affaire__Startswith')
     list_filter = (A_Relancer_Filter,A_Envoyer_Filter,'Etat_Paiement','Etat','Nom_Affaire',)
     list_editable = ('deja_payee',)
