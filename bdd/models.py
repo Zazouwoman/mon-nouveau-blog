@@ -325,6 +325,16 @@ class Offre_Mission(models.Model):
         nom = pilote.Nom_Pilote
         return nom
 
+    def Etat_aff(self):
+        etat = self.Etat
+        if etat =="ATT":
+            return "En Attente"
+        elif etat == 'ACC':
+            return "Accepté"
+        elif etat == 'REF':
+            return "Sans Suite"
+
+
 
     def custom_delete(self):
         if self.Etat != 'ACC':
@@ -427,6 +437,22 @@ class Affaire(models.Model):
 
     class Meta:
         ordering = ['Nom_Affaire']
+
+    def Type_Affaire_aff(self):
+        type = self.Type_Affaire
+        if type =="C":
+            return "Conseil"
+        elif type == 'AMO':
+            return "AMO"
+        elif type == 'DA':
+            return "Diag/Audit"
+
+    def Etat_Affaire_aff(self):
+        etat = self.Etat
+        if etat =="EC":
+            return "En Cours"
+        elif etat == 'ARC':
+            return "Archivée"
 
     def Descriptif(self):
         mission = Offre_Mission.objects.get(pk=self.ID_Mission_id)

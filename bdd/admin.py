@@ -582,7 +582,7 @@ class Offre_MissionAdmin(admin.ModelAdmin):
             rows.append([user.Ref_Mission, user.Nom_Mission, user.Adresse, user.Complement_Adresse,
                 user.CP, user.Ville, user.Nom_Client(), user.Honoraires_Proposes,
                 user.Date_Proposition, user.Date_Acceptation, user.Descriptif,
-                user.Etat, user.ID_Pilote
+                user.Etat_aff(), user.ID_Pilote
             ])
         return export_to_excel_response("offres_mission.xlsx",liste_entete,rows)
     export_offre_excel_action.short_description = 'Export Offres Excel '
@@ -821,13 +821,13 @@ class AffaireAdmin(admin.ModelAdmin):
 
     def export_affaire_excel_action(self,request,queryset):
         liste_entete = ['ref_affaire','nom_affaire','adresse','complement_adresse','code_postal','ville',
-                        'client_cache','honoraires_affaire','date_creation','type','descriptif',
+                        'client_cache','honoraires_affaire','date_creation','type','etat','descriptif',
                         'pilote','reste_a_facturer']
         rows=[]
         for user in queryset:
             rows.append([user.Ref_Affaire, user.Nom_Affaire, user.Adresse(), user.Complement_Adresse(),
                 user.CP(), user.Ville(), user.Nom_Client(), user.Honoraires_Global,
-                user.Date_Creation, user.Type_Affaire, user.Descriptif(),
+                user.Date_Creation, user.Type_Affaire_aff(), user.Etat_Affaire_aff(), user.Descriptif(),
                 user.Pilote(), user.Reste_A_Regler()
             ])
         return export_to_excel_response("affaires.xlsx",liste_entete,rows)
