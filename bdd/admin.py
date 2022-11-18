@@ -552,6 +552,7 @@ class Offre_MissionAdminForm(forms.ModelForm):
         self.fields['Ref_Mission'].widget.attrs['readonly'] = True
 
 class Offre_MissionAdmin(admin.ModelAdmin):
+    actions = ('export_offre_excel_action',)
     list_display = ("Nom_Mission", "Honoraires_Proposes", "Client", "Adresse", "CP", "Ville","ID_Pilote",'Date_Proposition','Etat')
     search_fields = ("Nom_Mission__startswith",)
     list_filter = ('Etat','ID_Pilote',)
@@ -571,6 +572,20 @@ class Offre_MissionAdmin(admin.ModelAdmin):
 
     class  Meta:
         model = Offre_Mission
+
+    def export_offre_excel_action(self,request,queryset):
+        liste_entete = ['ref_mission','nom_mission','adresse','complement_adresse','code_postal','ville',
+                        'client_cache','honoraires_offre','date_proposition','date_acceptation','descriptif',
+                        'etat','pilote']
+        rows=[]
+        for user in queryset:
+            rows.append([user.Ref_Mission, user.Nom_Mission, user.Adresse, user.Complement_Adresse,
+                user.CP, user.Ville, user.Nom_Client(), user.Honoraires_Proposes,
+                user.Date_Proposition, user.Date_Acceptation, user.Descriptif,
+                user.Etat, user.ID_Pilote
+            ])
+        return export_to_excel_response("offres_mission.xlsx",liste_entete,rows)
+    export_offre_excel_action.short_description = 'Export Offres Excel '
 
     def changelist_view(self, request, extra_context=None):
         response = super(Offre_MissionAdmin, self).changelist_view(request, extra_context)
@@ -774,6 +789,7 @@ class ASolder_Filter(admin.SimpleListFilter):
 
 #class AffaireAdmin(TotalsumAdmin):
 class AffaireAdmin(admin.ModelAdmin):
+    actions = ('export_affaire_excel_action',)
     list_display = ("Nom_Affaire", "ID_Payeur", "Honoraires_Global", 'Reste_A_Regler', 'Solde', "Premiere_Date_Previsionnelle", 'soldee',)
     search_fields = ("Nom_Affaire__startswith",)
     list_filter = (Previsionnel_Filter, ASolder_Filter, 'ID_Pilote', 'Etat')
@@ -802,6 +818,20 @@ class AffaireAdmin(admin.ModelAdmin):
         if 'delete_selected' in actions:
             del actions['delete_selected']
         return actions
+
+    def export_affaire_excel_action(self,request,queryset):
+        liste_entete = ['ref_affaire','nom_affaire','adresse','complement_adresse','code_postal','ville',
+                        'client_cache','honoraires_affaire','date_creation','type','descriptif',
+                        'pilote','reste_a_facturer']
+        rows=[]
+        for user in queryset:
+            rows.append([user.Ref_Affaire, user.Nom_Affaire, user.Adresse(), user.Complement_Adresse(),
+                user.CP(), user.Ville(), user.Nom_Client(), user.Honoraires_Global,
+                user.Date_Creation, user.Type_Affaire, user.Descriptif(),
+                user.Pilote(), user.Reste_A_Regler()
+            ])
+        return export_to_excel_response("affaires.xlsx",liste_entete,rows)
+    export_affaire_excel_action.short_description = 'Export Affaires Excel '
 
     def save_model(self, request,obj,form,change):
         if obj.ID_Envoi_Facture == None and obj.ID_Payeur != None:

@@ -320,6 +320,12 @@ class Offre_Mission(models.Model):
     Etat = models.CharField(choices = EtatType, max_length = 20, default = "ATT")
     ID_Pilote = models.ForeignKey(Pilote, on_delete=models.SET_NULL, verbose_name = "Pilote", blank = True, null = True)
 
+    def Pilote(self):
+        pilote = Pilote.objects.get(id=self.ID_Pilote_id)
+        nom = pilote.Nom_Pilote
+        return nom
+
+
     def custom_delete(self):
         if self.Etat != 'ACC':
             self.delete()
@@ -337,9 +343,31 @@ class Offre_Mission(models.Model):
                 client = envoi_offre.Denomination_Sociale
             else:
                 idpayeur = self.ID_Payeur_id
-                payeur = Client.objects.get(id=idpayeur)
-                client = payeur.Denomination_Sociale
+                if idpayeur != None:
+                    payeur = Client.objects.get(id=idpayeur)
+                    client = payeur.Denomination_Sociale
         return client
+
+    def Nom_Client(self):
+        client = None
+        IDCC = self.ID_Client_Cache_id
+        if IDCC != None:
+            client_cache = Client.objects.get(id=IDCC)
+            client = client_cache.Denomination_Sociale
+        else:
+            ID = self.ID_Envoi_Offre_id
+            if ID != None:
+                envoi_offre = Envoi_Offre.objects.get(id=ID)
+                client = envoi_offre.Denomination_Sociale
+            else:
+                idpayeur = self.ID_Payeur_id
+                if idpayeur != None:
+                    payeur = Client.objects.get(id=idpayeur)
+                    client = payeur.Denomination_Sociale
+        if client == None:
+            return ''
+        else:
+            return client
 
     def get_absolute_url(self):
         return reverse('admin : bdd_Offre_Mission_change', kwargs={'pk': self.pk})
@@ -410,6 +438,11 @@ class Affaire(models.Model):
         adresse = mission.Adresse
         return adresse
 
+    def Complement_Adresse(self):
+        mission = Offre_Mission.objects.get(pk=self.ID_Mission_id)
+        adresse = mission.Complement_Adresse
+        return adresse
+
     def CP(self):
         ID = self.ID_Mission_id
         mission = Offre_Mission.objects.get(pk=ID)
@@ -421,6 +454,18 @@ class Affaire(models.Model):
         mission = Offre_Mission.objects.get(pk=ID)
         ville = mission.Ville
         return ville
+
+    def Nom_Client(self):
+        ID = self.ID_Mission_id
+        mission = Offre_Mission.objects.get(pk=ID)
+        nom = mission.Nom_Client()
+        return nom
+
+    def Pilote(self):
+        ID = self.ID_Mission_id
+        mission = Offre_Mission.objects.get(pk=ID)
+        nom = mission.ID_Pilote
+        return nom
 
     Adresse.short_description = "Adresse de la Mission"
     CP.short_description = "Code Postal"
