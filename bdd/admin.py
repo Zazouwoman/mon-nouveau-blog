@@ -564,7 +564,7 @@ class Offre_MissionAdmin(admin.ModelAdmin):
             'widget': forms.TextInput(attrs={'style': 'text-align:right;', }),
         },
     }
-    list_per_page = 12
+    #list_per_page = 12
 
     unit_of_measure = ""
     totalsum_decimal_places = 2
