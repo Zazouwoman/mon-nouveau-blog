@@ -551,11 +551,48 @@ class Offre_MissionAdminForm(forms.ModelForm):
         super(Offre_MissionAdminForm, self).__init__(*args, **kwargs)
         self.fields['Ref_Mission'].widget.attrs['readonly'] = True
 
+class Offres_Filter(admin.SimpleListFilter):
+    title = "Offres "
+    parameter_name = 'Solder'
+
+    def lookups(self, request, model_admin):
+        return(('Tout_Sauf_Sans_Suite','Tout sauf sans suite'),
+               ('En_Attente','En Attente'),
+               ('Acceptee', 'Acceptée'),
+               ('Sans_Suite','Sans Suite'),
+               )
+
+    def queryset(self, request, queryset):
+        if self.value() == 'Tout_Sauf_Sans_Suite':
+            q_array = []
+            for element in queryset:
+                if element.Etat == 'ATT' or element.Etat == 'ACC':
+                    q_array.append(element.id)
+            return queryset.filter(pk__in=q_array)
+        if self.value() == 'En_Attente':
+            q_array = []
+            for element in queryset:
+                if element.Etat == 'ATT':
+                    q_array.append(element.id)
+            return queryset.filter(pk__in=q_array)
+        if self.value() == 'ACC':
+            q_array = []
+            for element in queryset:
+                if element.Etat == 'ACC':
+                    q_array.append(element.id)
+            return queryset.filter(pk__in=q_array)
+        if self.value() == 'Sans_Suite':
+            q_array = []
+            for element in queryset:
+                if element.Etat == 'REF':
+                    q_array.append(element.id)
+            return queryset.filter(pk__in=q_array)
+
 class Offre_MissionAdmin(admin.ModelAdmin):
     actions = ('export_offre_excel_action',)
     list_display = ("Nom_Mission", "Honoraires_Proposes", "Client", "Adresse", "CP", "Ville","ID_Pilote",'Date_Proposition','Etat')
     search_fields = ("Nom_Mission__startswith",)
-    list_filter = ('Etat','ID_Pilote',)
+    list_filter = (Offres_Filter,'ID_Pilote',)
     form = Offre_MissionForm
     change_form_template = 'bdd/Offre_Mission.html'
     totalsum_list = ('Honoraires_Proposes',)
