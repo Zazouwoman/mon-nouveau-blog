@@ -575,7 +575,7 @@ class Offres_Filter(admin.SimpleListFilter):
                 if element.Etat == 'ATT':
                     q_array.append(element.id)
             return queryset.filter(pk__in=q_array)
-        if self.value() == 'ACC':
+        if self.value() == 'Acceptee':
             q_array = []
             for element in queryset:
                 if element.Etat == 'ACC':
