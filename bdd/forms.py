@@ -129,7 +129,7 @@ class Offre_MissionForm(forms.ModelForm):
         #fields = ['Ref_Mission','Nom_Mission','Adresse','CP','ID_Payeur','ID_Envoi_Offre','ID_Client_Cache','ID_Apporteur',
         #          'Honoraires_Proposes','Date_Proposition','Date_Acceptation','Descriptif','Etat', 'ID_Pilote']
         exclude = ['Type_Dossier','Indice_Dossier']
-        localized_fields = ('Honoraires_Proposes',)
+        localized_fields = ('Honoraires_Proposes','Montant_Previsionnel_Travaux',)
     def __init__(self, *args, **kwargs):
         super(Offre_MissionForm, self).__init__(*args, **kwargs)
         self.fields['Ref_Mission'].widget.attrs['readonly'] = True
@@ -148,7 +148,7 @@ class AffaireForm(forms.ModelForm):
     class Meta:
         model = Affaire
         exclude = ['soldee','ID_Client_Cache','Type_Dossier','Indice_Dossier','ID_Mission','Etat','previsionnelcree']
-        localized_fields = ('Honoraires_Global',)
+        localized_fields = ('Honoraires_Global','Montant_Previsionnel_Travaux',)
 
     def __init__(self, *args, **kwargs):
         super(AffaireForm, self).__init__(*args, **kwargs)
@@ -171,7 +171,7 @@ class AffaireForm2(forms.ModelForm):
     class Meta:
         model = Affaire
         exclude = ['soldee','ID_Client_Cache','Type_Dossier','Indice_Dossier','ID_Mission','Etat','previsionnelcree','Date_Previsionnelle']
-        localized_fields = ('Honoraires_Global',)
+        localized_fields = ('Honoraires_Global','Montant_Previsionnel_Travaux',)
 
     def __init__(self, *args, **kwargs):
         super(AffaireForm2, self).__init__(*args, **kwargs)

@@ -596,7 +596,7 @@ class Offre_MissionAdmin(admin.ModelAdmin):
     form = Offre_MissionForm
     change_form_template = 'bdd/Offre_Mission.html'
     totalsum_list = ('Honoraires_Proposes',)
-    localized_fields = ('Honoraires_Proposes',)
+    localized_fields = ('Honoraires_Proposes','Montant_Previsionnel_Travaux',)
     formfield_overrides = {models.DecimalField: {
             'widget': forms.TextInput(attrs={'style': 'text-align:right;', }),
         },
@@ -612,12 +612,14 @@ class Offre_MissionAdmin(admin.ModelAdmin):
 
     def export_offre_excel_action(self,request,queryset):
         liste_entete = ['ref_mission','nom_mission','adresse','complement_adresse','code_postal','ville',
-                        'client_cache','honoraires_offre','date_proposition','date_acceptation','descriptif',
+                        'client_cache','honoraires_offre','montant_previsionnel_travaux','compris_exception',
+                        'date_proposition','date_acceptation','descriptif',
                         'etat','pilote']
         rows=[]
         for user in queryset:
             rows.append([user.Ref_Mission, user.Nom_Mission, user.Adresse, user.Complement_Adresse,
                 user.CP, user.Ville, user.Nom_Client(), user.Honoraires_Proposes,
+                user.Montant_Previsionnel_Travaux, user.Compris_Exception,
                 user.Date_Proposition, user.Date_Acceptation, user.Descriptif,
                 user.Etat_aff(), user.ID_Pilote
             ])
@@ -730,10 +732,15 @@ class Offre_MissionAdmin(admin.ModelAdmin):
                 nomaffaire = obj.Nom_Mission
                 honorairesglobal = obj.Honoraires_Proposes
                 idpilote = obj.ID_Pilote
+                montantprevisionneltravaux = obj.Montant_Previsionnel_Travaux
+                comprisexception = obj.Compris_Exception
+
                 affaire = Affaire.objects.create(ID_Mission_id=idmission, Ref_Affaire=refaffaire, Indice_Dossier = indice,
                                                  ID_Payeur=idpayeur, ID_Client_Cache=idclientcache,
                                                  Nom_Affaire=nomaffaire,Honoraires_Global=honorairesglobal,
-                                                 ID_Pilote=idpilote)
+                                                 ID_Pilote=idpilote,
+                                                 Compris_Exception = comprisexception,
+                                                 Montant_Previsionnel_Travaux = montantprevisionneltravaux)
                 messages.warning(request,
                                  "L'adesse d'envoi de la facture a été créée à l'identique de l'adresse du payeur avec les modalités de paiement par défaut. Vous pouvez la modifier si besoin.")
                 affaire.creer_previsionnel()
@@ -827,14 +834,14 @@ class ASolder_Filter(admin.SimpleListFilter):
 #class AffaireAdmin(TotalsumAdmin):
 class AffaireAdmin(admin.ModelAdmin):
     actions = ('export_affaire_excel_action',)
-    list_display = ("Nom_Affaire", "ID_Payeur", "Honoraires_Global", 'Reste_A_Regler', 'Solde', "Premiere_Date_Previsionnelle", 'soldee',)
+    list_display = ("Nom_Affaire", "ID_Payeur","Declaration_Assurance",'Reste_A_Regler', 'Solde', "Premiere_Date_Previsionnelle", 'soldee',)
     search_fields = ("Nom_Affaire__startswith",)
     list_filter = (Previsionnel_Filter, ASolder_Filter, 'ID_Pilote', 'Etat')
-    radio_fields = {"Type_Affaire":admin.HORIZONTAL,"Etat":admin.HORIZONTAL}
+    radio_fields = {"Type_Affaire":admin.HORIZONTAL,"Etat":admin.HORIZONTAL,"Declaration_Assurance":admin.HORIZONTAL}
     #list_editable = ('Date_Previsionnelle','soldee',)
     list_editable = ('soldee',)
     totalsum_list = ('Honoraires_Global','Reste_A_Regler','Solde',)
-    localized_fields = ('Honoraires_Global','Reste_A_Regler',)
+    localized_fields = ('Honoraires_Global','Reste_A_Regler','Montant_Previsionnel_Travaux',)
     #    list_per_page = 9
     formfield_overrides = {models.DecimalField: {
             'widget': forms.TextInput(attrs={'style': 'text-align:right;', }),
@@ -858,12 +865,14 @@ class AffaireAdmin(admin.ModelAdmin):
 
     def export_affaire_excel_action(self,request,queryset):
         liste_entete = ['ref_affaire','nom_affaire','adresse','complement_adresse','code_postal','ville',
-                        'client_cache','honoraires_affaire','date_creation','type','etat','descriptif',
+                        'client_cache','honoraires_affaire','montant_previsionnel_travaux','comprsi_exception',
+                        'declaration_assurance','date_creation','type','etat','descriptif',
                         'pilote','reste_a_facturer']
         rows=[]
         for user in queryset:
             rows.append([user.Ref_Affaire, user.Nom_Affaire, user.Adresse(), user.Complement_Adresse(),
                 user.CP(), user.Ville(), user.Nom_Client(), user.Honoraires_Global,
+                user.Montant_Previsionnel_Travaux, user.Compris_Exception, user.Declaration_Assurance,
                 user.Date_Creation, user.Type_Affaire_aff(), user.Etat_Affaire_aff(), user.Descriptif(),
                 user.Pilote(), user.Reste_A_Regler()
             ])
@@ -1258,12 +1267,54 @@ class A_Envoyer_Filter(admin.SimpleListFilter):
                     q_array.append(element.id)
             return queryset.filter(pk__in=q_array)
 
+#Filtre des dates de factures
+class Date_Filter(admin.SimpleListFilter):
+    title = "Par Date de Facture"
+    parameter_name = 'Date'
+
+    def lookups(self, request, model_admin):
+        """
+        Returns a list of tuples. The first element in each tuple is the coded value for the option that will appear in the URL query. The second element is the
+        human-readable name for the option that will appear in the right sidebar.
+        """
+        return(('EnCours','Mois en Cours'),
+               ('Precedent','Mois Précédent'),
+               ('DouzeMois','Douze Derniers Mois'),
+               ('Comptable','Année Comptable'),)
+
+    def queryset(self, request, queryset):
+        """
+        Returns the filtered queryset based on the value provided in the query string and retrievable via `self.value()`.
+        """
+        aujourdhui = date.today()
+        if self.value() in ['EnCours','Precedent','DouzeMois','Comptable']:
+            if self.value() == 'EnCours':
+                debut, fin = debut_fin_mois(aujourdhui, 1)
+            if self.value() == 'Precedent':
+                debut, fin = debut_fin_mois(aujourdhui, 0)
+            if self.value() == 'DouzeMois':
+                debut1, fin = debut_fin_mois(aujourdhui, 1)
+                debut, fin2 = debut_fin_mois(aujourdhui, -10)
+            if self.value() == 'Comptable':
+                annee = aujourdhui.year
+                debut = date(annee, 1, 1)
+                fin = date(annee, 12, 31)
+                
+            q_array = []
+            for element in queryset:
+                Date = element.Date_Facture
+                if debut <= Date and Date <= fin:
+                    q_array.append(element.id)
+            return queryset.filter(pk__in=q_array)
+
 class FactureAdmin(admin.ModelAdmin):
+    actions = ('export_facture_excel_action',)
     #list_display = ('Numero_Facture','Etat','Date_Dernier_Rappel','Date_Envoi','Date_Relance1','Date_Relance2', 'Date_Relance3', 'Date_Relance4', 'Date_Relance5', 'Num_Relance','deja_validee','deja_envoyee','deja_payee','Nom_Affaire', 'Montant_Facture_HT', 'ID_Payeur','Date_Echeance1', 'Date_Relance', 'Date_Dernier_Rappel')
     list_display = ('Numero_Facture', 'pdf', 'Etat', 'deja_validee', 'deja_envoyee', 'deja_payee', 'Nom_Affaire',
                     'Montant_Facture_HT', 'Montant_Facture_TTC','Date_Facture','Reste_A_Payer','ID_Payeur', 'Date_Echeance1', 'Num_Relance', 'Date_Relance', 'Date_Dernier_Rappel')
     seach_fiels = ('Nom_Affaire__Startswith')
-    list_filter = (A_Relancer_Filter,A_Envoyer_Filter,'Etat_Paiement','Etat','Nom_Affaire',)
+    list_filter = (A_Relancer_Filter, A_Envoyer_Filter, 'Etat_Paiement', 'Etat',Date_Filter,'ID_Pilote')
+    #list_filter = (A_Relancer_Filter,A_Envoyer_Filter,'Etat_Paiement','Etat','Nom_Affaire',)
     list_editable = ('deja_payee',)
     #list_per_page = 12
     formfield_overrides = {models.DecimalField: {
@@ -1287,6 +1338,28 @@ class FactureAdmin(admin.ModelAdmin):
     pdf.allow_tags = True
 	#obj.Fonction_Nom_Fichier_Facture()
 	'''
+
+    def export_facture_excel_action(self,request,queryset):
+        liste_entete = ['numero_facture','nom_affaire','deja_validee','deja_envoyee','deja_payee',
+                        'avoir/facture',
+                        'montant_HT','date_facture','pilote',
+                        'date_echeance1','date_relance',
+                        'numero_relance']
+        rows=[]
+        for user in queryset:
+            rows.append([user.Numero_Facture, user.Nom_Affaire,
+                 user.deja_validee, user.deja_envoyee, user.deja_payee,
+                 user.Facture_Avoir, user.Montant_Facture_HT,
+                 user.Date_Facture, user.Nom_Pilote,
+                 user.Date_Echeance1(), user.Date_Relance(), user.Num_Relance])
+        return export_to_excel_response("factures.xlsx",liste_entete,rows)
+    export_facture_excel_action.short_description = 'Export Factures Excel'
+
+    def get_actions(self, request):
+        actions = super().get_actions(request)
+        if 'delete_selected' in actions:
+            del actions['delete_selected']
+        return actions
 
     def changelist_view(self, request, extra_context=None):
         response = super(FactureAdmin, self).changelist_view(request, extra_context)
@@ -1314,7 +1387,7 @@ class FactureAdmin(admin.ModelAdmin):
         response.context_data.update(extra_context)
         return response
 
-    actions = ['delete_selected']
+    #actions = ['delete_selected']
 
     #A mettre pour éviter les suppressions de factures validées
     def delete_queryset(self, request, queryset):

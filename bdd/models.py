@@ -127,6 +127,7 @@ EtatFacture = [("BR","Brouillon"),("VA","Validée"),('ENV',"Envoyée")]
 EtatPaiement = [("ATT","En Attente"),("PAYE","Payée")]
 TVA = [('20','20'),('10','10'),('5','5'),('0','0')]
 DelaisPaiement=[('30','30'),('60','60')]
+DeclarationAssuranceType=[('AF', 'A Faire'),('F', 'Fait'),('SO','Sans Objet')]
 
 class Ingeprev(models.Model):
     Nom = models.CharField(max_length=50, blank=True, verbose_name = 'Nom de la societe')
@@ -314,6 +315,10 @@ class Offre_Mission(models.Model):
     ID_Client_Cache = models.ForeignKey(Client, on_delete=models.SET_NULL,  related_name='%(class)s_ID_Client_Cache', blank = True, verbose_name = "Client Caché", null = True)
     ID_Apporteur = models.ForeignKey(Client, on_delete=models.SET_NULL, blank = True,  related_name='%(class)s_ID_Apporteur', verbose_name = "Apporteur d'affaire", null = True)
     Honoraires_Proposes = models.DecimalField(max_digits=12, decimal_places=2, verbose_name = 'Honoraires H.T.', default = 0)
+    Montant_Previsionnel_Travaux = models.DecimalField(max_digits=13, decimal_places=2,
+                                                       verbose_name='Montant prévisionnel Travaux H.T.', default=0)
+    Compris_Exception = models.CharField(max_length=500, blank=True, verbose_name="Compris/Exception",
+                                         default="Compris honoraires,dépollution,VRD...")
     Date_Proposition = models.DateField(default=date.today, verbose_name = "Date de Proposition")
     Date_Acceptation = models.DateField(blank = True, null = True, default = None, verbose_name = "Date d'acceptation")
     Descriptif = models.TextField()
@@ -333,8 +338,6 @@ class Offre_Mission(models.Model):
             return "Accepté"
         elif etat == 'REF':
             return "Sans Suite"
-
-
 
     def custom_delete(self):
         if self.Etat != 'ACC':
@@ -413,6 +416,11 @@ class Affaire(models.Model):
     ID_Envoi_Facture = models.ForeignKey(Envoi_Facture,on_delete=models.SET_NULL, blank = True, verbose_name = "Adresse Envoi Facture", null = True)
     Ref_Client = models.CharField(max_length=150,blank = True, verbose_name="Référence Client à rappeler")
     Honoraires_Global = models.DecimalField(max_digits=12, decimal_places=2, verbose_name = 'Honoraire Global H.T.', default = 0)
+    Montant_Previsionnel_Travaux = models.DecimalField(max_digits=13, decimal_places=2,
+                                                       verbose_name='Montant prévisionnel Travaux H.T.', default=0)
+    Compris_Exception = models.CharField(max_length=500, blank=True, verbose_name="Compris/Exception",default="Compris honoraires,dépollution,VRD...")
+    Declaration_Assurance = models.CharField(choices=DeclarationAssuranceType, default="AF", max_length=12,
+                                             verbose_name="Déclaration Assurance")
     Date_Creation = models.DateField(default=date.today, verbose_name = "Date de création")
     Date_Previsionnelle = models.DateField(blank = True, null = True, default = None, verbose_name = "Date prévisionnelle de facturation")
     Type_Affaire = models.CharField(choices = AffaireType, default="C", max_length = 12, verbose_name = "Type d'Affaire", blank = True)
@@ -1108,6 +1116,9 @@ class Facture(models.Model):
 
     class Meta:
         verbose_name_plural = "3. Factures"
+
+    def aujourdhui(self):
+        return date.today()
 
     def id_fichier_word(self):
         idfacture = self.pk
