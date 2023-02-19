@@ -834,7 +834,7 @@ class ASolder_Filter(admin.SimpleListFilter):
 #class AffaireAdmin(TotalsumAdmin):
 class AffaireAdmin(admin.ModelAdmin):
     actions = ('export_affaire_excel_action',)
-    list_display = ("Nom_Affaire", "ID_Payeur","Declaration_Assurance",'Reste_A_Regler', 'Solde', "Premiere_Date_Previsionnelle", 'soldee',)
+    list_display = ("Nom_Affaire", "ID_Payeur",'Reste_A_Regler', 'Solde', "Premiere_Date_Previsionnelle", 'soldee',)
     search_fields = ("Nom_Affaire__startswith",)
     list_filter = (Previsionnel_Filter, ASolder_Filter, 'ID_Pilote', 'Etat')
     radio_fields = {"Type_Affaire":admin.HORIZONTAL,"Etat":admin.HORIZONTAL,"Declaration_Assurance":admin.HORIZONTAL}
@@ -1299,7 +1299,7 @@ class Date_Filter(admin.SimpleListFilter):
                 annee = aujourdhui.year
                 debut = date(annee, 1, 1)
                 fin = date(annee, 12, 31)
-                
+
             q_array = []
             for element in queryset:
                 Date = element.Date_Facture
