@@ -1414,7 +1414,7 @@ class Facture(models.Model):
         elif self.Fin_Mois == "Oui": #Ici on est forcément à 30 jours fin de mois
             datefacture = self.Date_Facture
             premier = datefacture + timedelta(30)
-            debut,fin = debut_fin_mois(premier,0)
+            debut,fin = debut_fin_mois(premier,1)  #1 car on a décalé de 1 dans la fonction debut_fin_mois lors de la modification du prévisionnel
             echeance = fin
         return echeance
 
