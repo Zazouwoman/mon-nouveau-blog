@@ -1071,7 +1071,7 @@ class Facture(models.Model):
     Fin_Mois = models.CharField(choices=OuiOuNonType.choices, max_length=3, default="Non", verbose_name="Fin de Mois")
     Modalites_Paiement = models.TextField(blank=True, verbose_name="Modalités particulières de Paiement")
 
-    Denomination_Client = models.CharField(max_length=50, verbose_name="Dénomination sociale Client")
+    Denomination_Client = models.CharField(max_length=150, verbose_name="Dénomination sociale Client")
     Adresse_Client = models.CharField(max_length=500, blank=True)
     Complement_Adresse_Client = models.CharField(max_length=500, blank=True)
     CP_Client = models.CharField(validators=[CP_regex], max_length=5, verbose_name='Code postal', blank=True)
@@ -1081,7 +1081,7 @@ class Facture(models.Model):
     Prenom_Client = models.CharField(max_length=50, blank=True, verbose_name="Prénom")
     Email_Client = models.EmailField(max_length=70, blank=True, verbose_name="Email")
 
-    Denomination_Facture = models.CharField(max_length=50, verbose_name="Dénomination sociale Facture")
+    Denomination_Facture = models.CharField(max_length=150, verbose_name="Dénomination sociale Facture")
     Adresse_Facture = models.CharField(max_length=500)
     Complement_Adresse_Facture = models.CharField(max_length=500, blank=True)
     CP_Facture = models.CharField(validators=[CP_regex], max_length=5, verbose_name='Code postal')
