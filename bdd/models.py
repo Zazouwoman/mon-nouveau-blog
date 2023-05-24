@@ -1318,6 +1318,10 @@ class Facture(models.Model):
         reste = self.Reste_A_Payer()
         return reste*(100+int(self.Taux_TVA))/100
 
+    def Montant_TVA(self):
+        return self.Montant_Facture_HT * int(self.Taux_TVA)/100
+    Montant_TVA.short_description = 'Montant TVA'
+
     def Montant_Facture_TTC(self):
         return self.Montant_Facture_HT * (100+int(self.Taux_TVA))/100
     Montant_Facture_TTC.short_description = 'Montant TTC'
