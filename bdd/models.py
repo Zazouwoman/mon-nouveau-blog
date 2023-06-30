@@ -723,6 +723,13 @@ class Previsionnel(models.Model):
         affaire = Affaire.objects.get(pk = idaffaire)
         return affaire.Etat
 
+    def Pilote(self):
+        '''Etat de l'affaire : EC ou ARC (en cours ou archivée)'''
+        idaffaire = self.ID_Affaire_id
+        affaire = Affaire.objects.get(pk = idaffaire)
+        return affaire.ID_Pilote
+
+
     def Nom_Affaire(self):
         idaffaire = self.ID_Affaire_id
         affaire = Affaire.objects.get(pk = idaffaire)

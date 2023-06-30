@@ -1047,10 +1047,10 @@ class PrevisionnelAdmin(admin.ModelAdmin):
     actions = ('export_previsionnel_action', 'export_previsionnel_excel_action')
     aujourdhui = date.today()
     L, Ldescription = list_display_previsionnel(aujourdhui)
-    list_display = ("ID_Affaire", "Montant_Affaire", "Deja_Facture",)
+    list_display = ("ID_Affaire", "Montant_Affaire", "Deja_Facture")
     for x in L:
         list_display += (x,)
-    list_filter = [Previsionnel_Filter]
+    list_filter = [Previsionnel_Filter,'ID_Affaire__ID_Pilote']
     search_fields = ("ID_Affaire__Nom_Affaire",)
     totalsum_list = ["Montant_Affaire","Deja_Facture"] + L
     localized_fields = ["Montant_Affaire","Deja_Facture"] + L
