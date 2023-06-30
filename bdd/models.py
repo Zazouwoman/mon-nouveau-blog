@@ -592,32 +592,53 @@ class Affaire(models.Model):
 
 class Previsionnel(models.Model):
     ID_Affaire = models.OneToOneField(Affaire , on_delete=models.CASCADE, verbose_name = "Nom de l'affaire")
-    Date_Previsionnelle1 = models.DateField(blank = True, null = True, default = None, verbose_name = "Date prévisionnelle 1 de facturation")
+    Date_Previsionnelle1 = models.DateField(blank=True, null=True, default=None,
+                                            verbose_name="Date prévisionnelle 1 de facturation")
+    Montant_Previsionnel1 = models.DecimalField(max_digits=12, decimal_places=2, verbose_name='Montant prévisionnel 1',
+                                                default=0)
+    Libelle_Previsionnel1 = models.CharField(max_length = 100, verbose_name = "Libellé prévisionnel 1", blank = True, null = True)
+
     Date_Previsionnelle2 = models.DateField(blank=True, null=True, default=None,
-                                           verbose_name="Date prévisionnelle 2 de facturation")
+                                            verbose_name="Date prévisionnelle 2 de facturation")
+    Montant_Previsionnel2 = models.DecimalField(max_digits=12, decimal_places=2, verbose_name='Montant prévisionnel 2',
+                                                default=0, blank=True)
+    Libelle_Previsionnel2 = models.CharField(max_length=100, verbose_name="Libellé prévisionnel 2", blank=True,
+                                             null=True)
+
     Date_Previsionnelle3 = models.DateField(blank=True, null=True, default=None,
-                                           verbose_name="Date prévisionnelle 3 de facturation")
+                                            verbose_name="Date prévisionnelle 3 de facturation")
+    Montant_Previsionnel3 = models.DecimalField(max_digits=12, decimal_places=2, verbose_name='Montant prévisionnel 3',
+                                                default=0, blank=True)
+    Libelle_Previsionnel3 = models.CharField(max_length=100, verbose_name="Libellé prévisionnel 3", blank=True,
+                                             null=True)
+
     Date_Previsionnelle4 = models.DateField(blank=True, null=True, default=None,
-                                           verbose_name="Date prévisionnelle 4 de facturation")
+                                            verbose_name="Date prévisionnelle 4 de facturation")
+    Montant_Previsionnel4 = models.DecimalField(max_digits=12, decimal_places=2, verbose_name='Montant prévisionnel 4',
+                                                default=0, blank=True)
+    Libelle_Previsionnel4 = models.CharField(max_length=100, verbose_name="Libellé prévisionnel 4", blank=True,
+                                             null=True)
+
     Date_Previsionnelle5 = models.DateField(blank=True, null=True, default=None,
-                                           verbose_name="Date prévisionnelle 5 de facturation")
+                                            verbose_name="Date prévisionnelle 5 de facturation")
+    Montant_Previsionnel5 = models.DecimalField(max_digits=12, decimal_places=2, verbose_name='Montant prévisionnel 5',
+                                                default=0, blank=True)
+    Libelle_Previsionnel5 = models.CharField(max_length=100, verbose_name="Libellé prévisionnel 5", blank=True,
+                                             null=True)
+
     Date_Previsionnelle6 = models.DateField(blank=True, null=True, default=None,
-                                           verbose_name="Date prévisionnelle 6 de facturation")
+                                            verbose_name="Date prévisionnelle 6 de facturation")
+    Montant_Previsionnel6 = models.DecimalField(max_digits=12, decimal_places=2, verbose_name='Montant prévisionnel 6',
+                                                default=0, blank=True)
+    Libelle_Previsionnel6 = models.CharField(max_length=100, verbose_name="Libellé prévisionnel 6", blank=True,
+                                             null=True)
+
     Date_Previsionnelle7 = models.DateField(blank=True, null=True, default=None,
                                            verbose_name="Date prévisionnelle 7 de facturation")
-    Montant_Previsionnel1 = models.DecimalField(max_digits=12, decimal_places=2, verbose_name = 'Montant prévisionnel 1', default = 0)
-    Montant_Previsionnel2 = models.DecimalField(max_digits=12, decimal_places=2, verbose_name='Montant prévisionnel 2',
-                                                default=0,blank=True)
-    Montant_Previsionnel3 = models.DecimalField(max_digits=12, decimal_places=2, verbose_name='Montant prévisionnel 3',
-                                                default=0,blank=True)
-    Montant_Previsionnel4 = models.DecimalField(max_digits=12, decimal_places=2, verbose_name='Montant prévisionnel 4',
-                                                default=0,blank=True)
-    Montant_Previsionnel5 = models.DecimalField(max_digits=12, decimal_places=2, verbose_name='Montant prévisionnel 5',
-                                                default=0,blank=True)
-    Montant_Previsionnel6 = models.DecimalField(max_digits=12, decimal_places=2, verbose_name='Montant prévisionnel 6',
-                                                default=0,blank=True)
     Montant_Previsionnel7 = models.DecimalField(max_digits=12, decimal_places=2, verbose_name='Montant prévisionnel 7',
                                                 default=0,blank=True)
+    Libelle_Previsionnel7 = models.CharField(max_length=100, verbose_name="Libellé prévisionnel 6", blank=True,
+                                             null=True)
 
     def aujourdhui(self):
         return date.today()
@@ -695,6 +716,12 @@ class Previsionnel(models.Model):
     fonction12.short_description = Ldescription[k]
     k = 13
     fonction13.short_description = Ldescription[k]
+
+    def Etat(self):
+        '''Etat de l'affaire : EC ou ARC (en cours ou archivée)'''
+        idaffaire = self.ID_Affaire_id
+        affaire = Affaire.objects.get(pk = idaffaire)
+        return affaire.Etat
 
     def Nom_Affaire(self):
         idaffaire = self.ID_Affaire_id

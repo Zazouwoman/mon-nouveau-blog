@@ -185,7 +185,8 @@ class PrevisionnelForm(forms.ModelForm):
     class Meta:
         model = Previsionnel
         fields = '__all__'
-        localized_fields = ('Montant_Previsionnel1','Montant_Previsionnel2','Montant_Previsionnel3','Montant_Previsionnel4','Montant_Previsionnel5','Montant_Previsionnel6','Montant_Previsionnel7',)
+        localized_fields = ('Montant_Previsionnel1','Montant_Previsionnel2','Montant_Previsionnel3','Montant_Previsionnel4',
+                            'Montant_Previsionnel5','Montant_Previsionnel6','Montant_Previsionnel7',)
 
     #Numero_Phase_En_Cours = forms.CharField(max_length = 2, label="Numéro de la phase en attente de facturation", required = False)
 

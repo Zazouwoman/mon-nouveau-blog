@@ -556,14 +556,25 @@ class Offres_Filter(admin.SimpleListFilter):
     parameter_name = 'Solder'
 
     def lookups(self, request, model_admin):
-        return(('Tout_Sauf_Sans_Suite','Tout sauf sans suite'),
+        return((None,'Tout sauf sans suite'),
                ('En_Attente','En Attente'),
                ('Acceptee', 'Acceptée'),
                ('Sans_Suite','Sans Suite'),
+               ('Tout','Tout')
                )
 
+    def choices(self, cl):
+        for lookup, title in self.lookup_choices:
+            yield {
+                'selected': self.value() == lookup,
+                'query_string': cl.get_query_string({
+                    self.parameter_name: lookup,
+                }, []),
+                'display': title,
+            }
+
     def queryset(self, request, queryset):
-        if self.value() == 'Tout_Sauf_Sans_Suite':
+        if self.value() == None:
             q_array = []
             for element in queryset:
                 if element.Etat == 'ATT' or element.Etat == 'ACC':
@@ -835,7 +846,8 @@ class ASolder_Filter(admin.SimpleListFilter):
 class AffaireAdmin(admin.ModelAdmin):
     actions = ('export_affaire_excel_action',)
     list_display = ("Nom_Affaire", "ID_Payeur",'Reste_A_Regler', 'Solde', "Premiere_Date_Previsionnelle", 'soldee',)
-    search_fields = ("Nom_Affaire__startswith",)
+    search_fields = ("Nom_Affaire",)
+    #search_fields = ("Nom_Affaire__startswith",)
     list_filter = (Previsionnel_Filter, ASolder_Filter, 'ID_Pilote', 'Etat')
     radio_fields = {"Type_Affaire":admin.HORIZONTAL,"Etat":admin.HORIZONTAL,"Declaration_Assurance":admin.HORIZONTAL}
     #list_editable = ('Date_Previsionnelle','soldee',)
@@ -1004,12 +1016,42 @@ class AffaireAdmin(admin.ModelAdmin):
         response.context_data.update(extra_context)
         return response
 
+class Previsionnel_Filter(admin.SimpleListFilter):
+    title = "Affaires"
+    parameter_name = 'Etat'
+
+    def lookups(self, request, model_admin):
+        return((None,'En Cours'),
+               ('Tout','Tout')
+               )
+
+    def choices(self, cl):
+        for lookup, title in self.lookup_choices:
+            yield {
+                'selected': self.value() == lookup,
+                'query_string': cl.get_query_string({
+                    self.parameter_name: lookup,
+                }, []),
+                'display': title,
+            }
+
+    def queryset(self, request, queryset):
+        if self.value() == None:
+            q_array = []
+            for element in queryset:
+                if element.Reste_A_Facturer() != 0:
+                    q_array.append(element.id)
+            return queryset.filter(pk__in=q_array)
+
 class PrevisionnelAdmin(admin.ModelAdmin):
     actions = ('export_previsionnel_action', 'export_previsionnel_excel_action')
     aujourdhui = date.today()
     L, Ldescription = list_display_previsionnel(aujourdhui)
-    list_display = ["Nom_Affaire", "Montant_Affaire", "Deja_Facture" ] + L
-    search_fields = ("Nom_Affaire__startswith",)
+    list_display = ("ID_Affaire", "Montant_Affaire", "Deja_Facture",)
+    for x in L:
+        list_display += (x,)
+    list_filter = [Previsionnel_Filter]
+    search_fields = ("ID_Affaire__Nom_Affaire",)
     totalsum_list = ["Montant_Affaire","Deja_Facture"] + L
     localized_fields = ["Montant_Affaire","Deja_Facture"] + L
 
@@ -1314,7 +1356,6 @@ class FactureAdmin(admin.ModelAdmin):
                     'Montant_Facture_HT', 'Montant_Facture_TTC','Date_Facture','Reste_A_Payer','ID_Payeur', 'Date_Echeance1', 'Num_Relance', 'Date_Relance', 'Date_Dernier_Rappel')
     seach_fiels = ('Nom_Affaire__Startswith')
     list_filter = (A_Relancer_Filter, A_Envoyer_Filter, 'Etat_Paiement', 'Etat',Date_Filter,'ID_Pilote')
-    #list_filter = (A_Relancer_Filter,A_Envoyer_Filter,'Etat_Paiement','Etat','Nom_Affaire',)
     list_editable = ('deja_payee',)
     #list_per_page = 12
     formfield_overrides = {models.DecimalField: {
@@ -1322,6 +1363,7 @@ class FactureAdmin(admin.ModelAdmin):
         },
     }
     localized_fields = ('Honoraire_Affaire', 'Reste_Affaire','Montant_Facture_HT','Date_Prev_Affaire',)
+    date_hierarchy = 'Date_Facture'
 
     change_form_template = 'bdd/Modification_Facture.html'
     #change_list_template = 'admin/change_list2.html'
