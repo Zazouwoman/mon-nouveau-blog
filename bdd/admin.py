@@ -533,7 +533,7 @@ class InfoEmailAdmin(admin.ModelAdmin):
 
 class ClientAdmin(admin.ModelAdmin):
     list_display = ("Denomination_Sociale", "SIRET", "Adresse", "CP", "Ville", 'Total_Affaire')
-    search_fields = ("Denomination_Sociale__startswith",)
+    search_fields = ("Denomination_Sociale",)
     form = ClientForm
     list_per_page = 12
 
@@ -602,8 +602,10 @@ class Offres_Filter(admin.SimpleListFilter):
 class Offre_MissionAdmin(admin.ModelAdmin):
     actions = ('export_offre_excel_action',)
     list_display = ("Nom_Mission", "Honoraires_Proposes", "Client", "Adresse", "CP", "Ville","ID_Pilote",'Date_Proposition','Etat')
-    search_fields = ("Nom_Mission__startswith",)
+    ordering = ('Nom_Mission',)
+    search_fields = ("Nom_Mission",)
     list_filter = (Offres_Filter,'ID_Pilote',)
+    date_hierarchy = 'Date_Proposition'
     form = Offre_MissionForm
     change_form_template = 'bdd/Offre_Mission.html'
     totalsum_list = ('Honoraires_Proposes',)
@@ -846,6 +848,7 @@ class ASolder_Filter(admin.SimpleListFilter):
 class AffaireAdmin(admin.ModelAdmin):
     actions = ('export_affaire_excel_action',)
     list_display = ("Nom_Affaire", "ID_Payeur",'Reste_A_Regler', 'Solde', "Premiere_Date_Previsionnelle", 'soldee',)
+    ordering = ('Nom_Affaire',)
     search_fields = ("Nom_Affaire",)
     #search_fields = ("Nom_Affaire__startswith",)
     list_filter = (Previsionnel_Filter, ASolder_Filter, 'ID_Pilote', 'Etat')
@@ -1050,6 +1053,7 @@ class PrevisionnelAdmin(admin.ModelAdmin):
     list_display = ("ID_Affaire", "Montant_Affaire", "Deja_Facture")
     for x in L:
         list_display += (x,)
+    ordering = ('ID_Affaire',)
     list_filter = [Previsionnel_Filter,'ID_Affaire__ID_Pilote']
     search_fields = ("ID_Affaire__Nom_Affaire",)
     totalsum_list = ["Montant_Affaire","Deja_Facture"] + L
@@ -1354,8 +1358,9 @@ class FactureAdmin(admin.ModelAdmin):
     #list_display = ('Numero_Facture','Etat','Date_Dernier_Rappel','Date_Envoi','Date_Relance1','Date_Relance2', 'Date_Relance3', 'Date_Relance4', 'Date_Relance5', 'Num_Relance','deja_validee','deja_envoyee','deja_payee','Nom_Affaire', 'Montant_Facture_HT', 'ID_Payeur','Date_Echeance1', 'Date_Relance', 'Date_Dernier_Rappel')
     list_display = ('Numero_Facture', 'pdf', 'Etat', 'deja_validee', 'deja_envoyee', 'deja_payee', 'Nom_Affaire',
                     'Montant_Facture_HT', 'Montant_Facture_TTC','Date_Facture','Reste_A_Payer','ID_Payeur', 'Date_Echeance1', 'Num_Relance', 'Date_Relance', 'Date_Dernier_Rappel')
-    seach_fiels = ('Nom_Affaire__Startswith')
-    list_filter = (A_Relancer_Filter, A_Envoyer_Filter, 'Etat_Paiement', 'Etat',Date_Filter,'ID_Pilote')
+    search_fields = ('Nom_Affaire',)
+    list_filter = (A_Relancer_Filter, A_Envoyer_Filter, 'Etat_Paiement', 'Etat', 'ID_Pilote')
+    #list_filter = (A_Relancer_Filter, A_Envoyer_Filter, 'Etat_Paiement', DateFilter, 'Etat','ID_Pilote')
     list_editable = ('deja_payee',)
     #list_per_page = 12
     formfield_overrides = {models.DecimalField: {
