@@ -6,7 +6,7 @@ from django.views.generic.edit import FormView, CreateView
 from django.http import HttpResponse
 from django.views.generic import View
 from .forms import InfoEmailForm
-from .models import InfoEmail,Facture,Attachment,Fichier_Word
+from .models import InfoEmail,Facture,Attachment,Fichier_Word,Pieces_Jointes_Supplementaires
 import os.path
 import io
 from docx import Document
@@ -274,7 +274,22 @@ def attachment_pdf(request, id=None):
     if not (os.path.exists(fichier)):
         return render(request, "bdd/no_fichier.html", {"facture": fichier})
 
-    print('on est là')
+    response = HttpResponse(content_type='application/pdf')
+    response['Content-Disposition'] = 'inline; filename=%s' % nom_fichier
+    with open(fichier, "rb") as f:
+        response.write(f.read())
+    return response
+
+@login_required
+def piece_jointe_supp_pdf(request, id=None):
+    attachment = Pieces_Jointes_Supplementaires.objects.get(id=id)
+    print('ici')
+    nom_fichier = attachment.Nom_Fichier_Joint()
+    fichier = attachment.Chemin_Fichier()
+
+    if not (os.path.exists(fichier)):
+        return render(request, "bdd/no_fichier.html", {"facture": fichier})
+
     response = HttpResponse(content_type='application/pdf')
     response['Content-Disposition'] = 'inline; filename=%s' % nom_fichier
     with open(fichier, "rb") as f:

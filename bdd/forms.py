@@ -16,15 +16,22 @@ class InfoEmailForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super(InfoEmailForm, self).__init__(*args, **kwargs)
         self.fields['From'].widget.attrs['readonly'] = True
-
+    '''
     Pieces_Jointes = MultiFileField(label = 'Pièces jointes', min_num=0, max_num=5, max_file_size=1024 * 1024 * 5)
+    Pieces_Jointes2 = MultiFileField(label='Pièces jointes 2', min_num=0, max_num=5, max_file_size=1024 * 1024 * 5)
+    Pieces_Jointes3 = MultiFileField(label='Pièces jointes 3', min_num=0, max_num=5, max_file_size=1024 * 1024 * 5)
 
     def save(self, commit=True):
         instance = super(InfoEmailForm, self).save(commit)
         for each in self.cleaned_data['Pieces_Jointes']:
             Attachment.objects.create(file=each, message=instance)
+        for each in self.cleaned_data['Pieces_Jointes2']:
+            Attachment.objects.create(file=each, message=instance)
+        for each in self.cleaned_data['Pieces_Jointes3']:
+            Attachment.objects.create(file=each, message=instance)
 
         return instance
+    '''
 
 class RelanceForm2(forms.ModelForm):
     class Meta:

@@ -15,6 +15,7 @@ urlpatterns = [
     path('application/pdf', views.InfoEmailView.as_view()),
 	path('pdf/facture/<int:id>/',views.facture_pdf,name="facture_pdf"),
     path('pdf/attachment/<int:id>/',views.attachment_pdf,name="attachment_pdf"),
+    path('pdf/pieces_jointes_supplementaires/<int:id>/',views.piece_jointe_supp_pdf,name="piece_jointe_supp_pdf"),
     path('word/relance2/<int:id>/',views.relance_word2,name="relance_word2"),
     path('word/relance2bis/<int:id>/',views.relance_word2bis,name="relance_word2bis"),
     path('pdf/relance2/<int:id>/',views.relance_pdf2,name="relance_pdf2"),

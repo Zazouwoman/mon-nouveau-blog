@@ -130,6 +130,10 @@ class AttachmentAdmin(admin.ModelAdmin):
             else:
                 return None
 
+class Pieces_Jointes_SupplementairesAdmin(admin.ModelAdmin):
+    model = Pieces_Jointes_Supplementaires
+    fields = ['__all__']
+
 class CompteurIndiceAdmin(admin.ModelAdmin):
     def get_model_perms(self, request, *args, **kwargs):
         if not request.user.is_superuser:
@@ -258,11 +262,16 @@ class AttachmentInline2(admin.TabularInline):
     def __init__(self,*args,**kwargs):
         super(AttachmentInline2,self).__init__(*args,**kwargs)
 
+class AttachmentInline3(admin.TabularInline):
+    model = Pieces_Jointes_Supplementaires
+    extra = 0
+    fields = ['file']
+
 class InfoEmailAdmin(admin.ModelAdmin):
     list_display = ('Subject',)
     form = InfoEmailForm
     change_form_template = 'bdd/Creation_Email.html'
-    inlines = [AttachmentInline,]  #Cas où il y a effectivement un email
+    inlines = [AttachmentInline,AttachmentInline3]  #Cas où il y a effectivement un email
     other_set_inlines = [AttachmentInline2,]  #Cas des relances où il n'y a pas de mail
 
     def get_model_perms(self, request, *args, **kwargs):
@@ -292,6 +301,12 @@ class InfoEmailAdmin(admin.ModelAdmin):
         else:
             form = super().get_form(request, obj, **kwargs)
         return form
+
+    def form_valid(self, form):
+        for each in form.cleaned_data['Pieces_Jointes']:
+            Attachment.objects.create(file=each)
+        return super(InfoEmail, self).form_valid(form)
+
 
     def change_view(self,request, object_id, extra_context = None):
         #messages.add_message(request, messages.WARNING,(settings.MEDIA_ROOT))
@@ -481,6 +496,7 @@ class InfoEmailAdmin(admin.ModelAdmin):
             try:
                 attachments = []  # start with an empty list
                 attach_files = Attachment.objects.filter(message_id = obj.pk)
+                attach_files_supp = Pieces_Jointes_Supplementaires.objects.filter(message_id=obj.pk)
                 copie = ['compta@ingeprev.com']
                 listcopie = [obj.Copie1,obj.Copie2,obj.Copie3]
                 for x in listcopie:
@@ -492,6 +508,14 @@ class InfoEmailAdmin(admin.ModelAdmin):
                 for attach in attach_files:
                     f = settings.MEDIA_ROOT + attach.file.name
                     #f = settings.MEDIA_URL + attach.file.name
+                    if isinstance(f, str):
+                        email.attach_file(f)
+                    elif isinstance(f, (tuple, list)):
+                        n, fi, mime = f + (None,) * (3 - len(f))
+                        email.attach(n, fi, mime)
+
+                for attach in attach_files_supp:
+                    f = settings.MEDIA_ROOT + attach.file.name
                     if isinstance(f, str):
                         email.attach_file(f)
                     elif isinstance(f, (tuple, list)):
@@ -2083,6 +2107,7 @@ admin.site.register(Affaire, AffaireAdmin)
 admin.site.register(Facture, FactureAdmin)
 admin.site.register(Envoi_Offre, EnvoiOffreAdmin)
 admin.site.register(Attachment, AttachmentAdmin)
+admin.site.register(Pieces_Jointes_Supplementaires,Pieces_Jointes_SupplementairesAdmin)
 admin.site.register(Envoi_Facture, EnvoiFactureAdmin)
 admin.site.register(Compteur_Indice, CompteurIndiceAdmin)
 admin.site.register(Ingeprev,IngeprevAdmin)

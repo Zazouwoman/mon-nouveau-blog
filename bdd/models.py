@@ -1548,6 +1548,10 @@ class Facture(models.Model):
             self.Facture_Avoir = 'AV'
         self.save()
 
+def renommage(instance, nom):
+    nom_fichier = os.path.splitext(nom)  # on retire l'extension
+    return "{}".format(nom_fichier)
+
 def renommage2(instance,nom_fichier):
     facture = Facture.objects.get(pk = instance.ID_Facture_id)
     numfacture = facture.Numero_Facture
@@ -1852,7 +1856,7 @@ class InfoEmail(models.Model):
 class Attachment(models.Model):
     message = models.ForeignKey(InfoEmail, verbose_name=_('InfoEmail'), on_delete=models.CASCADE)
     nom = models.CharField(max_length =70, blank = True)
-    file = models.FileField(_('Attachment'), upload_to='tmp')
+    file = models.FileField(_('Pièces Jointes'), upload_to='tmp')
 
     def Num_Facture(self):
         mail = InfoEmail.objects.get(pk=self.message_id)
@@ -1923,3 +1927,48 @@ class Attachment(models.Model):
         if os.path.isfile(self.file.path):
             os.remove(self.file.path)
         super(Attachment, self).delete(*args,**kwargs)
+
+class Pieces_Jointes_Supplementaires(models.Model):
+    message = models.ForeignKey(InfoEmail, verbose_name=_('InfoEmail'), on_delete=models.CASCADE)
+    nom = models.CharField(max_length=70, blank=True, null=True)
+    file = models.FileField(_('Pieces Jointes Supplémentaires'), upload_to=renommage)
+
+    def Nom_Fichier_Joint(self):
+        mail = InfoEmail.objects.get(pk=self.message_id)
+        idfacture = mail.ID_Facture
+        facture = Facture.objects.get(pk=idfacture)
+        numfacture = facture.Numero_Facture
+        if self.nom !='Facture':
+            return self.nom+'-'+str(numfacture)
+        else:
+            return str(numfacture)
+
+    def Chemin_Fichier(self):
+        chemin = Path(DOSSIER + self.file.name)
+        return chemin
+
+    def file_link(self):
+        fichier = self.file
+        return format_html(
+            '<a{} target = "_blank">{}</a>', flatatt({'href': fichier.url}), fichier.name)
+
+    def pdf(self):
+        if self.id == None:
+            print('ici2')
+            return None
+        else:
+            print('ici3')
+            return mark_safe(
+                "<a href='{}' target='_blank'>PDF</a>".format(reverse('piece_jointe_supp_pdf', args=[self.id])))
+            #nom_fichier = self.Nom_Fichier_Joint()
+            #return mark_safe("<a href='{}' target='_blank'>{}</a>".format(reverse('attachment_pdf', args=[self.id]),nom_fichier))
+
+    pdf.allow_tags = True
+    pdf.short_description = 'Lien pdf'
+
+    def delete(self,*args,**kwargs):
+        obj = Pieces_Jointes_Supplementaires.objects.get(pk = self.pk)
+        obj.file.delete()
+        if os.path.isfile(self.file.path):
+            os.remove(self.file.path)
+        super(Pieces_Jointes_Supplementaires, self).delete(*args,**kwargs)
