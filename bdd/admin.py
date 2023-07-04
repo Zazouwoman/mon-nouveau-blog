@@ -1111,7 +1111,7 @@ class PrevisionnelAdmin(admin.ModelAdmin):
     list_display = ("ID_Affaire", "Montant_Affaire", "Deja_Facture")
     for x in L:
         list_display += (x,)
-    ordering = ('ID_Affaire',)
+    ordering = ('ID_Affaire__Nom_Affaire',)
     list_filter = [Previsionnel_Filter,'ID_Affaire__ID_Pilote']
     search_fields = ("ID_Affaire__Nom_Affaire",)
     totalsum_list = ["Montant_Affaire","Deja_Facture"] + L
