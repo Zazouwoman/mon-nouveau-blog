@@ -598,7 +598,7 @@ class Offres_Filter(admin.SimpleListFilter):
             }
 
     def queryset(self, request, queryset):
-        if self.value() == None:
+        if self.value() == None:  #Filtre par défaut = tout sauf sans suite
             q_array = []
             for element in queryset:
                 if element.Etat == 'ATT' or element.Etat == 'ACC':
@@ -796,7 +796,7 @@ class Offre_MissionAdmin(admin.ModelAdmin):
 
 
 #Filtre du prévisionnel de facturation
-class Previsionnel_Filter(admin.SimpleListFilter):
+class Prev_Filter(admin.SimpleListFilter):
     title = "Prévisionnel de facturation"
     parameter_name = 'Prev'
 
@@ -867,6 +867,40 @@ class ASolder_Filter(admin.SimpleListFilter):
                     q_array.append(element.id)
             return queryset.filter(pk__in= q_array)
 
+class Etat_Filter(admin.SimpleListFilter):
+    title = "Etat Affaire"
+    parameter_name = 'Etat'
+
+    def lookups(self, request, model_admin):
+        return((None,'En Cours'),
+               ('Archivee','Archivée'),
+               ('Tout','Tout')
+               )
+
+    def choices(self, cl):
+        for lookup, title in self.lookup_choices:
+            yield {
+                'selected': self.value() == lookup,
+                'query_string': cl.get_query_string({
+                    self.parameter_name: lookup,
+                }, []),
+                'display': title,
+            }
+
+    def queryset(self, request, queryset):
+        if self.value() == None:  #Filtre par défaut = en cours
+            q_array = []
+            for element in queryset:
+                if element.Etat == 'EC':
+                    q_array.append(element.id)
+            return queryset.filter(pk__in=q_array)
+        if self.value() =='Archivee':
+            q_array = []
+            for element in queryset:
+                if element.Etat == 'ARC':
+                    q_array.append(element.id)
+            return queryset.filter(pk__in= q_array)
+
 
 #class AffaireAdmin(TotalsumAdmin):
 class AffaireAdmin(admin.ModelAdmin):
@@ -875,7 +909,7 @@ class AffaireAdmin(admin.ModelAdmin):
     ordering = ('Nom_Affaire',)
     search_fields = ("Nom_Affaire",)
     #search_fields = ("Nom_Affaire__startswith",)
-    list_filter = (Previsionnel_Filter, ASolder_Filter, 'ID_Pilote', 'Etat')
+    list_filter = (Prev_Filter, ASolder_Filter, Etat_Filter, 'ID_Pilote',)
     radio_fields = {"Type_Affaire":admin.HORIZONTAL,"Etat":admin.HORIZONTAL,"Declaration_Assurance":admin.HORIZONTAL}
     #list_editable = ('Date_Previsionnelle','soldee',)
     list_editable = ('soldee',)
