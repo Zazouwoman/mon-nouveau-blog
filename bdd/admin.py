@@ -1101,15 +1101,13 @@ class DatePrevisionnel_Filter(admin.SimpleListFilter):
         if self.value() == 'Ante':
             q_array = []
             for element in queryset:
-                debut, fin = debut_fin_mois(element.aujourdhui(), 0)
-                if element.Date_Previsionnelle1 <= fin:
+                if element.fonction0() >0:
                     q_array.append(element.id)
             return queryset.filter(pk__in=q_array)
         if self.value() == 'Mois En Cours':
             q_array = []
             for element in queryset:
-                debut, fin = debut_fin_mois(element.aujourdhui(), 1)
-                if debut <= element.Date_Previsionnelle1 <= fin:
+                if element.fonction1()>0:
                     q_array.append(element.id)
             return queryset.filter(pk__in=q_array)
 
