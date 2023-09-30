@@ -1107,7 +1107,7 @@ class DatePrevisionnel_Filter(admin.SimpleListFilter):
         if self.value() == 'Mois En Cours':
             q_array = []
             for element in queryset:
-                if element.fonction1()>0:
+                if element.fonction1() > 0:
                     q_array.append(element.id)
             return queryset.filter(pk__in=q_array)
 
