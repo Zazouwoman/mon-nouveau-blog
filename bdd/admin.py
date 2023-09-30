@@ -1077,6 +1077,42 @@ class AffaireAdmin(admin.ModelAdmin):
         response.context_data.update(extra_context)
         return response
 
+class DatePrevisionnel_Filter(admin.SimpleListFilter):
+    title = "Date Prévisionnelle"
+    parameter_name = 'Date prévisionnelle'
+
+    def lookups(self, request, model_admin):
+        return((None,'Tout'),
+            ('Ante','Antérieures'),
+               ('Mois En Cours','Mois En Cours')
+               )
+
+    def choices(self, cl):
+        for lookup, title in self.lookup_choices:
+            yield {
+                'selected': self.value() == lookup,
+                'query_string': cl.get_query_string({
+                    self.parameter_name: lookup,
+                }, []),
+                'display': title,
+            }
+
+    def queryset(self, request, queryset):
+        if self.value() == 'Ante':
+            q_array = []
+            for element in queryset:
+                debut, fin = debut_fin_mois(element.aujourdhui(), 0)
+                if element.Date_Previsionnelle1 <= fin:
+                    q_array.append(element.id)
+            return queryset.filter(pk__in=q_array)
+        if self.value() == 'Mois En Cours':
+            q_array = []
+            for element in queryset:
+                debut, fin = debut_fin_mois(element.aujourdhui(), 1)
+                if debut <= element.Date_Previsionnelle1 <= fin:
+                    q_array.append(element.id)
+            return queryset.filter(pk__in=q_array)
+
 class Previsionnel_Filter(admin.SimpleListFilter):
     title = "Affaires"
     parameter_name = 'Etat'
@@ -1112,7 +1148,7 @@ class PrevisionnelAdmin(admin.ModelAdmin):
     for x in L:
         list_display += (x,)
     ordering = ('ID_Affaire__Nom_Affaire',)
-    list_filter = [Previsionnel_Filter,'ID_Affaire__ID_Pilote']
+    list_filter = [Previsionnel_Filter,'ID_Affaire__ID_Pilote',DatePrevisionnel_Filter]
     search_fields = ("ID_Affaire__Nom_Affaire",)
     totalsum_list = ["Montant_Affaire","Deja_Facture"] + L
     localized_fields = ["Montant_Affaire","Deja_Facture"] + L
