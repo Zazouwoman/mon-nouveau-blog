@@ -1084,7 +1084,9 @@ class DatePrevisionnel_Filter(admin.SimpleListFilter):
     def lookups(self, request, model_admin):
         return((None,'Tout'),
             ('Ante','Antérieures'),
-               ('Mois En Cours','Mois En Cours')
+               ('Mois En Cours','Mois En Cours'),
+
+               ('Ante et Mois', 'Antérieures et Mois en Cours'),
                )
 
     def choices(self, cl):
@@ -1108,6 +1110,12 @@ class DatePrevisionnel_Filter(admin.SimpleListFilter):
             q_array = []
             for element in queryset:
                 if element.fonction1() > 0:
+                    q_array.append(element.id)
+            return queryset.filter(pk__in=q_array)
+        if self.value() == 'Ante et Mois':
+            q_array = []
+            for element in queryset:
+                if element.fonction0() > 0 or element.fonction1() >0:
                     q_array.append(element.id)
             return queryset.filter(pk__in=q_array)
 

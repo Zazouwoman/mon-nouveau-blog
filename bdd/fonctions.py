@@ -357,7 +357,7 @@ def message_relance(facture):
     elif civ == 'Mme':
         civ = 'Madame {},'.format(facture.Nom_Facture)
     else:
-        civ = 'Madame, monsieur,'
+        civ = 'Madame, Monsieur,'
 
     pilote = '{} {}'.format(facture.Prenom_Pilote, facture.Nom_Pilote)
     nb = facture.Nb_Avoir()
@@ -386,7 +386,7 @@ def message_facture(facture, offre):
     elif civ == 'Mme':
         civ = 'Madame {},'.format(facture.Nom_Facture)
     else:
-        civ = 'Madame, monsieur,'
+        civ = 'Madame, Monsieur,'
 
     if facture.Facture_Avoir =='FA':
         type = 'facture'
@@ -404,7 +404,7 @@ def message_facture_renvoi(facture, offre):
     elif civ == 'Mme':
         civ = 'Madame {},'.format(facture.Nom_Facture)
     else:
-        civ = 'Madame, monsieur,'
+        civ = 'Madame, Monsieur,'
 
     if facture.Facture_Avoir =='FA':
         type = 'facture'
