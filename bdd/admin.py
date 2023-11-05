@@ -134,6 +134,11 @@ class Pieces_Jointes_SupplementairesAdmin(admin.ModelAdmin):
     model = Pieces_Jointes_Supplementaires
     fields = ['__all__']
 
+    def get_model_perms(self, request, *args, **kwargs):
+        if not request.user.is_superuser:
+            return {}
+        return super().get_model_perms(request)
+
 class CompteurIndiceAdmin(admin.ModelAdmin):
     def get_model_perms(self, request, *args, **kwargs):
         if not request.user.is_superuser:
