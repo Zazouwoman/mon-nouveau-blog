@@ -453,6 +453,15 @@ class Affaire(models.Model):
 
     Factures_Affaire.short_description = "Factures de l'affaire"
 
+    def Montant_Factures_Affaire(self):
+        L = []
+        qs = Facture.objects.filter(ID_Affaire_id=self.pk)
+        for facture in qs:
+            if facture.deja_validee:
+                L.append(round(float(str(facture.Montant_Facture_HT)),2))
+        return L
+
+    Montant_Factures_Affaire.short_description = "Montants des factures"
 
     class Meta:
         ordering = ['Nom_Affaire']

@@ -979,9 +979,9 @@ class AffaireAdmin(admin.ModelAdmin):
         if not obj:
             return []
         elif not obj.previsionnelcree:
-            return ('Descriptif','Affiche_Reste_A_Regler','Adresse','CP','Ville','Factures_Affaire')
+            return ('Descriptif','Affiche_Reste_A_Regler','Adresse','CP','Ville','Factures_Affaire','Montant_Factures_Affaire')
         else:
-            return ('Descriptif','Premiere_Date_Previsionnelle','Affiche_Reste_A_Regler','Adresse','CP','Ville','Factures_Affaire')
+            return ('Descriptif','Premiere_Date_Previsionnelle','Affiche_Reste_A_Regler','Adresse','CP','Ville','Factures_Affaire','Montant_Factures_Affaire')
 
     def get_form(self, request, obj=None, **kwargs):
         if not obj:
