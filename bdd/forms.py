@@ -156,6 +156,7 @@ class AffaireForm(forms.ModelForm):
         model = Affaire
         exclude = ['soldee','ID_Client_Cache','Type_Dossier','Indice_Dossier','ID_Mission','Etat','previsionnelcree']
         localized_fields = ('Honoraires_Global','Montant_Previsionnel_Travaux',)
+        readonly_fields = ['Factures_Affaire']
 
     def __init__(self, *args, **kwargs):
         super(AffaireForm, self).__init__(*args, **kwargs)
@@ -179,6 +180,7 @@ class AffaireForm2(forms.ModelForm):
         model = Affaire
         exclude = ['soldee','ID_Client_Cache','Type_Dossier','Indice_Dossier','ID_Mission','Etat','previsionnelcree','Date_Previsionnelle']
         localized_fields = ('Honoraires_Global','Montant_Previsionnel_Travaux',)
+        readonly_fields = ['Factures_Affaire']
 
     def __init__(self, *args, **kwargs):
         super(AffaireForm2, self).__init__(*args, **kwargs)

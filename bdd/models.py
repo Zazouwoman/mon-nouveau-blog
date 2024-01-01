@@ -443,6 +443,17 @@ class Affaire(models.Model):
 
     Affiche_Reste_A_Regler.short_description = "Reste à facturer"
 
+    def Factures_Affaire(self):
+        L = mark_safe('')
+        qs = Facture.objects.filter(ID_Affaire_id=self.pk)
+        for facture in qs:
+            if facture.deja_validee:
+                L += facture.pdf2() + mark_safe(', ')
+        return L
+
+    Factures_Affaire.short_description = "Factures de l'affaire"
+
+
     class Meta:
         ordering = ['Nom_Affaire']
 
@@ -1182,7 +1193,15 @@ class Facture(models.Model):
         elif not self.Fichier_Facture_cree:
             return None
         else:
-            return mark_safe("<a href='%s' target='_blank'>PDF</a>"%reverse('facture_pdf',args=[self.id]))
+            return mark_safe("<a href='{!s}' target='_blank'>PDF</a>".format(reverse('facture_pdf',args=[self.id])))
+
+    def pdf2(self):
+        if not self.deja_validee:
+            return None
+        elif not self.Fichier_Facture_cree:
+            return None
+        else:
+            return mark_safe("<a href='{!s}' target='_blank'>{}</a>".format(reverse('facture_pdf',args=[self.id]),self.Numero_Facture))
 
     def word(self):
         return mark_safe("<a href='%s' target='_blank'>WORD</a>"%reverse('relance_word2', args=[self.id]))
@@ -1266,13 +1285,22 @@ class Facture(models.Model):
             self.delete()
         else:
             pass
-
+    '''
     def Avoirs_Lies(self):
         L = []
         qs = Facture.objects.filter(Facture_Liee=self.Numero_Facture).filter(deja_validee=True)
         for avoir in qs:
             if avoir.deja_validee:
                 L.append(avoir.Numero_Facture)
+        return L
+    '''
+
+    def Avoirs_Lies(self):
+        L = mark_safe('')
+        qs = Facture.objects.filter(Facture_Liee=self.Numero_Facture).filter(deja_validee=True)
+        for avoir in qs:
+            if avoir.deja_validee:
+                L+= avoir.pdf2() + mark_safe(', ')
         return L
 
     Avoirs_Lies.short_description = 'Avoirs liés'
