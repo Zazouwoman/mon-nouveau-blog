@@ -1085,7 +1085,7 @@ class Facture(models.Model):
 
     Numero_Facture = models.CharField(default = "",max_length = 50, verbose_name = "Numéro de facture", blank = True)
     Indice_Facture = models.IntegerField(default = 0,blank=True)
-    ID_Affaire  = models.ForeignKey(Affaire , on_delete=models.SET_NULL, verbose_name = "Nom de l'affaire")
+    ID_Affaire  = models.ForeignKey(Affaire , on_delete=models.SET_NULL, null = True, verbose_name = "Nom de l'affaire")
     ID_Prev = models.ForeignKey(Previsionnel , on_delete=models.SET_NULL, verbose_name = "Prévisionnel de l'affaire", null = True, blank = True)
     Nom_Affaire = models.CharField(max_length = 100, verbose_name = "Nom de l'Affaire", blank = True, null = True)
     ID_Payeur = models.ForeignKey(Client,on_delete=models.SET_NULL, null = True,verbose_name = "Payeur")
