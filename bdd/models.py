@@ -1089,7 +1089,7 @@ class Facture(models.Model):
     ID_Prev = models.ForeignKey(Previsionnel , on_delete=models.SET_NULL, verbose_name = "Prévisionnel de l'affaire", null = True, blank = True)
     Nom_Affaire = models.CharField(max_length = 100, verbose_name = "Nom de l'Affaire", blank = True, null = True)
     ID_Payeur = models.ForeignKey(Client,on_delete=models.SET_NULL, null = True,verbose_name = "Payeur")
-    ID_Envoi_Facture = models.ForeignKey(Envoi_Facture, on_delete=models.CASCADE,
+    ID_Envoi_Facture = models.ForeignKey(Envoi_Facture, on_delete=models.SET_NULL,
                                          verbose_name="Adresse d'envoi de la facture", null = True)
     Ref_Client = models.CharField(max_length=150,blank = True, verbose_name="Référence Client à rappeler")
     ID_Pilote = models.ForeignKey(Pilote, on_delete=models.SET_NULL, null = True, verbose_name = "Pilote")
