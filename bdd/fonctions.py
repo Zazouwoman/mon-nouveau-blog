@@ -53,7 +53,7 @@ def debut_fin_mois(aujourdhui,k):
     k = k-1 #J'enlève 1 car JM veut que le mois 0 soit le mois en cours
     debutmois = date(annee + (mois+k-1) // 12 , (mois + k - 1) % 12 + 1, 1)
     finmois = date(annee + (mois+k)//12, (mois+k)%12 + 1, 1) - timedelta(days=1)
-    return debutmois,finmois
+    return debutmois, finmois
 
 def creer_pdf_facture(facture,affaire,offre,ingeprev,dossier):
     """Crée le fichier pdf de la facture dans le dossier PRIVE

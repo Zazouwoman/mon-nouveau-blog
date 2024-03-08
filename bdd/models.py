@@ -126,7 +126,7 @@ FactureType = [('FA','Facture'),('AV','Avoir')]
 EtatFacture = [("BR","Brouillon"),("VA","Validée"),('ENV',"Envoyée")]
 EtatPaiement = [("ATT","En Attente"),("PAYE","Payée")]
 TVA = [('20','20'),('10','10'),('5','5'),('0','0')]
-DelaisPaiement=[('30','30'),('60','60')]
+DelaisPaiement=[('30','30'),('45','45'),('60','60')]
 DeclarationAssuranceType=[('AF', 'A Faire'),('F', 'Fait'),('SO','Sans Objet')]
 
 class Ingeprev(models.Model):
@@ -288,7 +288,7 @@ class Envoi_Facture(models.Model):
     Email_Contact = models.EmailField(max_length=70, blank=True, verbose_name = 'Email')
     Mode_Paiement = models.CharField(default = "VI", choices = ModePaiementType, max_length = 20, verbose_name = "Mode de Paiement")
     Delais_Paiement = models.CharField(choices = DelaisPaiement, max_length=3,default = '30', verbose_name = "Délais de Paiement (en jours)")
-    Fin_Mois = models.CharField(choices = OuiOuNonType.choices , max_length = 3, default = "Oui", verbose_name = "Fin de Mois")
+    Fin_Mois = models.CharField(choices = OuiOuNonType.choices , max_length = 3, default = "Non", verbose_name = "Fin de Mois")
     Modalites_Paiement = models.TextField(blank = True, verbose_name = "Modalités particulières de Paiement")
 
     def get_absolute_url(self):
@@ -1294,7 +1294,7 @@ class Facture(models.Model):
             self.delete()
         else:
             pass
-    '''
+
     def Avoirs_Lies(self):
         L = []
         qs = Facture.objects.filter(Facture_Liee=self.Numero_Facture).filter(deja_validee=True)
@@ -1302,9 +1302,9 @@ class Facture(models.Model):
             if avoir.deja_validee:
                 L.append(avoir.Numero_Facture)
         return L
-    '''
 
-    def Avoirs_Lies(self):
+
+    def Affiche_Avoirs_Lies(self):
         L = mark_safe('')
         qs = Facture.objects.filter(Facture_Liee=self.Numero_Facture).filter(deja_validee=True)
         for avoir in qs:
@@ -1312,7 +1312,7 @@ class Facture(models.Model):
                 L+= avoir.pdf2() + mark_safe(', ')
         return L
 
-    Avoirs_Lies.short_description = 'Avoirs liés'
+    Affiche_Avoirs_Lies.short_description = 'Avoirs liés'
 
     def Montants_Avoirs_Lies(self):
         L = []
@@ -1486,9 +1486,10 @@ class Facture(models.Model):
     def Date_Echeance1(self):
         if self.Fin_Mois == "Non":
             echeance = self.Date_Facture + timedelta(days=self.Delais_Paiement)
-        elif self.Fin_Mois == "Oui": #Ici on est forcément à 30 jours fin de mois
+        elif self.Fin_Mois == "Oui": #Ici on est forcément à 30 ou 45 jours fin de mois
             datefacture = self.Date_Facture
-            premier = datefacture + timedelta(30)
+            duree = self.Delais_Paiement
+            premier = datefacture + timedelta(duree)
             debut,fin = debut_fin_mois(premier,1)  #1 car on a décalé de 1 dans la fonction debut_fin_mois lors de la modification du prévisionnel
             echeance = fin
         return echeance

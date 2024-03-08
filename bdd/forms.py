@@ -414,7 +414,7 @@ class VisualisationFactureForm(forms.ModelForm):
         fields = ['Numero_Facture','Nom_Affaire','ID_Payeur','ID_Envoi_Facture','ID_Pilote','Descriptif','Montant_Facture_HT',
                   'Taux_TVA', 'Date_Facture']
         localized_fields = ('Montant_Facture_HT',)
-        readonly_fields = ['Reste_A_Payer','Avoirs_Lies']
+        readonly_fields = ['Reste_A_Payer','Affiche_Avoirs_Lies']
 
     def __init__(self, *args, **kwargs):
         super(VisualisationFactureForm, self).__init__(*args, **kwargs)
@@ -445,8 +445,8 @@ class EnvoiFactureForm(forms.ModelForm):
         cleaned_data = super().clean()
         delais = cleaned_data.get("Delais_Paiement")
         fin = cleaned_data.get("Fin_Mois")
-        if not (delais == '30' or (delais == '60' and fin == 'Non')):
-            raise ValidationError('Options possibles pour les délais de paiement : 30 jours, 30 jours fin de mois, 60 jours')
+        if not (delais == '30' or delais == '45' or (delais == '60' and fin == 'Non')):
+            raise ValidationError('Options possibles pour les délais de paiement : 30 jours, 30 jours fin de mois, 45 jours, 45 jours fin de mois, 60 jours')
             #self.add_error('Delais_Paiement',msg)
             #self.add_error('Fin_Mois',msg)
 
