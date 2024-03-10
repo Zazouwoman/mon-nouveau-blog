@@ -1559,9 +1559,9 @@ class FactureAdmin(admin.ModelAdmin):
             self.readonly_fields = ()
             return CreationFactureForm
         elif obj.deja_validee:
-            self.readonly_fields = ('Avoirs_Lies','Montants_Avoirs_Lies','Date_Prev_En_Cours_Affaire', 'Honoraire_Affaire', 'Reste_Affaire', 'Num_Affaire')
+            self.readonly_fields = ('Affiche_Avoirs_Lies','Montants_Avoirs_Lies','Date_Prev_En_Cours_Affaire', 'Honoraire_Affaire', 'Reste_Affaire', 'Num_Affaire')
             return FactureForm
-        self.readonly_fields = ('Avoirs_Lies','Montants_Avoirs_Lies', 'Honoraire_Affaire', 'Reste_Affaire', 'Num_Affaire')
+        self.readonly_fields = ('Affiche_Avoirs_Lies','Montants_Avoirs_Lies', 'Honoraire_Affaire', 'Reste_Affaire', 'Num_Affaire')
         return super().get_form(request, obj, **kwargs)
 
     def get_readonly_fields(self, request, obj = None):
@@ -1569,7 +1569,8 @@ class FactureAdmin(admin.ModelAdmin):
             return []
         elif obj.deja_validee:
             return ['Numero_Facture','Nom_Affaire','ID_Payeur','ID_Envoi_Facture','ID_Pilote',
-                  'Descriptif','Montant_Facture_HT','Taux_TVA','Solde_Pour_Avoir_Eventuel','Avoirs_Lies','Montants_Avoirs_Lies','Facture_Liee','Date_Facture','Modalites_Paiement']
+                  'Descriptif','Montant_Facture_HT','Taux_TVA','Solde_Pour_Avoir_Eventuel','Affiche_Avoirs_Lies','Montants_Avoirs_Lies',
+                    'Affiche_Facture_Liee','Date_Facture','Modalites_Paiement']
         elif obj.Num_Relance == 0 and not obj.deja_validee:
             return ('Date_Prev_En_Cours_Affaire_aff','Honoraire_Affaire', 'Reste_Affaire', 'Num_Affaire','Modalites_Paiement',)
         else:

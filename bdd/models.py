@@ -1295,6 +1295,13 @@ class Facture(models.Model):
         else:
             pass
 
+    def Affiche_Facture_Liee(self):
+        qs = Facture.objects.filter(Numero_Facture = self.Facture_Liee)
+        for factureliee in qs:
+            return factureliee.pdf2()
+
+    Affiche_Facture_Liee.short_description = 'Facture Liee'
+
     def Avoirs_Lies(self):
         L = []
         qs = Facture.objects.filter(Facture_Liee=self.Numero_Facture).filter(deja_validee=True)
