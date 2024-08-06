@@ -782,7 +782,8 @@ class Offre_MissionAdmin(admin.ModelAdmin):
                                                  Nom_Affaire=nomaffaire,Honoraires_Global=honorairesglobal,
                                                  ID_Pilote=idpilote,
                                                  Compris_Exception = comprisexception,
-                                                 Montant_Previsionnel_Travaux = montantprevisionneltravaux)
+                                                 Montant_Previsionnel_Travaux = montantprevisionneltravaux,
+                                                 Etat = 'EC', soldee = False)
                 messages.warning(request,
                                  "L'adesse d'envoi de la facture a été créée à l'identique de l'adresse du payeur avec les modalités de paiement par défaut. Vous pouvez la modifier si besoin.")
                 affaire.creer_previsionnel()

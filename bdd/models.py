@@ -404,7 +404,7 @@ class Offre_Mission(models.Model):
         super().save(*args,**kwargs)
 
 class Affaire(models.Model):
-    soldee = models.BooleanField(default = 'False', verbose_name = "Archivée")  #Pour savoir si l'affaire est soldée
+    soldee = models.BooleanField(default = False, verbose_name = "Archivée")  #Pour savoir si l'affaire est soldée
     previsionnelcree = models.BooleanField(default='False', verbose_name="Prévisionnel Créé")  # Pour savoir si le prévisionnel a été créé
     Type_Dossier = models.CharField(default = "A",max_length = 3)
     Indice_Dossier = models.IntegerField(default = 0,blank=True)
