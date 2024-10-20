@@ -579,8 +579,9 @@ class ClientAdmin(admin.ModelAdmin):
 
     def response_change(self, request, obj):
         if "Enregistrer" in request.POST:
-            obj.save()
-            return redirect(".")
+                obj.save()
+                return redirect(".")
+        return super().response_change(request, obj)
 
 class Offre_MissionAdminForm(forms.ModelForm):
     class Meta:
