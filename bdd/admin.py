@@ -566,6 +566,8 @@ class ClientAdmin(admin.ModelAdmin):
     form = ClientForm
     list_per_page = 12
 
+    change_form_template = 'bdd/Modification_Client.html'
+
     def get_form(self, request, obj=None, **kwargs):
         form = super().get_form(request, obj, **kwargs)
         return form
