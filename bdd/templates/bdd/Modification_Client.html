@@ -6,14 +6,14 @@
 </br>
 
 {% if change %}
-{% if warning%}
+
 <div class="submit-row" action="">
     {% csrf_token %}
 
     <input id = "submitBtn" class = "btn btn-primary" type="submit" value="Enregistrer" name="Enregistrer"
            onclick="return confirm('ATTENTION ! Une fois les modifications enregistr&eacute;es, les affaires et offres rattach&eacute;es au client seront toutes avec ces nouvelles coordonn&eacute;es. Confirmez-vous l'enregistrement des modifications ?');" />
     </div>
-{% endif %}
+
 
 {% endif %}
 
