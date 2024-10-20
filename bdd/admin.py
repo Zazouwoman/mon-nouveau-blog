@@ -748,6 +748,12 @@ class Offre_MissionAdmin(admin.ModelAdmin):
                 messages.add_message(request, messages.ERROR,
                                      "Impossible de classer cette offre de mission sans suite. Elle a déjà été acceptée.")
                 return redirect('.')
+        if "Declasser_Sans_Suite" in request.POST:
+            if obj.Etat == "REF":
+                obj.Etat = "ATT"
+                obj.save()
+                return redirect('.')
+
         if "Valider_Offre" in request.POST:
             if obj.Etat =="ACC":
                 messages.add_message(request, messages.ERROR,
