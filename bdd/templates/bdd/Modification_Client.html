@@ -5,7 +5,8 @@
 {{ block.super }}
 </br>
 
-{% if change and warning%}
+{% if change %}
+{% if warning%}
 <div class="submit-row" action="">
     {% csrf_token %}
 
@@ -14,13 +15,13 @@
     </div>
 {% endif %}
 
-{% if change and not warning%}
-<div class="submit-row" action="">
-    {% csrf_token %}
-
-    <input id = "submitBtn" class = "btn btn-primary" type="submit" value="Enregistrer" name="Enregistrer"
-    </div>
 {% endif %}
 
 
+{% endblock %}
+
+{% block submit_buttons_bottom %}
+{% if not warning %}
+    {{block.super}}
+{% endif %}
 {% endblock %}
