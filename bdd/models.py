@@ -230,7 +230,7 @@ class Client(models.Model):
             if element.ID_Client_Cache == None:
                 if element.ID_Payeur_id == ID and element.Etat != 'ARC':
                     total += 1
-            if element.ID_Client_Cache == ID and element.Etat != 'ARC':
+            elif element.ID_Client_Cache == ID and element.Etat != 'ARC':
                 total += 1
         return total
 
@@ -241,10 +241,9 @@ class Client(models.Model):
             if element.ID_Client_Cache == None:
                 if element.ID_Payeur_id == ID and element.Etat != 'REF':
                     total += 1
-            if element.ID_Client_Cache == ID and element.Etat != 'REF':
+            elif element.ID_Client_Cache == ID and element.Etat != 'REF':
                 total += 1
         return total
-
 
     Total_Affaire.short_description = "Montant total des affaires du client"
 
