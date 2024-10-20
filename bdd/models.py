@@ -217,12 +217,34 @@ class Client(models.Model):
         ID = self.id
         total = 0
         for element in Affaire.objects.all():
-            print(element.ID_Client_Cache)
             if element.ID_Client_Cache == None:
                 if element.ID_Payeur_id == ID:
                     total += element.Honoraires_Global
         resultat1 = Affaire.objects.filter(ID_Client_Cache = ID).aggregate(Honoraires_Global=Sum('Honoraires_Global'))['Honoraires_Global'] or 0
         return total + resultat1
+
+    def Nb_Affaire_EC(self):
+        ID = self.id
+        total = 0
+        for element in Affaire.objects.all():
+            if element.ID_Client_Cache == None:
+                if element.ID_Payeur_id == ID and element.Etat != 'ARC':
+                    total += 1
+            if element.ID_Client_Cache == ID and element.Etat != 'ARC':
+                total += 1
+        return total
+
+    def Nb_Offre_EC(self):
+        ID = self.id
+        total = 0
+        for element in Offre_Mission.objects.all():
+            if element.ID_Client_Cache == None:
+                if element.ID_Payeur_id == ID and element.Etat != 'REF':
+                    total += 1
+            if element.ID_Client_Cache == ID and element.Etat != 'REF':
+                total += 1
+        return total
+
 
     Total_Affaire.short_description = "Montant total des affaires du client"
 
