@@ -5,7 +5,7 @@
 {{ block.super }}
 </br>
 
-{% if change and ((Nb_Affaire + Nb_Offre) > 2)%}
+{% if change and warning%}
 <div class="submit-row" action="">
     {% csrf_token %}
 
@@ -14,7 +14,7 @@
     </div>
 {% endif %}
 
-{% if change and ((Nb_Affaire + Nb_Offre) < 3)%}
+{% if change and (not warning)%}
 <div class="submit-row" action="">
     {% csrf_token %}
 

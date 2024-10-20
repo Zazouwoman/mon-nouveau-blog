@@ -575,8 +575,10 @@ class ClientAdmin(admin.ModelAdmin):
     def change_view(self,request, object_id, extra_context = None):
         client = Client.objects.get(pk=object_id)
         extra_context = extra_context or {}
-        extra_context['Nb_Affaire'] = client.Nb_Affaire_EC()
-        extra_context['Nb_Offre'] = client.Nb_Offre_EC()
+        if client.Nb_Affaire_EC() + client.Nb_Offre_EC() >= 3:
+            extra_context['warning'] = True
+        else:
+            extra_context['warning'] = False
         return super().change_view(request, object_id, extra_context = extra_context)
 
     def response_change(self, request, obj):
